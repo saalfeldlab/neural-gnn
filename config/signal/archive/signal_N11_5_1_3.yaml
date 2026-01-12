@@ -1,0 +1,64 @@
+description: "RNN chaotic"
+dataset: "signal_N11_5_1_3"
+
+simulation:
+  connectivity_type: "low_rank"
+  connectivity_rank: 5
+  connectivity_init: [0, 0.1]
+  connectivity_distribution: "Gaussian"
+  params: [[7.0, 1.0], [1.0, 1.0], [1.0, 1.0], [1.0, 1.0]]
+  phi: "tanh"
+  tau: 1.0
+  n_neurons: 100
+  n_neuron_types: 1
+  n_frames: 10000
+  delta_t: 0.1
+  boundary: "no"
+  start_frame: 0
+
+graph_model:
+  signal_model_name: "PDE_N11"
+  prediction: "first_derivative"
+
+  input_size: 3
+  output_size: 1
+  hidden_dim: 64
+  n_layers: 3
+
+  input_size_update: 3
+  n_layers_update: 3
+  hidden_dim_update: 64
+
+  aggr_type: "add"
+  embedding_dim: 2
+
+plotting:
+  colormap: "tab10"
+  arrow_length: 1
+  xlim: [-5, 5]
+  ylim: [-2, 2]
+  label_style: "MLP" # "MLP" for MLP_0, MLP_1 labels; "greek" for phi, f labels
+
+training:
+  n_epochs: 20
+  n_runs: 2
+  device: "auto"
+
+  batch_size: 32
+  small_init_batch_size: False
+
+  seed: 24
+
+  data_augmentation_loop: 1000
+
+  sparsity: "none"
+
+  learning_rate_W_start: 1.0E-3
+  learning_rate_start: 5.0E-4
+  learning_rate_embedding_start: 5.0E-3
+
+  coeff_W_L1: 0.0
+  coeff_edge_norm: 0.0
+  coeff_edge_diff: 100
+
+  training_single_type: True

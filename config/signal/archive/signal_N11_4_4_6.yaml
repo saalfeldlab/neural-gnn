@@ -1,0 +1,62 @@
+description: "RNN successor learning_rate_embedding_start: 1.0E-16 coeff_W_L1: 1.0E-4  recurrent_training 2 + noise 0.1 + gradient_penalty 0.02"
+dataset: "signal_N11_4_1"
+
+simulation:
+  connectivity_type: "successor"
+  connectivity_init: [0, 0.1]
+  connectivity_distribution: "Gaussian"
+  params: [[7.0, 1.0], [1.0, 1.0], [1.0, 1.0], [1.0, 1.0]]
+  phi: "tanh"
+  tau: 1.0
+  n_neurons: 100
+  n_neuron_types: 1
+  n_frames: 5000
+  delta_t: 0.1
+  boundary: "no"
+  start_frame: -50
+
+graph_model:
+  signal_model_name: "PDE_N11"
+  prediction: "first_derivative"
+
+  input_size: 3
+  output_size: 1
+  hidden_dim: 64
+  n_layers: 3
+
+  input_size_update: 3
+  n_layers_update: 3
+  hidden_dim_update: 64
+
+  aggr_type: "add"
+  embedding_dim: 2
+
+plotting:
+  colormap: "tab10"
+  arrow_length: 1
+  xlim: [-5, 5]
+  ylim: [-2, 2]
+
+training:
+  n_epochs: 10
+  n_runs: 2
+  device: "auto"
+
+  batch_size: 1
+  small_init_batch_size: False
+
+  recurrent_training: True
+  time_step: 2
+  noise_recurrent_level: 0.1
+
+  seed: 24
+
+  data_augmentation_loop: 400
+
+  sparsity: "none"
+
+  learning_rate_W_start: 1.0E-3
+  learning_rate_start: 5.0E-4
+  learning_rate_embedding_start: 1.0E-16
+
+  coeff_W_L1: 1.0E-4

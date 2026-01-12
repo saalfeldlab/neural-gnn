@@ -1,0 +1,68 @@
+name: neural-graph-linux
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  # Core
+  - python=3.12
+  - pip
+
+  # Use OpenBLAS / LLVM-OpenMP to avoid mixing OpenMP runtimes
+  - "libblas=*=*openblas*"
+  - "liblapack=*=*openblas*"
+  - llvm-openmp
+
+  # Scientific / data stack
+  - numpy=2.3.3
+  - scipy=1.16.2
+  - pandas
+  - matplotlib
+  - seaborn
+  - scikit-image
+  - dask
+  - umap-learn
+  - networkx
+  - prettytable
+  - pyyaml
+  - tqdm
+  - tensorboard
+  - imageio
+  - tifffile
+  - shapely
+  - pydantic
+  - astropy
+  - pyvista
+  - vtk
+  - opencv
+  - pyqt
+  - pysr
+  - pytables
+  - ipython
+  - ipykernel
+  - jupytext
+  - gputil
+  - tensorstore
+  - napari
+  - ruff
+  - tyro
+
+  - pip:
+      # Get CUDA 13.0 wheels
+      - --extra-index-url https://download.pytorch.org/whl/cu130
+      - torch==2.9
+      - torchvision==0.24
+      - torchaudio==2.9
+
+      # Additional pip-only packages:
+      - geomloss==0.2
+      - torch_geometric==2.7.0
+      - torchdiffeq
+      - vedo
+      - joblib
+      - flyvis
+      - polars
+      - ninja
+      - commentjson
+      # Note: Install tiny-cuda-nn manually after environment creation:
+      # pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch

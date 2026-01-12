@@ -1,0 +1,76 @@
+description: designed by Claude
+dataset: signal_chaotic_2_Claude
+simulation:
+  connectivity_type: chaotic
+  connectivity_init:
+  - 0
+  - 0.1
+  params:
+  - - 1.0
+    - 0.0
+    - 7.0
+    - 0.0
+    - 1.0
+    - 0.0
+  - - 1.0
+    - 0.0
+    - 7.0
+    - 0.0
+    - 1.0
+    - 0.0
+  phi: tanh
+  n_neurons: 100
+  n_neuron_types: 1
+  n_frames: 10000
+  delta_t: 0.01
+  dpos_init: 0
+  boundary: 'no'
+  start_frame: -100
+graph_model:
+  signal_model_name: PDE_N4
+  particle_model_name: ''
+  mesh_model_name: ''
+  prediction: first_derivative
+  input_size: 3
+  output_size: 1
+  hidden_dim: 64
+  n_layers: 3
+  input_size_update: 3
+  n_layers_update: 3
+  hidden_dim_update: 64
+  aggr_type: add
+  embedding_dim: 2
+  update_type: none
+claude:
+  n_epochs: 1
+  data_augmentation_loop: 60
+  n_iter_block: 16
+  ucb_c: 1.414
+plotting:
+  colormap: tab10
+  arrow_length: 1
+  xlim:
+  - -5
+  - 5
+  ylim:
+  - -2
+  - 2
+training:
+  n_epochs: 1
+  n_runs: 1
+  device: cuda:0
+  batch_size: 8
+  small_init_batch_size: false
+  training_single_type: true
+  seed: 24
+  data_augmentation_loop: 60
+  sparsity: replace_embedding_function
+  sparsity_freq: 4
+  cluster_method: distance_plot
+  fix_cluster_embedding: true
+  learning_rate_W_start: 0.002
+  learning_rate_start: 0.0001
+  learning_rate_embedding_start: 0.00025
+  coeff_W_L1: 1.0e-05
+  coeff_edge_norm: 0.0
+  coeff_edge_diff: 100
