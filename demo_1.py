@@ -27,12 +27,6 @@ import argparse
 import os
 import shutil
 
-# redirect PyTorch JIT cache to /scratch instead of /tmp (per IT request)
-if os.path.isdir('/scratch'):
-    os.environ['TMPDIR'] = '/scratch/allierc'
-    os.makedirs('/scratch/allierc', exist_ok=True)
-
-
 from NeuralGraph.config import NeuralGraphConfig
 from NeuralGraph.generators.graph_data_generator import data_generate
 from NeuralGraph.models.graph_trainer import data_train, data_test
@@ -68,7 +62,7 @@ if __name__ == "__main__":
             best_model = None
     else:
         best_model = ''
-        task = 'test_plot'   # generate_train_
+        task = 'train_test_plot'   # generate_train_
         config_list = ['signal_demo_1']
 
     for config_file_ in config_list:

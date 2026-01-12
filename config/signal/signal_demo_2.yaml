@@ -50,8 +50,6 @@ graph_model:
   embedding_dim: 2
   update_type: "none"
 
-  lin_edge_positive: True
-
 plotting:
   colormap: "tab10"
   arrow_length: 1
@@ -60,7 +58,7 @@ plotting:
   label_style: "greek"
 
 claude:
-  n_epochs: 1
+  n_epochs: 2
   data_augmentation_loop: 10
   n_iter_block: 1024
 
