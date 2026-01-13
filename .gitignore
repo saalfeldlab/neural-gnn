@@ -25,3 +25,12 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+
+# Quarto
+/.quarto/
+_site/
+*.quarto_ipynb
+*_files/
+*.ipynb
+
+**/*.quarto_ipynb

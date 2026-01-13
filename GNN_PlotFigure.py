@@ -1638,7 +1638,7 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
         plt.xticks([])
         plt.yticks([])
         plt.tight_layout()
-        plt.savefig(f'./{log_dir}/results/connectivity_true.png', dpi=300)
+        plt.savefig(f'./{log_dir}/results/connectivity_true.tif', dpi=300)
         plt.close()
 
         # Fig2a: Kinograph (activity heatmap - all neurons × all frames)
@@ -1813,7 +1813,7 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                 plt.xlabel(r'$a_{0}$', fontsize=68)
                 plt.ylabel(r'$a_{1}$', fontsize=68)
             plt.tight_layout()
-            plt.savefig(f"./{log_dir}/results/embedding.pdf", dpi=170.7)
+            plt.savefig(f"./{log_dir}/results/embedding.tif", dpi=170.7)
             plt.close()
 
 
@@ -1933,7 +1933,7 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
             plt.ylim([-1.1, 1.1])
             ax.set_yticks([-1.0, 0.0, 1.0])
             plt.tight_layout()
-            plt.savefig(f"./{log_dir}/results/MLP1_corrected.png", dpi=170.7)
+            plt.savefig(f"./{log_dir}/results/MLP1_corrected.tif", dpi=170.7)
             plt.close()
 
 
@@ -1985,7 +1985,7 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
             plt.tight_layout()
             # plt.xlim([-to_numpy(xnorm), to_numpy(xnorm)])
             plt.ylim(phi_ylim)
-            plt.savefig(f'./{log_dir}/results/MLP0.png', dpi=300)
+            plt.savefig(f'./{log_dir}/results/MLP0.tif', dpi=300)
             plt.close()
 
 
@@ -2120,7 +2120,7 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
             plt.ylabel(f'learned {weight_var}', fontsize=68)
             plt.xlim(weight_lim)
             plt.tight_layout()
-            plt.savefig(f"./{log_dir}/results/weights_comparison_corrected.png", dpi=87)
+            plt.savefig(f"./{log_dir}/results/weights_comparison_corrected.tif", dpi=87)
             plt.close()
             if r_squared > 0.9:
                 r2_color = '\033[92m'  # green
@@ -2150,7 +2150,7 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
             plt.xticks([])
             plt.yticks([])
             plt.tight_layout()
-            plt.savefig(f'./{log_dir}/results/connectivity_learned.png', dpi=300)
+            plt.savefig(f'./{log_dir}/results/connectivity_learned.tif', dpi=300)
             plt.close()
 
             # eigenvalue and eigenvector analysis
