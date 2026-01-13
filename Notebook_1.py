@@ -8,7 +8,7 @@
 #   - GNN Training
 # execute:
 #   echo: false
-# image: "Notebook_1_files/figure-html/cell-4-output-1.png"
+# image: "graphs_data/signal/signal_fig_2/activity.png"
 # ---
 
 # %% [markdown]

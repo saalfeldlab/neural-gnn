@@ -1683,7 +1683,6 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
 
         plt.figure(figsize=(18, 12))
         plt.rcParams['text.usetex'] = False
-        rc('font', **{'family': 'serif', 'serif': ['Times New Roman', 'Liberation Serif', 'DejaVu Serif', 'serif']})
         plt.plot(activity_plot.T, linewidth=1)
         for i in range(0, n_plot, 5):
             plt.text(-200, +200 -10 * i, str(sampled_indices[i]), fontsize=24, va='center', ha='right')
@@ -3955,7 +3954,6 @@ def data_plot(config, config_file, epoch_list, style, extended, device, apply_we
 
     if 'latex' in style:
         plt.rcParams['text.usetex'] = False  # LaTeX disabled
-        rc('font', **{'family': 'serif', 'serif': ['Times New Roman', 'Liberation Serif', 'DejaVu Serif', 'serif']})
 
     matplotlib.rcParams['savefig.pad_inches'] = 0
 
