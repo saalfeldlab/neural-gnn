@@ -45,6 +45,7 @@ from NeuralGraph.models.plot_utils import (
     find_top_responding_pairs,
     run_neural_architecture_pipeline,
 )
+from neural_gnn.generators.utils import plot_connectivity_matrix
 from NeuralGraph.utils import (
     to_numpy,
     CustomColorMap,
@@ -372,10 +373,10 @@ def create_signal_weight_subplot(fig, ax, model, connectivity, mc, epoch, iterat
         scatter_size = 0.1
         scatter_alpha = 0.1
 
-    # plot green diagonal line (y=x, perfect correlation) first
-    weight_max = np.max(np.abs(gt_weight)) * 1.1
+    # Use 99th percentile of gt_weight for axis limits (excludes outliers)
+    gt_pct = np.percentile(np.abs(gt_weight), 99)
+    weight_max = gt_pct * 1.1
     weight_lim = (-weight_max, weight_max)
-    ax.plot(weight_lim, weight_lim, c='g', linewidth=4, zorder=1)
 
     ax.scatter(gt_weight, pred_weight, s=scatter_size, c=mc, alpha=scatter_alpha, zorder=2)
 
@@ -396,16 +397,21 @@ def create_signal_weight_subplot(fig, ax, model, connectivity, mc, epoch, iterat
 
     ax.set_xlabel(f'true {true_weight_var}', fontsize=32)
     ax.set_ylabel(f'learned {learned_weight_var}', fontsize=32)
-    # ax.set_xlim(weight_lim)
-    # ax.set_ylim(weight_lim)
+    ax.set_xlim(weight_lim)
+    # Adjust ylim using slope so data appears along diagonal
+    slope = lin_fit[0]
+    if abs(slope) > 0.01:
+        ax.set_ylim(weight_lim[0] * slope, weight_lim[1] * slope)
+    else:
+        ax.set_ylim(weight_lim)
     ax.tick_params(labelsize=16)
 
     # add R² and slope text
     ax.text(0.05, 0.95, f'$R^2$: {r_squared:.3f}', transform=ax.transAxes,
             fontsize=20, verticalalignment='top')
-    ax.text(0.05, 0.87, f'slope: {lin_fit[0]:.2f}', transform=ax.transAxes,
+    ax.text(0.05, 0.89, f'slope: {lin_fit[0]:.2f}', transform=ax.transAxes,
             fontsize=20, verticalalignment='top')
-    ax.text(0.05, 0.79, f'epoch: {epoch}', transform=ax.transAxes,
+    ax.text(0.05, 0.83, f'epoch: {epoch}', transform=ax.transAxes,
             fontsize=16, verticalalignment='top')
 
     return r_squared, lin_fit[0]
@@ -1024,10 +1030,10 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
             raw_x = np.load(f'graphs_data/{dataset_name}/raw_x_list_{run}.npy')
     x_list.append(x)
     y_list.append(y)
-    vnorm = torch.load(os.path.join(log_dir, 'vnorm.pt'))
-    ynorm = torch.load(os.path.join(log_dir, 'ynorm.pt'))
+    vnorm = torch.load(os.path.join(log_dir, 'vnorm.pt'), map_location=device)
+    ynorm = torch.load(os.path.join(log_dir, 'ynorm.pt'), map_location=device)
     if os.path.exists(os.path.join(log_dir, 'xnorm.pt')):
-        xnorm = torch.load(os.path.join(log_dir, 'xnorm.pt'))
+        xnorm = torch.load(os.path.join(log_dir, 'xnorm.pt'), map_location=device)
     else:
         xnorm = torch.tensor([5], device=device)
     print(f'xnorm: {to_numpy(xnorm)}, vnorm: {to_numpy(vnorm)}, ynorm: {to_numpy(ynorm)}')
@@ -1111,28 +1117,55 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
 
         true_model, _, _ = choose_model(config=config, W=connectivity, device=device)
 
+        # Compute weight limits from ground truth AND all learned weights for consistent axes
+        # Use 99th percentile to exclude outliers
+        gt_weight_flat = to_numpy(connectivity).flatten()
+        gt_weight_pct = np.percentile(np.abs(gt_weight_flat), 98)
+
+        # Scan all model checkpoints to find max learned weight magnitude (using 99th percentile)
+        learned_weight_pct = gt_weight_pct  # start with gt as baseline
+        files_for_scan, _ = get_training_files(log_dir, n_runs)
+        temp_model, _, _ = choose_training_model(config, device)
+        for file_path in files_for_scan[::max(1, len(files_for_scan)//10)]:  # sample ~10 checkpoints
+            try:
+                state_dict = torch.load(file_path, map_location=device)
+                temp_model.load_state_dict(state_dict['model_state_dict'])
+                A_temp = get_model_W(temp_model).clone().detach()
+                A_temp.fill_diagonal_(0)
+                learned_weight_pct = max(learned_weight_pct, np.percentile(np.abs(to_numpy(A_temp)), 99))
+            except:
+                pass
+
+        weight_max = max(gt_weight_pct, learned_weight_pct) * 1.1
+        weight_lim = (-weight_max, weight_max)
+
         # create movies with stable axes
-        create_signal_movies(
-            config=config,
-            log_dir=log_dir,
-            n_runs=n_runs,
-            device=device,
-            n_neurons=n_neurons,
-            n_neuron_types=n_neuron_types,
-            type_list=type_list,
-            cmap=cmap,
-            connectivity=connectivity,
-            xnorm=xnorm,
-            ynorm=ynorm,
-            mc=mc,
-            fps=10,
-            true_model=true_model,
-            apply_weight_correction=apply_weight_correction
-        )
+        # create_signal_movies(
+        #     config=config,
+        #     log_dir=log_dir,
+        #     n_runs=n_runs,
+        #     device=device,
+        #     n_neurons=n_neurons,
+        #     n_neuron_types=n_neuron_types,
+        #     type_list=type_list,
+        #     cmap=cmap,
+        #     connectivity=connectivity,
+        #     xnorm=xnorm,
+        #     ynorm=ynorm,
+        #     mc=mc,
+        #     fps=10,
+        #     true_model=true_model,
+        #     apply_weight_correction=apply_weight_correction
+        # )
 
         # Continue with existing PNG generation for backwards compatibility
+        # Create the results/all and results/training directories if they don't exist
+        os.makedirs(f"./{log_dir}/results/all", exist_ok=True)
+        os.makedirs(f"./{log_dir}/results/training", exist_ok=True)
+
         r_squared_list = []
         slope_list = []
+        epoch_mapping = {}  # Map index to epoch info for montage labels
         it = -1
         with torch.no_grad():
             for file_id_ in trange(0,len(file_id_list), ncols=90):
@@ -1140,6 +1173,7 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                 num = str(it).zfill(4)
                 file_id = file_id_list[file_id_]
                 epoch = files[file_id].split('graphs')[1][1:-3]
+                epoch_mapping[num] = epoch  # Save mapping
                 net = f"{log_dir}/models/best_model_with_{n_runs-1}_graphs_{epoch}.pt"
 
                 state_dict = torch.load(net, map_location=device)
@@ -1189,13 +1223,13 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                     A_plot = to_numpy(A)
 
                 fig, ax = fig_init()
-                ax = sns.heatmap(A_plot, center=0, square=True, cmap='bwr', cbar_kws={'fraction': 0.046}, vmin=-0.1, vmax=0.1)
+                ax = sns.heatmap(A_plot, center=0, square=True, cmap='bwr', cbar_kws={'fraction': 0.046}, vmin=weight_lim[0], vmax=weight_lim[1])
                 cbar = ax.collections[0].colorbar
                 cbar.ax.tick_params(labelsize=48)
                 plt.xticks([0, n_neurons - 1], [1, n_neurons], fontsize=24)
                 plt.yticks([0, n_neurons - 1], [1, n_neurons], fontsize=24)
                 plt.subplot(2, 2, 1)
-                ax = sns.heatmap(A_plot[0:20, 0:20], cbar=False, center=0, square=True, cmap='bwr', vmin=-0.1, vmax=0.1)
+                ax = sns.heatmap(A_plot[0:20, 0:20], cbar=False, center=0, square=True, cmap='bwr', vmin=weight_lim[0], vmax=weight_lim[1])
                 plt.xticks([])
                 plt.yticks([])
                 plt.tight_layout()
@@ -1332,19 +1366,68 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                     plt.tight_layout()
                     plt.savefig(f"./{log_dir}/results/all/MLP1_{num}.png", dpi=80)
                     plt.close()
+                else:
+                    # Default case for PDE_N2, PDE_N3, PDE_N6 and other models
+                    # Plot lin_edge function (psi) for all neurons
+                    fig, ax = fig_init()
+                    # Plot ground truth curve first (behind learned curves)
+                    rr_gt = torch.linspace(-xnorm.squeeze(), xnorm.squeeze(), 1500).to(device)
+                    true_func = true_model.func(rr_gt, 0, 'phi')
+                    plt.plot(to_numpy(rr_gt), to_numpy(true_func), c='lightgray', linewidth=16, label='original')
+                    # Plot learned curves
+                    for n in range(0, n_neurons, max(1, n_neurons // 250)):
+                        if model_config.signal_model_name in ['PDE_N4', 'PDE_N5', 'PDE_N7', 'PDE_N11']:
+                            embedding_ = model.a[n, :] * torch.ones((1000, config.graph_model.embedding_dim), device=device)
+                            in_features = get_in_features(rr, embedding_, model, model_config.signal_model_name, max_radius)
+                        else:
+                            in_features = rr[:, None]
+                        with torch.no_grad():
+                            if config.graph_model.lin_edge_positive:
+                                func = model.lin_edge(in_features.float()) ** 2
+                            else:
+                                func = model.lin_edge(in_features.float())
+                        if apply_weight_correction:
+                            func = func * correction[n]
+                        neuron_type = int(to_numpy(type_list[n]).item())
+                        plt.plot(to_numpy(rr), to_numpy(func), color=cmap.color(neuron_type), linewidth=2, alpha=0.25)
+                    plt.xlabel(r'$x_i$', fontsize=68)
+                    plt.ylabel(r'learned $\psi^*(x_i)$', fontsize=68)
+                    plt.xlim([-to_numpy(xnorm), to_numpy(xnorm)])
+                    plt.ylim([-1.1, 1.1])
+                    plt.tight_layout()
+                    plt.savefig(f"./{log_dir}/results/all/MLP1_{num}.png", dpi=80)
+                    plt.close()
 
                 fig, ax = fig_init()
-                func_list = []
+                # Plot ground truth curves first (behind learned curves)
+                phi_list = []
+                for n_type in range(n_neuron_types):
+                    true_func = true_model.func(rr, n_type, 'update')
+                    plt.plot(to_numpy(rr), to_numpy(true_func), c='lightgray', linewidth=16)
+                    # true_func = true_func[:, 0]
+                    phi_list.append(true_func)
+                phi_list = torch.stack(phi_list)
+                phi_y_min = (phi_list * ynorm).min().item()
+                phi_y_max = (phi_list * ynorm).max().item()
+                phi_y_range = phi_y_max - phi_y_min
+                phi_ylim = [phi_y_min - phi_y_range * 0.1, phi_y_max + phi_y_range * 0.1]
+
+                # Plot learned curves
+                phi_list = []
                 for n in range(n_neurons):
                     embedding_ = model.a[n, :] * torch.ones((1000, config.graph_model.embedding_dim), device=device)
                     in_features = get_in_features_update(rr[:, None], model, embedding_, device)
                     with torch.no_grad():
                         func = model.lin_phi(in_features.float())
                     func = func[:, 0]
+                    phi_list.append(func)
                     plt.plot(to_numpy(rr), to_numpy(func) * to_numpy(ynorm), color=cmap.color(to_numpy(type_list[n]).astype(int)), linewidth=2, alpha=0.25)
-                plt.ylim([-4, 4])
+                # # Calculate ylim from actual data (like non-'all' version)
+                phi_list = torch.stack(phi_list)
+
+                plt.ylim(phi_ylim)
                 plt.xlabel(r'$v_i$', fontsize=68)
-                plt.ylabel(r'learned $\mathrm{MLP_0}(\mathbf{a}_i, v_i)$', fontsize=68)
+                plt.ylabel(r'learned $\phi^*(\mathbf{a}_i, v_i)$', fontsize=68)
                 plt.tight_layout()
                 plt.savefig(f"./{log_dir}/results/all/MLP0_{num}.png", dpi=80)
                 plt.close()
@@ -1358,7 +1441,7 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                     pred_weight = to_numpy(A)
                     for row in range(n_neurons):
                         pred_weight[row, :] = pred_weight[row, :] / correction_np[row]
-                    pred_weight = pred_weight / second_correction
+                    pred_weight = pred_weight / second_correction / 10
                 else:
                     pred_weight = to_numpy(A)
 
@@ -1368,18 +1451,8 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                     gt_weight = to_numpy(get_model_W(true_model))
                 else:
                     gt_weight = to_numpy(connectivity)
-                plt.scatter(gt_weight, pred_weight, s=0.1, c=mc, alpha=0.1)
-                plt.xlabel(r'true $W_{ij}$', fontsize=68)
-                plt.ylabel(r'learned $W_{ij}$', fontsize=68)
-                if n_neurons == 8000:
-                    plt.xlim([-0.05, 0.05])
-                    plt.ylim([-0.05, 0.05])
-                else:
-                    # plt.xlim([-0.2, 0.2])
-                    # plt.ylim([-0.2, 0.2])
-                    plt.xlim([-0.15, 0.15])
-                    plt.ylim([-0.15, 0.15])
 
+                # Compute slope first to adjust ylim
                 x_data = np.reshape(gt_weight, (n_neurons * n_neurons))
                 y_data = np.reshape(pred_weight, (n_neurons * n_neurons))
                 lin_fit, lin_fitv = curve_fit(linear_model, x_data, y_data)
@@ -1390,14 +1463,24 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                 r_squared_list.append(r_squared)
                 slope_list.append(lin_fit[0])
 
-                if n_neurons == 8000:
-                    plt.text(-0.042, 0.042, f'$R^2$: {np.round(r_squared, 3)}', fontsize=34)
-                    plt.text(-0.042, 0.036, f'slope: {np.round(lin_fit[0], 2)}', fontsize=34)
-                else:
-                    # plt.text(-0.17, 0.15, f'$R^2$: {np.round(r_squared, 3)}', fontsize=34)
-                    # plt.text(-0.17, 0.12, f'slope: {np.round(lin_fit[0], 2)}', fontsize=34)
-                    plt.text(-0.13, 0.13, f'$R^2$: {np.round(r_squared, 3)}', fontsize=34)
-                    plt.text(-0.13, 0.11, f'slope: {np.round(lin_fit[0], 2)}', fontsize=34)
+                # No green identity line for montage - scatter only
+                plt.scatter(gt_weight, pred_weight, s=0.1, c=mc, alpha=0.1, zorder=2)
+                plt.xlabel(r'true $W_{ij}$', fontsize=68)
+                plt.ylabel(r'learned $W_{ij}$', fontsize=68)
+                # Use weight_lim for xlim, adjust ylim by slope
+                # plt.xlim(weight_lim)
+                # Adjust ylim using slope so data appears along diagonal
+                slope = lin_fit[0]
+                # if abs(slope) > 0.01:
+                #     plt.ylim(weight_lim[0] * slope, weight_lim[1] * slope)
+                # else:
+                #     plt.ylim(weight_lim)
+
+                # Use axes transform for consistent text positioning
+                ax.text(0.05, 0.95, f'$R^2$: {np.round(r_squared, 3)}', transform=ax.transAxes,
+                        fontsize=34, verticalalignment='top')
+                ax.text(0.05, 0.85, f'slope: {np.round(lin_fit[0], 2)}', transform=ax.transAxes,
+                        fontsize=34, verticalalignment='top')
 
                 plt.tight_layout()
                 plt.savefig(f"./{log_dir}/results/all/comparison_{num}.png", dpi=80)
@@ -1579,6 +1662,11 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                 plt.savefig(f"./{log_dir}/results/training/fig_{num}.png", dpi=80)
                 plt.close()
 
+        # Save epoch mapping for montage labels
+        import json
+        with open(f"./{log_dir}/results/all/epoch_mapping.json", 'w') as f:
+            json.dump(epoch_mapping, f)
+
     else:
 
         files = glob.glob(f'./{log_dir}/results/*.png')
@@ -1619,27 +1707,16 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
         adj_t = torch.abs(adjacency) > 0
         edge_index = adj_t.nonzero().t().contiguous()
 
-        # Compute weight limits from actual data
+        # Compute weight limits from ground truth using 99th percentile (will be updated after model load)
         n_plot = n_neurons
         gt_weight_flat = to_numpy(connectivity[:n_plot, :n_plot]).flatten()
-        weight_max = np.max(np.abs(gt_weight_flat)) * 1.1
-        weight_lim = (-weight_max, weight_max)
+        gt_weight_pct = np.percentile(np.abs(gt_weight_flat), 98)
+        weight_lim = (-gt_weight_pct * 1.1, gt_weight_pct * 1.1)  # initial, updated later
 
-        plt.figure(figsize=(10, 10))
+        # Plot true connectivity matrix
         connectivity_plot = adjacency[:n_plot, :n_plot]
-        ax = sns.heatmap(to_numpy(connectivity_plot), center=0, square=True, cmap='bwr', cbar_kws={'fraction': 0.046}, vmin=weight_lim[0], vmax=weight_lim[1])
-        cbar = ax.collections[0].colorbar
-        cbar.ax.tick_params(labelsize=32)
-        plt.xticks([0, n_plot - 1], [1, n_plot], fontsize=48)
-        plt.yticks([0, n_plot - 1], [1, n_plot], fontsize=48)
-        plt.xticks(rotation=0)
-        plt.subplot(2, 2, 1)
-        ax = sns.heatmap(to_numpy(connectivity_plot[0:20, 0:20]), cbar=False, center=0, square=True, cmap='bwr', vmin=weight_lim[0], vmax=weight_lim[1])
-        plt.xticks([])
-        plt.yticks([])
-        plt.tight_layout()
-        plt.savefig(f'./{log_dir}/results/connectivity_true.tif', dpi=300)
-        plt.close()
+        plot_connectivity_matrix(connectivity_plot, f'./{log_dir}/results/connectivity_true.png',
+                                 vmin_vmax_method='percentile', show_title=False, dpi=100)
 
         # Fig2a: Kinograph (activity heatmap - all neurons × all frames)
         # Use imshow instead of sns.heatmap for large data (much faster)
@@ -1695,7 +1772,7 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
         ax.spines['top'].set_visible(False)
         plt.xlim([0, n_frames])
         plt.tight_layout()
-        plt.savefig(f'./{log_dir}/results/activity_gt.pdf', dpi=300)
+        plt.savefig(f'./{log_dir}/results/activity_gt.png', dpi=300)
         plt.close()
 
         true_model, bc_pos, bc_dpos = choose_model(config=config, W=adjacency, device=device)
@@ -1712,6 +1789,10 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
             A.fill_diagonal_(0)
             A = A.t()
             A = A[:n_neurons,:n_neurons]
+
+            # Update weight_lim to include learned weights using 95th percentile
+            learned_weight_pct = np.percentile(np.abs(to_numpy(A)), 50)
+            weight_lim = (-learned_weight_pct*1.1, learned_weight_pct*1.1)
 
             if has_external_input:
                 net = f'{log_dir}/models/best_model_f_with_{n_runs - 1}_graphs_{epoch}.pt'
@@ -1812,7 +1893,7 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                 plt.xlabel(r'$a_{0}$', fontsize=68)
                 plt.ylabel(r'$a_{1}$', fontsize=68)
             plt.tight_layout()
-            plt.savefig(f"./{log_dir}/results/embedding.tif", dpi=170.7)
+            plt.savefig(f"./{log_dir}/results/embedding.png", dpi=170.7)
             plt.close()
 
 
@@ -1888,7 +1969,7 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                 line_color = 'w'
                 line_alpha = 0.25
             else:
-                gt_color = 'gray'
+                gt_color = 'lightgray'
                 line_color = None  # Will use cmap.color(type) instead
                 line_alpha = 0.25
 
@@ -1932,7 +2013,7 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
             plt.ylim([-1.1, 1.1])
             ax.set_yticks([-1.0, 0.0, 1.0])
             plt.tight_layout()
-            plt.savefig(f"./{log_dir}/results/MLP1_corrected.tif", dpi=170.7)
+            plt.savefig(f"./{log_dir}/results/MLP1_corrected.png", dpi=170.7)
             plt.close()
 
 
@@ -1945,14 +2026,23 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                 line_color = 'w'
                 line_alpha = 0.25
             else:
-                gt_color = 'gray'
+                gt_color = 'lightgray'
                 line_color = None
                 line_alpha = 0.25
 
             # Plot ground truth curves first (behind learned curves)
+            phi_list = []
             for n in trange(n_neuron_types, ncols=90):
                 true_func = true_model.func(rr, n, 'update')
                 plt.plot(to_numpy(rr), to_numpy(true_func), c=gt_color, linewidth=16, label='original')
+                # true_func = true_func[:, 0]
+                phi_list.append(true_func)
+            phi_list = torch.stack(phi_list)
+            func_list_ = to_numpy(phi_list)
+            phi_y_min = (phi_list * ynorm).min().item()
+            phi_y_max = (phi_list * ynorm).max().item()
+            phi_y_range = phi_y_max - phi_y_min
+            phi_ylim = [phi_y_min - phi_y_range * 0.1, phi_y_max + phi_y_range * 0.1]
 
             phi_list = []
             for n in trange(n_neurons, ncols=90):
@@ -1972,10 +2062,7 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                              color=line_color, linewidth=4, alpha=line_alpha)
             phi_list = torch.stack(phi_list)
             func_list_ = to_numpy(phi_list)
-            phi_y_min = (phi_list * ynorm).min().item()
-            phi_y_max = (phi_list * ynorm).max().item()
-            phi_y_range = phi_y_max - phi_y_min
-            phi_ylim = [phi_y_min - phi_y_range * 0.1, phi_y_max + phi_y_range * 0.1]
+
             plt.xlabel(r'$x_i$', fontsize=68)
             if label_style == 'MLP':
                 plt.ylabel(r'$\mathrm{MLP_0}$', fontsize=68)
@@ -1984,7 +2071,7 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
             plt.tight_layout()
             # plt.xlim([-to_numpy(xnorm), to_numpy(xnorm)])
             plt.ylim(phi_ylim)
-            plt.savefig(f'./{log_dir}/results/MLP0.tif', dpi=300)
+            plt.savefig(f'./{log_dir}/results/MLP0.png', dpi=300)
             plt.close()
 
 
@@ -2022,6 +2109,8 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
             accuracy = metrics.accuracy_score(to_numpy(type_list), new_labels[:n_neurons])
             print(f'accuracy: {accuracy:0.4f}   n_clusters: {n_clusters}    obtained with  method: {config.training.cluster_method}  ')
             logger.info(f'accuracy: {accuracy:0.4f}   n_clusters: {n_clusters}    obtained with  method: {config.training.cluster_method} ')
+            if log_file:
+                log_file.write(f"cluster_accuracy: {accuracy:.4f}\n")
 
             dot_size = 400 if n_neurons < 1000 else 150
 
@@ -2078,11 +2167,12 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
             # Add R² and slope text to plot using axes transform for consistent positioning
             ax.text(0.05, 0.95, f'$R^2$: {np.round(r_squared_raw, 3)}', transform=ax.transAxes,
                     fontsize=34, verticalalignment='top')
-            ax.text(0.05, 0.85, f'slope: {np.round(lin_fit_raw[0], 2)}', transform=ax.transAxes,
+            ax.text(0.05, 0.88, f'slope: {np.round(lin_fit_raw[0], 2)}', transform=ax.transAxes,
                     fontsize=34, verticalalignment='top')
             plt.xlabel(f'true {weight_var}', fontsize=68)
             plt.ylabel(f'learned {weight_var}', fontsize=68)
-            plt.xlim(weight_lim)
+            # plt.xlim(weight_lim)
+            # plt.ylim(weight_lim)
             plt.tight_layout()
             plt.savefig(f"./{log_dir}/results/weights_comparison_raw.png", dpi=87)
             plt.close()
@@ -2095,11 +2185,11 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
 
 
 
-            # Corrected weights: multiply each row by correction factor
+            # Corrected weights: divide each row by correction factor
             correction_np = to_numpy(correction)
             pred_weight_corrected = pred_weight.copy()
             for i in range(n_plot):
-                pred_weight_corrected[i, :] = pred_weight[i, :] / correction_np[i]
+                pred_weight_corrected[i, :] = pred_weight[i, :] / correction_np[i] / 10
 
             fig, ax = fig_init()
             plt.scatter(gt_weight, pred_weight_corrected, s=scatter_size, c=mc, alpha=scatter_alpha)
@@ -2113,13 +2203,14 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
             # Add R² and slope text to plot using axes transform for consistent positioning
             ax.text(0.05, 0.95, f'$R^2$: {np.round(r_squared, 3)}', transform=ax.transAxes,
                     fontsize=34, verticalalignment='top')
-            ax.text(0.05, 0.85, f'slope: {np.round(lin_fit[0], 2)}', transform=ax.transAxes,
+            ax.text(0.05, 0.88, f'slope: {np.round(lin_fit[0], 2)}', transform=ax.transAxes,
                     fontsize=34, verticalalignment='top')
             plt.xlabel(f'true {weight_var}', fontsize=68)
             plt.ylabel(f'learned {weight_var}', fontsize=68)
-            plt.xlim(weight_lim)
+            # plt.xlim(weight_lim)
+            # plt.ylim(weight_lim)
             plt.tight_layout()
-            plt.savefig(f"./{log_dir}/results/weights_comparison_corrected.tif", dpi=87)
+            plt.savefig(f"./{log_dir}/results/weights_comparison_corrected.png", dpi=87)
             plt.close()
             if r_squared > 0.9:
                 r2_color = '\033[92m'  # green
@@ -2135,22 +2226,9 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                 log_file.write(f"connectivity_R2: {r_squared:.4f}\n")
 
             # Connectivity heatmap corrected by slope (for comparison with true)
-            # Same format as connectivity_true.png with zoom-in subplot
             connectivity_corrected = pred_weight_corrected / lin_fit[0]
-            plt.figure(figsize=(10, 10))
-            ax = sns.heatmap(connectivity_corrected, center=0, square=True, cmap='bwr', cbar_kws={'fraction': 0.046}, vmin=weight_lim[0], vmax=weight_lim[1])
-            cbar = ax.collections[0].colorbar
-            cbar.ax.tick_params(labelsize=32)
-            plt.xticks([0, n_neurons - 1], [1, n_neurons], fontsize=48)
-            plt.yticks([0, n_neurons - 1], [1, n_neurons], fontsize=48)
-            plt.xticks(rotation=0)
-            plt.subplot(2, 2, 1)
-            ax = sns.heatmap(connectivity_corrected[0:20, 0:20], cbar=False, center=0, square=True, cmap='bwr', vmin=weight_lim[0], vmax=weight_lim[1])
-            plt.xticks([])
-            plt.yticks([])
-            plt.tight_layout()
-            plt.savefig(f'./{log_dir}/results/connectivity_learned.tif', dpi=300)
-            plt.close()
+            plot_connectivity_matrix(connectivity_corrected, f'./{log_dir}/results/connectivity_learned.png',
+                                     vmin_vmax_method='percentile', show_title=False)
 
             # eigenvalue and eigenvector analysis
             print('plot eigenvalue spectrum and eigenvector comparison ...')
@@ -3937,6 +4015,154 @@ def plot_loss_curves(log_dir, ylim=None):
     plt.close()
 
 
+
+
+def create_training_montage(config, log_dir=None, n_cols=8, output_path=None):
+    """
+    Create a 5-row x n_cols montage showing GNN training progression across epochs.
+
+    Rows:
+        a: Latent embeddings a_i evolution
+        b: Update functions phi (MLP0)
+        c: Transfer function psi (MLP1)
+        d: Connectivity matrix W
+        e: W learned vs true scatter plot
+
+    Args:
+        config: NeuralGraphConfig object
+        log_dir: Log directory path (if None, computed from config)
+        n_cols: Number of columns (epochs to show), default 8
+        output_path: Output path for montage (if None, saves to log_dir/results/)
+
+    Returns:
+        Path to saved montage image
+    """
+    from PIL import Image, ImageDraw, ImageFont
+
+    if log_dir is None:
+        log_dir, _ = create_log_dir(config=config, erase=False)
+
+    all_dir = os.path.join(log_dir, 'results', 'all')
+
+    if not os.path.exists(all_dir):
+        print(f"Warning: {all_dir} does not exist. Run data_plot with epoch_list=['all'] first.")
+        return None
+
+    # Get list of available files for each row type
+    row_types = ['embedding', 'MLP0', 'MLP1', 'W', 'comparison']
+    row_labels = ['a', 'b', 'c', 'd', 'e']
+
+    # Find all available indices
+    embedding_files = sorted(glob.glob(f"{all_dir}/embedding_*.png"))
+    if len(embedding_files) == 0:
+        print(f"Warning: No embedding files found in {all_dir}")
+        return None
+
+    # Extract indices from filenames
+    indices = [os.path.basename(f).split('_')[1].split('.')[0] for f in embedding_files]
+    n_available = len(indices)
+
+    # Select n_cols evenly spaced indices, prioritizing early epochs
+    if n_available <= n_cols:
+        selected_indices = indices
+    else:
+        # Include first few epochs more densely, then spread out
+        # First 3 columns: epochs 0, 1, 2 (or available early epochs)
+        # Remaining columns: evenly spaced through the rest
+        n_early = min(3, n_cols - 1)
+        early_indices = indices[:n_early]
+
+        # Remaining indices spread evenly
+        remaining_slots = n_cols - n_early
+        remaining_indices = indices[n_early:]
+        if len(remaining_indices) > 0 and remaining_slots > 0:
+            step = max(1, len(remaining_indices) // remaining_slots)
+            late_indices = [remaining_indices[i * step] for i in range(remaining_slots) if i * step < len(remaining_indices)]
+            # Always include the last one
+            if remaining_indices[-1] not in late_indices:
+                late_indices[-1] = remaining_indices[-1]
+        else:
+            late_indices = []
+
+        selected_indices = early_indices + late_indices
+
+    n_cols_actual = len(selected_indices)
+
+    # Load first image to get dimensions
+    sample_img = Image.open(embedding_files[0])
+    img_width, img_height = sample_img.size
+
+    # Create montage with header space for column labels
+    n_rows = 5
+    header_height = 100  # Height for column labels (increased for larger font)
+    montage_width = n_cols_actual * img_width
+    montage_height = header_height + n_rows * img_height
+    montage = Image.new('RGB', (montage_width, montage_height), color='white')
+
+    # Draw column headers (iteration count from epoch info)
+    draw = ImageDraw.Draw(montage)
+    try:
+        # Try to load a good font - doubled fontsize from 32 to 64
+        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 64)
+    except (OSError, IOError):
+        font = ImageFont.load_default()
+
+    # Load epoch mapping if available
+    import json
+    epoch_mapping_path = os.path.join(all_dir, 'epoch_mapping.json')
+    epoch_mapping = {}
+    if os.path.exists(epoch_mapping_path):
+        with open(epoch_mapping_path, 'r') as f:
+            epoch_mapping = json.load(f)
+
+    total_iters = n_available
+    for col_idx, idx in enumerate(selected_indices):
+        # Get epoch from mapping if available, otherwise use index
+        if idx in epoch_mapping:
+            epoch_str = epoch_mapping[idx]
+            # Parse epoch_step format (e.g., "0_7811" -> epoch=0, step=7811)
+            # Calculate total iterations: 62500 * epoch + step
+            parts = epoch_str.split('_')
+            if len(parts) >= 2:
+                epoch_num = int(parts[0])
+                step_num = int(parts[1])
+                total_iterations = 62500 * epoch_num + step_num
+                label = f"{total_iterations} iterations"
+            else:
+                label = f"{epoch_str}"
+        else:
+            iter_num = int(idx)
+            label = f"iter {iter_num}/{total_iters-1}"
+        x_center = col_idx * img_width + img_width // 2
+        # Get text bounding box for centering
+        bbox = draw.textbbox((0, 0), label, font=font)
+        text_width = bbox[2] - bbox[0]
+        x_pos = x_center - text_width // 2
+        draw.text((x_pos, 20), label, fill='black', font=font)
+
+    # Fill montage row by row (offset by header_height)
+    for row_idx, (row_type, row_label) in enumerate(zip(row_types, row_labels)):
+        for col_idx, idx in enumerate(selected_indices):
+            img_path = f"{all_dir}/{row_type}_{idx}.png"
+            if os.path.exists(img_path):
+                img = Image.open(img_path)
+                # Resize if needed to match expected dimensions
+                if img.size != (img_width, img_height):
+                    img = img.resize((img_width, img_height), Image.Resampling.LANCZOS)
+                x_pos = col_idx * img_width
+                y_pos = header_height + row_idx * img_height
+                montage.paste(img, (x_pos, y_pos))
+            else:
+                print(f"Warning: Missing file {img_path}")
+
+    # Save montage
+    if output_path is None:
+        output_path = os.path.join(log_dir, 'results', 'training_montage.png')
+
+    montage.save(output_path, dpi=(170, 170))
+    print(f"Training montage saved to: {output_path}")
+
+    return output_path
 
 
 def data_plot(config, config_file, epoch_list, style, extended, device, apply_weight_correction=False, log_file=None):

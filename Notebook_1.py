@@ -12,13 +12,12 @@
 # ---
 
 # %% [markdown]
-# This script reproduces **Figure 2** from the paper:
-# *"Graph neural networks uncover structure and function underlying the activity of neural assemblies"*
+# This script reproduces the panels of paper's **Figure 2** and other supplementary panels.
 #
 # **Simulation parameters:**
 #
 # - N_neurons: 1000
-# - N_types: 4 (parameterized by tau_i={0.5,1} and s_i={1,2})
+# - N_types: 4 (parameterized by $\tau_i$={0.5,1} and $s_i$={1,2})
 # - N_frames: 100,000
 # - Connectivity: 100% (dense)
 # - Noise: none
@@ -37,7 +36,7 @@ from neural_gnn.config import NeuralGraphConfig
 from neural_gnn.generators.graph_data_generator import data_generate
 from neural_gnn.models.graph_trainer import data_train, data_test
 from neural_gnn.utils import set_device, add_pre_folder, load_and_display
-from GNN_PlotFigure import data_plot
+from GNN_PlotFigure import data_plot, create_training_montage
 
 warnings.filterwarnings("ignore", message="pkg_resources is deprecated as an API")
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -75,11 +74,11 @@ graphs_dir = f'./graphs_data/{config_file}'
 # %% [markdown]
 # ## Step 1: Generate Data
 # Generate synthetic neural activity data using the PDE_N2 model.
-# This creates the training dataset with 1000 neurons and 100,000 time points.
+# This creates the training dataset with 1000 neurons of 4 different types and 100,000 time points.
 #
 # **Outputs:**
 #
-# - Figure 2b: Sample of 10 time series
+# - Figure 2b: Sample of 100 time series
 # - Figure 2c: True connectivity matrix W_ij
 
 # %%
@@ -126,26 +125,25 @@ else:
     )
 
 # %%
-#| fig-cap: "Fig 2b: Activity traces - neural activity time series"
-
+#| fig-cap: "Fig 2b: Sample of 100 time series taken from the activity data."
 load_and_display(f"./graphs_data/signal/signal_fig_2/activity.png")
 
 # %%
-#| fig-cap: "Fig 2c: True connectivity matrix W_ij"
-
+#| fig-cap: "Fig 2c: True connectivity W_ij. The inset shows 20×20 weights."
 load_and_display("./graphs_data/signal/signal_fig_2/connectivity_matrix.png")
 
 # %% [markdown]
 # ## Step 2: Train GNN
-# Train the GNN to learn connectivity W, latent embeddings a_i, and functions phi/psi.
-# The GNN learns to predict dx/dt from the observed activity x.
+# Train the GNN to learn connectivity W, latent embeddings a_i, and functions $\phi^*, \psi^*$.
+# The GNN learns to predict $dx_i/dt$ from the observed activity $x_i$.
 #
-# **Learning targets:**
+# The GNN optimizes the update rule (Equation 3 from the paper):
 #
-# - Connectivity matrix W
-# - Latent vectors a_i
-# - Update function phi*(a_i, x)
-# - Transfer function psi*(x)
+# $$\hat{\dot{x}}_i = \phi^*(\mathbf{a}_i, x_i) + \sum_j W_{ij} \psi^*(x_j)$$
+#
+# where $\phi^*$ and $\psi^*$ are MLPs (ReLU, hidden dim=64, 3 layers).
+# $\mathbf{a}_i$ is a learnable 2D latent vector per neuron, and $W$ is the learnable connectivity matrix.
+#
 
 # %%
 #| echo: true
@@ -177,16 +175,105 @@ else:
     )
 
 # %% [markdown]
-# ## Step 3: Test Model
+# ## Step 3: GNN Evaluation
+# Figures matching Figure 2, and supplementary Fig 1, 2, 5, and 6 from the paper.
+#
+# **Figure panels:**
+#
+# - Fig 2d: Learned connectivity matrix
+# - Fig 2e: Comparison of learned vs true connectivity 
+# - Fig 2f: Learned latent vectors a_i 
+# - Fig 2g: Learned update functions phi*(a_i, x) 
+# - Fig 2h: Learned transfer function psi*(x) 
+
+# %%
+#| echo: true
+#| output: false
+# STEP 3: GNN EVALUATION
+print()
+print("-" * 80)
+print("STEP 3: GNN EVALUATION - Generating Figure 2 panels (d-h)")
+print("-" * 80)
+print(f"  Fig 2d: Learned connectivity matrix")
+print(f"  Fig 2e: W learned vs true (R^2, slope)")
+print(f"  Fig 2f: Latent vectors a_i (4 clusters)")
+print(f"  Fig 2g: Update functions phi*(a_i, x)")
+print(f"  Fig 2h: Transfer function psi*(x)")
+print(f"  Output: {log_dir}/results/")
+print()
+folder_name = './log/' + pre_folder + '/tmp_results/'
+os.makedirs(folder_name, exist_ok=True)
+data_plot(config=config, config_file=config_file, epoch_list=['best'], style='color', extended='plots', device=device, apply_weight_correction=True)
+
+# %% [markdown]
+# ### Figures 2d-2h: GNN Evaluation Results
+
+# %%
+#| fig-cap: "Fig 2d: Learned connectivity."
+load_and_display("./log/signal/signal_fig_2/results/connectivity_learned.png")
+
+# %%
+#| fig-cap: "Fig 2e: Comparison of learned and true connectivity (given g_i=10)."
+load_and_display("./log/signal/signal_fig_2/results/weights_comparison_corrected.png")
+
+# %%
+#| fig-cap: "Fig 2f: Learned latent vectors a_i of all neurons."
+load_and_display("./log/signal/signal_fig_2/results/embedding.png")
+
+# %%
+#| fig-cap: "Fig 2g: Learned update functions φ*(a_i, x). The plot shows 1000 overlaid curves, one for each vector a_i. Colors indicate true neuron types.  True functions are overlaid in light gray."
+load_and_display("./log/signal/signal_fig_2/results/MLP0.png")
+
+# %%
+#| fig-cap: "Fig 2h: Learned transfer function ψ*(x), normalized to a maximum value of 1. True function is overlaid in light gray."
+load_and_display("./log/signal/signal_fig_2/results/MLP1_corrected.png")
+
+# %% [markdown]
+# ## Step 4: GNN Training Visualization
+# Generate training progression figures showing how the GNN learns across epochs.
+#
+# **Visualizations:**
+#
+# - Row a: Latent embeddings a_i evolution 
+# - Row b: Update functions phi*(a_i, x) 
+# - Row c: Transfer function psi*(x)
+# - Row d: Connectivity matrix W 
+# - Row e: W learned vs true scatter plot
+
+# %%
+#| echo: true
+#| output: false
+# STEP 4: GNN TRAINING VISUALIZATION
+print()
+print("-" * 80)
+print("STEP 4: GNN TRAINING - Generating training progression figures")
+print("-" * 80)
+print(f"  Generating plots for all training epochs")
+print(f"  Output: {log_dir}/results/all/")
+print()
+data_plot(config=config, config_file=config_file, epoch_list=['all'], style='color', extended='plots', device=device, apply_weight_correction=True)
+
+# Create montage from individual epoch plots
+print()
+print("  Creating training montage (8 columns x 5 rows)...")
+create_training_montage(config=config, n_cols=8)
+
+# %%
+#| fig-cap: "Supplementary Figure 1: Results plotted over 20 epochs. (a) Learned latent vectors a_i. (b) Learned update functions φ*(a,x). (c) Learned transfer function ψ*(x), normalized to max=1. (d) Learned connectivity W_ij. (e) Comparison of learned and true connectivity. Colors indicate true neuron types."
+
+load_and_display("./log/signal/signal_fig_2/results/training_montage.png")
+
+# %% [markdown]
+# ## Step 5: Test Model
 # Test the trained GNN model. Evaluates prediction accuracy and performs rollout inference.
 
 # %%
 #| echo: true
 #| output: false
-# STEP 3: TEST
+# STEP 5: TEST
 print()
 print("-" * 80)
-print("STEP 3: TEST - Evaluating trained model")
+print("STEP 5: TEST - Evaluating trained model")
 print("-" * 80)
 print(f"  Testing prediction accuracy and rollout inference")
 print(f"  Output: {log_dir}/results/")
@@ -195,7 +282,7 @@ config.training.noise_model_level = 0.0
 
 data_test(
     config=config,
-    visualize=False,
+    visualize=True,
     style="color name continuous_slice",
     verbose=False,
     best_model='best',
@@ -210,73 +297,14 @@ data_test(
 )
 
 # %% [markdown]
-# ## Step 4: Generate Publication Figures
-# Generate publication-quality figures matching Figure 2 from the paper.
-#
-# **Figure panels:**
-#
-# - Fig 2d: Learned connectivity matrix
-# - Fig 2e: Comparison of learned vs true connectivity (R^2, slope)
-# - Fig 2f: Learned latent vectors a_i (2D embedding showing 4 clusters)
-# - Fig 2g: Learned update functions phi*(a_i, x) - 1000 overlaid curves
-# - Fig 2h: Learned transfer function psi*(x) normalized to max=1
+# ### Rollout Results
+# Display the rollout comparison figure showing:
+# - Left panels: activity traces (ground truth gray, learned colored)
+# - Top right: scatter plot of true vs learned $x_i$ with $R^2$ and slope
+# - Bottom right: $R^2$ over time
 
 # %%
-#| echo: true
-#| output: false
-# STEP 4: PLOT
-print()
-print("-" * 80)
-print("STEP 4: PLOT - Generating Figure 2 panels (d-h)")
-print("-" * 80)
-print(f"  Fig 2d: Learned connectivity matrix")
-print(f"  Fig 2e: W learned vs true (R^2, slope)")
-print(f"  Fig 2f: Latent vectors a_i (4 clusters)")
-print(f"  Fig 2g: Update functions phi*(a_i, x)")
-print(f"  Fig 2h: Transfer function psi*(x)")
-print(f"  Output: {log_dir}/results/")
-print()
-folder_name = './log/' + pre_folder + '/tmp_results/'
-os.makedirs(folder_name, exist_ok=True)
-data_plot(config=config, config_file=config_file, epoch_list=['best'], style='color', extended='plots', device=device, apply_weight_correction=True)
-
-print()
-print("=" * 80)
-print("Demo 1 complete!")
-print(f"Results saved to: {log_dir}/results/")
-print("=" * 80)
-
-# %% [markdown]
-# ## Figure 2 Results
-#
-# ### Figures 2d-2h: Trained model results
-
-# %%
-#| fig-cap: "Fig 2d: Learned connectivity matrix"
-
-load_and_display("./log/signal/signal_fig_2/results/connectivity_learned.tif")
-
-# %%
-#| fig-cap: "Fig 2e: Learned vs true connectivity weights (R², slope)"
-
-load_and_display("./log/signal/signal_fig_2/results/weights_comparison_raw.png")
-
-# %%
-#| fig-cap: "Fig 2f: Learned latent embeddings (4 neuron type clusters)"
-
-load_and_display("./log/signal/signal_fig_2/results/embedding.tif")
-
-# %%
-#| fig-cap: "Fig 2g: Learned update functions phi*(a_i, x)"
-
-load_and_display("./log/signal/signal_fig_2/results/MLP0.tif")
-
-# %%
-#| fig-cap: "Fig 2h: Learned transfer function psi*(x)"
-
-load_and_display("./log/signal/signal_fig_2/results/MLP1_corrected.tif")
-
-# %%
-#| fig-cap: "SVD analysis of learned connectivity"
-
-load_and_display("./log/signal/signal_fig_2/results/svd_analysis.png")
+# Display rollout comparison figure (last frame from rollout)
+dataset_name_ = config.dataset.split('/')[-1]
+rollout_fig_path = f"{log_dir}/results/{dataset_name_}.png"
+load_and_display(rollout_fig_path)
