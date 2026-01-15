@@ -12,15 +12,14 @@
 # ---
 
 # %% [markdown]
-# This script reproduces the panels of paper's **Figure 2** and other related supplementary panels.
+# This script reproduces the panels of paper's **Figure 2** and other supplementary panels related to the same dataset.
 #
 # **Simulation parameters:**
 #
 # - N_neurons: 1000
-# - N_types: 4 parameterized by $\tau_i$={0.5,1}, $s_i$={1,2} and $g_i$=10
+# - N_types: 4 (parameterized by tau_i={0.5,1} and s_i={1,2})P
 # - N_frames: 100,000
 # - Connectivity: 100% (dense)
-# - Connectivity weights: random, Cauchy distribution 
 # - Noise: none
 # - External inputs: none
 #
@@ -50,12 +49,12 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 #| output: false
 print()
 print("=" * 80)
-print("Figure 2: 1000 neurons, 4 types, dense connectivity")
+print("Figure supp 3 and 4: 1000 neurons, 4 types, dense connectivity, no embedding")
 print("=" * 80)
 
 device = []
 best_model = ''
-config_file_ = 'signal_fig_2'
+config_file_ = 'signal_fig_supp_3'
 
 print()
 config_root = "./config"
@@ -74,12 +73,12 @@ graphs_dir = f'./graphs_data/{config_file}'
 
 # %% [markdown]
 # ## Step 1: Generate Data
-# Generate synthetic neural activity data using the PDE_N2 model ('src/neural-gnn/generators').
-# This creates the training dataset with 1000 neurons of 4 different types and 100,000 time points.
+# Generate synthetic neural activity data using the PDE_N2 model.
+# This creates the training dataset with 1000 neurons and 100,000 time points.
 #
 # **Outputs:**
 #
-# - Figure 2b: Sample of 100 time series
+# - Figure 2b: Sample of 10 time series
 # - Figure 2c: True connectivity matrix W_ij
 
 # %%
@@ -126,25 +125,26 @@ else:
     )
 
 # %%
-#| fig-cap: "Fig 2b: Sample of 100 time series taken from the activity data."
+#| fig-cap: "Fig 2b: Sample of 10 time series taken from the activity data."
+
 load_and_display(f"./graphs_data/signal/signal_fig_2/activity.png")
 
 # %%
 #| fig-cap: "Fig 2c: True connectivity W_ij. The inset shows 20×20 weights."
+
 load_and_display("./graphs_data/signal/signal_fig_2/connectivity_matrix.png")
 
 # %% [markdown]
 # ## Step 2: Train GNN
-# Train the GNN to learn connectivity W, latent embeddings a_i, and functions $\phi^*, \psi^*$ with the SignalPropagation model  ('src/neural-gnn/models').
-# The GNN learns to predict $dx_i/dt$ from the observed activity $x_i$.
+# Train the GNN to learn connectivity W, latent embeddings a_i, and functions phi/psi.
+# The GNN learns to predict dx/dt from the observed activity x.
 #
-# The GNN optimizes the update rule (Equation 3 from the paper):
+# **Learning targets:**
 #
-# $$\hat{\dot{x}}_i = \phi^*(\mathbf{a}_i, x_i) + \sum_j W_{ij} \psi^*(x_j)$$
-#
-# where $\phi^*$ and $\psi^*$ are MLPs (ReLU, hidden dim=64, 3 layers).
-# $\mathbf{a}_i$ is a learnable 2D latent vector per neuron, and $W$ is the learnable connectivity matrix.
-#
+# - Connectivity matrix W
+# - Latent vectors a_i
+# - Update function phi*(a_i, x)
+# - Transfer function psi*(x)
 
 # %%
 #| echo: true
@@ -177,7 +177,7 @@ else:
 
 # %% [markdown]
 # ## Step 3: GNN Evaluation
-# Figures matching Figure 2, and supplementary Fig 1, 2, 5, and 6 from the paper.
+# Figures matching Figure 2 from the paper.
 #
 # **Figure panels:**
 #
@@ -222,11 +222,11 @@ load_and_display("./log/signal/signal_fig_2/results/weights_comparison_corrected
 load_and_display("./log/signal/signal_fig_2/results/embedding.png")
 
 # %%
-#| fig-cap: "Fig 2g: Learned update functions φ*(a_i, x). The plot shows 1000 overlaid curves, one for each vector a_i. Colors indicate true neuron types.  True functions are overlaid in light gray."
+#| fig-cap: "Fig 2g: Learned update functions φ*(a_i, x). The plot shows 1000 overlaid curves, one for each vector a_i."
 load_and_display("./log/signal/signal_fig_2/results/MLP0.png")
 
 # %%
-#| fig-cap: "Fig 2h: Learned transfer function ψ*(x), normalized to a maximum value of 1. True function is overlaid in light gray."
+#| fig-cap: "Fig 2h: Learned transfer function ψ*(x), normalized to a maximum value of 1. Colors indicate true neuron types. True function is overlaid in light gray."
 load_and_display("./log/signal/signal_fig_2/results/MLP1_corrected.png")
 
 # %% [markdown]

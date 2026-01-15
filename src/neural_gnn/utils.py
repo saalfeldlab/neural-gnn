@@ -2471,33 +2471,34 @@ class LossRegularizer:
             self._add('phi_zero', regul_term)
 
         # --- Edge diff/norm regularization ---
-        in_features_edge, in_features_edge_next = get_in_features_lin_edge(x, model, mc, xnorm, n_neurons, device)
+        if (self._coeffs['edge_diff'] > 0) | (self._coeffs['edge_norm'] > 0):
+            in_features_edge, in_features_edge_next = get_in_features_lin_edge(x, model, mc, xnorm, n_neurons, device)
 
-        if self._coeffs['edge_diff'] > 0:
-            if mc.lin_edge_positive:
-                msg0 = model.lin_edge(in_features_edge[ids].clone().detach()) ** 2
-                msg1 = model.lin_edge(in_features_edge_next[ids].clone().detach()) ** 2
-            else:
-                msg0 = model.lin_edge(in_features_edge[ids].clone().detach())
-                msg1 = model.lin_edge(in_features_edge_next[ids].clone().detach())
-            regul_term = torch.relu(msg0 - msg1).norm(2) * self._coeffs['edge_diff']
-            total_regul = total_regul + regul_term
-            self._add('edge_diff', regul_term)
+            if self._coeffs['edge_diff'] > 0:
+                if mc.lin_edge_positive:
+                    msg0 = model.lin_edge(in_features_edge[ids].clone().detach()) ** 2
+                    msg1 = model.lin_edge(in_features_edge_next[ids].clone().detach()) ** 2
+                else:
+                    msg0 = model.lin_edge(in_features_edge[ids].clone().detach())
+                    msg1 = model.lin_edge(in_features_edge_next[ids].clone().detach())
+                regul_term = torch.relu(msg0 - msg1).norm(2) * self._coeffs['edge_diff']
+                total_regul = total_regul + regul_term
+                self._add('edge_diff', regul_term)
 
-        if self._coeffs['edge_norm'] > 0:
-            in_features_edge_norm = in_features_edge.clone()
-            in_features_edge_norm[:, 0] = 2 * xnorm
-            if mc.lin_edge_positive:
-                msg_norm = model.lin_edge(in_features_edge_norm[ids].clone().detach()) ** 2
-            else:
-                msg_norm = model.lin_edge(in_features_edge_norm[ids].clone().detach())
-            # Different normalization target for signal vs flyvis
-            if self.trainer_type == 'signal':
-                regul_term = (msg_norm - 1).norm(2) * self._coeffs['edge_norm']
-            else:  # flyvis
-                regul_term = (msg_norm - 2 * xnorm).norm(2) * self._coeffs['edge_norm']
-            total_regul = total_regul + regul_term
-            self._add('edge_norm', regul_term)
+            if self._coeffs['edge_norm'] > 0:
+                in_features_edge_norm = in_features_edge.clone()
+                in_features_edge_norm[:, 0] = 2 * xnorm
+                if mc.lin_edge_positive:
+                    msg_norm = model.lin_edge(in_features_edge_norm[ids].clone().detach()) ** 2
+                else:
+                    msg_norm = model.lin_edge(in_features_edge_norm[ids].clone().detach())
+                # Different normalization target for signal vs flyvis
+                if self.trainer_type == 'signal':
+                    regul_term = (msg_norm - 1).norm(2) * self._coeffs['edge_norm']
+                else:  # flyvis
+                    regul_term = (msg_norm - 2 * xnorm).norm(2) * self._coeffs['edge_norm']
+                total_regul = total_regul + regul_term
+                self._add('edge_norm', regul_term)
 
         # --- W_sign (Dale's Law) regularization ---
         if self._coeffs['W_sign'] > 0 and self.epoch > 0:

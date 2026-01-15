@@ -37,7 +37,7 @@ graph_model:
 plotting:
   colormap: "tab10"
   arrow_length: 1
-  xlim: [-4, 4]
+  xlim: [-5, 5]
   ylim: [-8, 8]
   label_style: "greek"
 
@@ -51,7 +51,7 @@ training:
 
   seed: 24
 
-  data_augmentation_loop: 50
+  data_augmentation_loop: 25
 
   sparsity: "replace_embedding_function"
   sparsity_freq: 4
@@ -60,6 +60,6 @@ training:
 
   learning_rate_W_start: 1.0E-3
   learning_rate_start: 5.0E-4
-  learning_rate_embedding_start: 1.5E-3
+  learning_rate_embedding_start: 0
 
   coeff_W_L1: 5.0e-05

@@ -963,21 +963,66 @@ def plot_eigenvalue_spectrum(connectivity, dataset_name, mc='k', log_file=None):
     return spectral_radius
 
 
-def plot_connectivity_matrix(connectivity, dataset_name):
-    """Plot connectivity matrix heatmap."""
-    gt_weight = to_numpy(connectivity)
+def plot_connectivity_matrix(connectivity, output_path, vmin_vmax_method='minmax',
+                              percentile=99, vmin=None, vmax=None,
+                              show_labels=True, show_title=True,
+                              zoom_size=20, dpi=100, cbar_fontsize=32, label_fontsize=48):
+    """Plot connectivity matrix heatmap with zoom inset.
 
-    fig, ax = plt.subplots(figsize=(10, 10))
-    im = ax.imshow(gt_weight, cmap='bwr', aspect='equal')
-    im.set_clim(-np.max(np.abs(gt_weight)), np.max(np.abs(gt_weight)))
-    cbar = plt.colorbar(im, ax=ax, fraction=0.046)
-    cbar.ax.tick_params(labelsize=16)
-    ax.set_xlabel('presynaptic neuron', fontsize=24)
-    ax.set_ylabel('postsynaptic neuron', fontsize=24)
-    ax.tick_params(labelsize=16)
-    ax.set_title('connectivity matrix', fontsize=28)
+    Args:
+        connectivity: Connectivity matrix (torch tensor or numpy array)
+        output_path: Path to save the figure
+        vmin_vmax_method: 'minmax' for full range, 'percentile' for percentile-based
+        percentile: Percentile value if vmin_vmax_method='percentile' (default: 99)
+        vmin: Explicit vmin value (overrides vmin_vmax_method if provided)
+        vmax: Explicit vmax value (overrides vmin_vmax_method if provided)
+        show_labels: Whether to show x/y axis labels (default: True)
+        show_title: Whether to show title (default: True)
+        zoom_size: Size of zoom inset (top-left NxN block, default: 20)
+        dpi: Output DPI (default: 100)
+        cbar_fontsize: Colorbar tick font size (default: 32)
+        label_fontsize: Axis label font size (default: 48)
+    """
+    gt_weight = to_numpy(connectivity)
+    n_neurons = gt_weight.shape[0]
+
+    # Use explicit vmin/vmax if provided, otherwise compute based on method
+    if vmin is None or vmax is None:
+        if vmin_vmax_method == 'percentile':
+            weight_pct = np.percentile(np.abs(gt_weight.flatten()), percentile)
+            vmin, vmax = -weight_pct * 1.1, weight_pct * 1.1
+        else:  # minmax
+            weight_max = np.max(np.abs(gt_weight))
+            vmin, vmax = -weight_max, weight_max
+
+    # Main heatmap
+    plt.figure(figsize=(10, 10))
+    ax = sns.heatmap(gt_weight, center=0, square=True, cmap='bwr',
+                     cbar_kws={'fraction': 0.046}, vmin=vmin, vmax=vmax)
+    cbar = ax.collections[0].colorbar
+    cbar.ax.tick_params(labelsize=cbar_fontsize)
+
+    if show_labels:
+        plt.xticks([0, n_neurons - 1], [1, n_neurons], fontsize=label_fontsize)
+        plt.yticks([0, n_neurons - 1], [1, n_neurons], fontsize=label_fontsize)
+        plt.xticks(rotation=0)
+    else:
+        plt.xticks([])
+        plt.yticks([])
+
+    if show_title:
+        plt.title('connectivity matrix', fontsize=28)
+
+    # Zoom inset (top-left corner)
+    if zoom_size > 0 and n_neurons >= zoom_size:
+        plt.subplot(2, 2, 1)
+        sns.heatmap(gt_weight[0:zoom_size, 0:zoom_size], cbar=False,
+                    center=0, square=True, cmap='bwr', vmin=vmin, vmax=vmax)
+        plt.xticks([])
+        plt.yticks([])
+
     plt.tight_layout()
-    plt.savefig(f"./graphs_data/{dataset_name}/connectivity_matrix.png", dpi=100)
+    plt.savefig(output_path, dpi=dpi)
     plt.close()
 
 

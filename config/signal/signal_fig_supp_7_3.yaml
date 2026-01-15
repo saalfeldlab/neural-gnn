@@ -1,5 +1,5 @@
-description: "Figure 2 baseline - 1000 neurons, 4 types, no noise, no external inputs"
-dataset: "fig_2"
+description: "Figure supp 7 - 1000 neurons, 4 types, no noise, no external inputs, 30,000 frames"
+dataset: "signal_fig_supp_7_3"
 
 simulation:
   connectivity_type: "Lorentz"
@@ -9,7 +9,7 @@ simulation:
   phi: "tanh"
   n_neurons: 1000
   n_neuron_types: 4
-  n_frames: 100000
+  n_frames: 30000
   delta_t: 0.01
   dpos_init: 0
   boundary: "no"
@@ -37,7 +37,7 @@ graph_model:
 plotting:
   colormap: "tab10"
   arrow_length: 1
-  xlim: [-4, 4]
+  xlim: [-5, 5]
   ylim: [-8, 8]
   label_style: "greek"
 
@@ -51,7 +51,7 @@ training:
 
   seed: 24
 
-  data_augmentation_loop: 50
+  data_augmentation_loop: 25
 
   sparsity: "replace_embedding_function"
   sparsity_freq: 4

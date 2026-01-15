@@ -88,6 +88,8 @@ from prettytable import PrettyTable
 import imageio
 
 
+
+
 def data_train(config=None, erase=False, best_model=None, style=None, device=None, log_file=None):
     # plt.rcParams['text.usetex'] = False  # LaTeX disabled - use mathtext instead
     # rc('font', **{'family': 'serif', 'serif': ['Times New Roman', 'Liberation Serif', 'DejaVu Serif', 'serif']})
@@ -111,7 +113,6 @@ def data_train(config=None, erase=False, best_model=None, style=None, device=Non
 
 
 
-
 def data_train_signal(config, erase, best_model, style, device, log_file=None):
 
     simulation_config = config.simulation
@@ -124,7 +125,6 @@ def data_train_signal(config, erase, best_model, style, device, log_file=None):
 
     dataset_name = config.dataset
     n_frames = simulation_config.n_frames
-    dimension = simulation_config.dimension
 
     data_augmentation_loop = train_config.data_augmentation_loop
     recurrent_training = train_config.recurrent_training
@@ -148,9 +148,6 @@ def data_train_signal(config, erase, best_model, style, device, log_file=None):
 
     # external input configuration (hierarchy: visual > signal > none)
     external_input_type = simulation_config.external_input_type
-    external_input_mode = simulation_config.external_input_mode
-    signal_input_type = simulation_config.signal_input_type
-    learn_external_input = train_config.learn_external_input
     inr_type = model_config.inr_type
 
     embedding_cluster = EmbeddingCluster(config)
@@ -234,9 +231,10 @@ def data_train_signal(config, erase, best_model, style, device, log_file=None):
 
 
     # external input model (model_f) for learning external_input reconstruction
-    model_f = choose_inr_model(config=config, n_neurons=n_neurons, n_frames=n_frames, x_list=x_list, device=device)
     optimizer_f = None
-    if model_f is not None:
+    model_f = None
+    if external_input_type != 'none':
+        model_f = choose_inr_model(config=config, n_neurons=n_neurons, n_frames=n_frames, x_list=x_list, device=device)
         # Separate omega parameters from other parameters for different learning rates
         omega_params = [(name, p) for name, p in model_f.named_parameters() if 'omega' in name]
         other_params = [p for name, p in model_f.named_parameters() if 'omega' not in name]
@@ -376,7 +374,7 @@ def data_train_signal(config, erase, best_model, style, device, log_file=None):
         else:
             Niter = int(n_frames * data_augmentation_loop // batch_size * 0.2 )
 
-        plot_frequency = int(Niter // 8)
+        plot_frequency = int(Niter // 20)
         if epoch ==0:
             print(f'{Niter} iterations per epoch, {plot_frequency} iterations per plot')
             logger.info(f'{Niter} iterations per epoch')

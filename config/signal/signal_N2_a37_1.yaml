@@ -1,5 +1,5 @@
 description: "Figure 2 baseline - 1000 neurons, 4 types, no noise, no external inputs"
-dataset: "fig_2"
+dataset: "signal_N2_a37_1"
 
 simulation:
   connectivity_type: "Lorentz"
@@ -49,8 +49,6 @@ training:
   batch_size: 8
   small_init_batch_size: False
 
-  seed: 24
-
   data_augmentation_loop: 50
 
   sparsity: "replace_embedding_function"
@@ -60,6 +58,7 @@ training:
 
   learning_rate_W_start: 1.0E-3
   learning_rate_start: 5.0E-4
-  learning_rate_embedding_start: 1.5E-3
+  learning_rate_embedding_start: 7.50E-4
 
-  coeff_W_L1: 5.0e-05
+  coeff_lin_phi_zero: 1.0
+

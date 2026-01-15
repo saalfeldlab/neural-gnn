@@ -1,6 +1,6 @@
 # %% [raw]
 # ---
-# title: "Figure 2: Baseline - 1000 neurons with 4 types"
+# title: "Figure supp. 8: 1000 neurons with 4 types, sparse W 5%"
 # author: Cédric Allier, Michael Bhaskara, Stephan Saalfeld
 # categories:
 #   - Neural Activity
@@ -12,14 +12,14 @@
 # ---
 
 # %% [markdown]
-# This script reproduces the panels of paper's **Figure 2** and other related supplementary panels.
+# This script reproduces the panels of paper's **Supplementary Figure 8**.
 #
 # **Simulation parameters:**
 #
 # - N_neurons: 1000
 # - N_types: 4 parameterized by $\tau_i$={0.5,1}, $s_i$={1,2} and $g_i$=10
 # - N_frames: 100,000
-# - Connectivity: 100% (dense)
+# - Connectivity: **5%** (sparse)
 # - Connectivity weights: random, Cauchy distribution 
 # - Noise: none
 # - External inputs: none
@@ -50,12 +50,12 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 #| output: false
 print()
 print("=" * 80)
-print("Figure 2: 1000 neurons, 4 types, dense connectivity")
+print("Supplementary Figure 8: 1000 neurons, 4 types, sparse connectivity 5%")
 print("=" * 80)
 
 device = []
 best_model = ''
-config_file_ = 'signal_fig_2'
+config_file_ = 'signal_fig_supp_8'
 
 print()
 config_root = "./config"
@@ -126,12 +126,12 @@ else:
     )
 
 # %%
-#| fig-cap: "Fig 2b: Sample of 100 time series taken from the activity data."
-load_and_display(f"./graphs_data/signal/signal_fig_2/activity.png")
+#| fig-cap: "Supp. Fig 8b: Sample of 100 time series taken from the activity data."
+load_and_display(f"./graphs_data/signal/signal_fig_supp_8/activity.png")
 
 # %%
-#| fig-cap: "Fig 2c: True connectivity W_ij. The inset shows 20×20 weights."
-load_and_display("./graphs_data/signal/signal_fig_2/connectivity_matrix.png")
+#| fig-cap: "Supp. Fig 8b: True connectivity W_ij. The inset shows 20×20 weights."
+load_and_display("./graphs_data/signal/signal_fig_supp_8/connectivity_matrix.png")
 
 # %% [markdown]
 # ## Step 2: Train GNN

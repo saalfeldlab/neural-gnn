@@ -264,7 +264,6 @@ def plot_training_signal(config, model, x, connectivity, log_dir, epoch, N, n_ne
     if n_neurons == 8000:
         ax.set_xlim([-0.05, 0.05])
     else:
-        ax.set_ylim([-0.2, 0.2])
         ax.set_xlim([-0.2, 0.2])
     # Compute and display R² and slope
     x_data = gt_weight.flatten()

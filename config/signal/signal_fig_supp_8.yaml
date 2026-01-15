@@ -1,35 +1,36 @@
-description: "Figure 2 baseline - 1000 neurons, 4 types, no noise, no external inputs"
-dataset: "fig_2"
+description: "test sparsity 5%  synaptic network 100.000 points"
+dataset: "fig_supp_8"
 
 simulation:
   connectivity_type: "Lorentz"
   connectivity_init: [0, 0.1]
+  connectivity_filling_factor: 0.05
   params:
     [[10.0, 1.0, 1.0], [10.0, 2.0, 1.0], [10.0, 1.0, 2.0], [10.0, 2.0, 2.0]]
   phi: "tanh"
+  tau: 1.0
+  min_radius: 1.0
+  max_radius: 1.0E6
   n_neurons: 1000
   n_neuron_types: 4
   n_frames: 100000
   delta_t: 0.01
   dpos_init: 0
   boundary: "no"
-  start_frame: -1000
+  start_frame: 0 # -1000
 
 graph_model:
   signal_model_name: "PDE_N2"
   particle_model_name: ""
   mesh_model_name: ""
   prediction: "first_derivative"
-
   input_size: 1
   output_size: 1
   hidden_dim: 64
   n_layers: 3
-
   input_size_update: 3
   n_layers_update: 3
   hidden_dim_update: 64
-
   aggr_type: "add"
   embedding_dim: 2
   update_type: "none"
@@ -37,9 +38,8 @@ graph_model:
 plotting:
   colormap: "tab10"
   arrow_length: 1
-  xlim: [-4, 4]
+  xlim: [-5, 5]
   ylim: [-8, 8]
-  label_style: "greek"
 
 training:
   n_epochs: 10
@@ -51,7 +51,7 @@ training:
 
   seed: 24
 
-  data_augmentation_loop: 50
+  data_augmentation_loop: 25
 
   sparsity: "replace_embedding_function"
   sparsity_freq: 4

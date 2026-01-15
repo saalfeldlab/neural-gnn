@@ -1,5 +1,5 @@
 description: "test neuro-neuron dependent structure matrix modulation     noise_model_level: 1  batch_size: 8"
-dataset: "fig_3"
+dataset: "signal_fig_supp_3"
 
 simulation:
   connectivity_type: "Lorentz"
@@ -58,12 +58,12 @@ plotting:
   label_style: "greek"
 
 claude:
-  n_epochs: 2
+  n_epochs: 5
   data_augmentation_loop: 10
   n_iter_block: 1024
 
 training:
-  n_epochs: 2
+  n_epochs: 10
   n_runs: 1
   device: "auto"
 
@@ -74,7 +74,7 @@ training:
 
   learn_external_input: True
 
-  sparsity: "none"
+  sparsity: "replace_embedding_function"
   sparsity_freq: 4
   cluster_method: "distance_plot"
   cluster_distance_threshold: 0.1

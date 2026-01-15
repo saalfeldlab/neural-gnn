@@ -10,14 +10,6 @@ listing:
   filter-ui: true
 ---
 
-This site shows the code to generate some figures from the "Graph neural networks uncover structure and function underlying the activity of neural assemblies" paper.
-
-We demonstrate that message passing GNNs can learn to predict neural network dynamics, uncover the underlying connectivity structure, and decompose heterogeneous neuron types from observed activity patterns. The GNN jointly learns:
-
-- **Connectivity matrix W**: The synaptic weights between neurons
-- **Latent embeddings a_i**: Low-dimensional representations capturing neuron-specific properties
-- **Update function phi**: Neuron-type-specific dynamics
-- **Transfer function psi**: How activity propagates between neurons
-- **External input field Omega(t)**: Spatiotemporal modulation of neural activity
-
-This approach enables virtual experiments with arbitrary compositions of neurons and interactions, providing insights into the structure and function of neural circuits.
+Graph neural networks trained to predict observable dynamics can be used to decompose the temporal activity of complex heterogeneous systems into simple, interpretable representations.
+Here we apply this framework to simulated neural assemblies with thousands of neurons and demonstrate that it can jointly reveal the connectivity matrix, the neuron types, the signaling functions, and in some cases hidden external stimuli. 
+In contrast to existing machine learning approaches such as recurrent neural networks and transformers, which emphasize predictive accuracy but offer limited interpretability, our method provides both reliable forecasts of neural activity and interpretable decomposition of the mechanisms governing large neural assemblies. 
