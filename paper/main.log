@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2025/dev/Debian) (preloaded format=pdflatex 2026.1.12)  16 JAN 2026 05:23
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2025/dev/Debian) (preloaded format=pdflatex 2026.1.12)  16 JAN 2026 05:32
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -682,8 +682,7 @@ Package csquotes Info: Redefining alias 'default' -> 'english'.
 LaTeX Font Info:    Trying to load font information for OT1+ppl on input line 141.
  (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ppl.fd
 File: ot1ppl.fd 2001/06/04 font definitions for OT1/ppl.
-)
-No file main.aux.
+) (./main.aux)
 \openout1 = `main.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 141.
@@ -704,6 +703,7 @@ LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 141.
 LaTeX Font Info:    ... okay on input line 141.
 LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 141.
 LaTeX Font Info:    ... okay on input line 141.
+
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
 *geometry* verbose mode - [ preamble ] result:
@@ -1638,10 +1638,10 @@ Package logreq Info: Writing requests to 'main.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 25333 strings out of 475102
- 449215 string characters out of 5764877
- 1308079 words of memory out of 5000000
- 47901 multiletter control sequences out of 15000+600000
+ 25336 strings out of 475102
+ 449254 string characters out of 5764877
+ 1308070 words of memory out of 5000000
+ 47902 multiletter control sequences out of 15000+600000
  630266 words of font info for 234 fonts, out of 8000000 for 9000
  59 hyphenation exceptions out of 8191
  66i,22n,81p,1546b,2023s stack positions out of 10000i,1000n,20000p,200000b,200000s

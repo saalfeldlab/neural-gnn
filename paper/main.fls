@@ -218,6 +218,9 @@ INPUT /usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ppl.fd
 INPUT /usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ppl.fd
 INPUT /usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/adobe/palatino/pplr7t.tfm
+INPUT ./main.aux
+INPUT ./main.aux
+INPUT main.aux
 OUTPUT main.aux
 INPUT /usr/share/texlive/texmf-dist/tex/latex/upquote/upquote.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/upquote/upquote.sty

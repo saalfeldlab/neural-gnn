@@ -438,7 +438,6 @@ def data_train_signal(config, erase, best_model, style, device, log_file=None):
                         if (external_input_type == 'visual') :
                             n_input_neurons = simulation_config.n_input_neurons
                             learned_input = model_f(time=k / n_frames) ** 2
-                            print(n_input_neurons, learned_input.shape)
                             x[:n_input_neurons, 4:5] = learned_input
                             x[n_input_neurons:n_neurons, 4:5] = 1
                         elif external_input_type == 'signal':
