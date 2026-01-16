@@ -41,7 +41,7 @@ if __name__ == "__main__":
     else:
         best_model = ''
         task = 'train_test_plot'
-        config_list = ['signal_N2_a37_1']
+        config_list = ['signal_fig_3']
 
     for config_file_ in config_list:
         print(" ")
