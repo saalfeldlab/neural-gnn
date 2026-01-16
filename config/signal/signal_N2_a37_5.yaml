@@ -59,7 +59,4 @@ training:
 
   learning_rate_W_start: 1.0E-3
   learning_rate_start: 5.0E-4
-  learning_rate_embedding_start: 1.0E-3
-
-  coeff_lin_phi_zero: 1.0
-  coeff_W_L1: 5.0e-05
+  learning_rate_embedding_start: 7.50E-4

@@ -804,6 +804,20 @@ def data_train_signal(config, erase, best_model, style, device, log_file=None):
                                                                      type_list=to_numpy(x[:, 6]),  # neuron_type is at column 6
                                                                      cmap=cmap, update_type=update_type, device=device)
 
+                # Plot UMAP projection of interaction functions
+                fig, ax = plt.subplots(figsize=(8, 8))
+                for n in range(n_neuron_types):
+                    idx = np.where(type_list == n)[0]
+                    ax.scatter(proj_interaction[idx, 0], proj_interaction[idx, 1],
+                               c=cmap.color(n), s=20, alpha=0.7, label=f'type {n}')
+                ax.set_xlabel('UMAP 1', fontsize=16)
+                ax.set_ylabel('UMAP 2', fontsize=16)
+                ax.set_title(f'UMAP projection (epoch {epoch})', fontsize=18)
+                ax.legend(fontsize=12)
+                plt.tight_layout()
+                plt.savefig(f'{log_dir}/tmp_training/umap_projection_{epoch}.png', dpi=100)
+                plt.close()
+
                 labels, n_clusters, new_labels = sparsify_cluster(train_config.cluster_method, proj_interaction, embedding, train_config.cluster_distance_threshold, type_list, n_neuron_types, embedding_cluster)
 
                 model_a_ = model.a.clone().detach()
