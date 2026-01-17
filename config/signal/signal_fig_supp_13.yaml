@@ -1,27 +1,34 @@
-description: "Figure supp 7 - 1000 neurons, 4 types, no noise, no external inputs, 30,000 frames"
-dataset: "signal_fig_supp_7_3"
+description: "test neuron_dependent functions"
+dataset: "signal_fig_supp_13"
 
 simulation:
   connectivity_type: "Lorentz"
   connectivity_init: [0, 0.1]
+  # params: [a, b, g, s, w, h]
+  # a: decay, b: offset, g: gain, s: self-recurrence, w: width, h: threshold   MLP1((u-h)/w)
   params:
-    [[10.0, 1.0, 1.0], [10.0, 2.0, 1.0], [10.0, 1.0, 2.0], [10.0, 2.0, 2.0]]
+    [
+      [1.0, 0.0, 10.0, 1.0, 1.0, 0.0],
+      [2.0, 0.0, 10.0, 1.0, 2.0, 0.0],
+      [1.0, 0.0, 10.0, 2.0, 4.0, 0.0],
+      [2.0, 0.0, 10.0, 2.0, 8.0, 0.0],
+    ]
   phi: "tanh"
   n_neurons: 1000
   n_neuron_types: 4
-  n_frames: 30000
+  n_frames: 100000
   delta_t: 0.01
   dpos_init: 0
   boundary: "no"
   start_frame: -1000
 
 graph_model:
-  signal_model_name: "PDE_N2"
+  signal_model_name: "PDE_N4"
   particle_model_name: ""
   mesh_model_name: ""
   prediction: "first_derivative"
 
-  input_size: 1
+  input_size: 3
   output_size: 1
   hidden_dim: 64
   n_layers: 3
@@ -39,28 +46,25 @@ plotting:
   arrow_length: 1
   xlim: [-5, 5]
   ylim: [-8, 8]
-  label_style: "greek"
 
 training:
-  n_epochs: 10
-  n_runs: 1
+  n_epochs: 20
   device: "auto"
+  n_runs: 1
 
-  batch_size: 8
+  batch_size: 1
   small_init_batch_size: False
-
-  seed: 16
-
-  data_augmentation_loop: 168
 
   sparsity: "replace_embedding_function"
   sparsity_freq: 4
-  cluster_method: "distance_plot"
+  data_augmentation_loop: 100
+  cluster_method: "distance_embedding"
   cluster_distance_threshold: 0.1
   fix_cluster_embedding: True
 
-  learning_rate_W_start: 1.0E-3
-  learning_rate_start: 5.0E-4
-  learning_rate_embedding_start: 7.50E-4
+  learning_rate_W_start: 1.0E-4
+  learning_rate_start: 5.0E-5
+  learning_rate_embedding_start: 5.0E-4
 
   coeff_lin_phi_zero: 1.0
+  coeff_edge_diff: 100
