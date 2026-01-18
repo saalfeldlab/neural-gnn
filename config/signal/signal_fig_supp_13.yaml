@@ -1,4 +1,4 @@
-description: "test neuron_dependent functions"
+description: "heterogeneity MLP0 and MLP1 slope"
 dataset: "signal_fig_supp_13"
 
 simulation:
@@ -9,8 +9,8 @@ simulation:
   params:
     [
       [1.0, 0.0, 10.0, 1.0, 1.0, 0.0],
-      [2.0, 0.0, 10.0, 1.0, 2.0, 0.0],
-      [1.0, 0.0, 10.0, 2.0, 4.0, 0.0],
+      [1.0, 0.0, 10.0, 2.0, 2.0, 0.0],
+      [2.0, 0.0, 10.0, 1.0, 4.0, 0.0],
       [2.0, 0.0, 10.0, 2.0, 8.0, 0.0],
     ]
   phi: "tanh"
@@ -49,22 +49,23 @@ plotting:
 
 training:
   n_epochs: 20
-  device: "auto"
   n_runs: 1
+  device: "auto"
 
-  batch_size: 1
+  batch_size: 8
   small_init_batch_size: False
+
+  init_training_single_type: True
+
+  seed: 24
+
+  data_augmentation_loop: 10
 
   sparsity: "replace_embedding_function"
   sparsity_freq: 4
-  data_augmentation_loop: 100
-  cluster_method: "distance_embedding"
-  cluster_distance_threshold: 0.1
+  cluster_method: "distance_plot"
   fix_cluster_embedding: True
 
-  learning_rate_W_start: 1.0E-4
-  learning_rate_start: 5.0E-5
-  learning_rate_embedding_start: 5.0E-4
-
-  coeff_lin_phi_zero: 1.0
-  coeff_edge_diff: 100
+  learning_rate_W_start: 1.0E-3
+  learning_rate_start: 5.0E-4
+  learning_rate_embedding_start: 2.5E-4

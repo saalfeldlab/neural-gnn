@@ -206,10 +206,15 @@ def plot_training_signal(config, model, x, connectivity, log_dir, epoch, N, n_ne
 
     else:
         fig = plt.figure(figsize=(8, 8))
-        for n in range(n_neurons):
+        # For large neuron counts, subsample for plotting
+        if n_neurons > 5000:
+            step = max(1, n_neurons // 1000)  # Plot ~1000 neurons max
+        else:
+            step = 1
+        for n in range(0, n_neurons, step):
             if x[n, 3] != config.simulation.baseline_value:
-                plt.scatter(to_numpy(model.a[n, 0]), to_numpy(model.a[n, 1]), s=100,
-                            color=cmap.color(int(type_list[n])), alpha=1.0, edgecolors='none')
+                plt.scatter(to_numpy(model.a[n, 0]), to_numpy(model.a[n, 1]), s=100 if n_neurons <= 5000 else 20,
+                            color=cmap.color(int(type_list[n])), alpha=1.0 if n_neurons <= 5000 else 0.5, edgecolors='none')
 
     plt.xlabel(r'$a_0$', fontsize=48)
     plt.ylabel(r'$a_1$', fontsize=48)
@@ -255,19 +260,31 @@ def plot_training_signal(config, model, x, connectivity, log_dir, epoch, N, n_ne
         plt.close()
 
     fig, ax = fig_init()
-    if n_neurons<1000:
-        ax.scatter(gt_weight, pred_weight / 10, s=1.0, c=mc, alpha=1.0)
+    # Flatten data for scatterplot and R² computation
+    x_data = gt_weight.flatten()
+    y_data = (pred_weight / 10).flatten()
+
+    # For large neuron counts, subsample for plotting (but compute R² on full data)
+    if n_neurons > 5000:
+        # Subsample to ~1M points for plotting (full data has n_neurons^2 points)
+        n_total = len(x_data)
+        n_sample = min(1_000_000, n_total)
+        rng = np.random.default_rng(42)  # Fixed seed for reproducibility
+        indices = rng.choice(n_total, size=n_sample, replace=False)
+        x_plot = x_data[indices]
+        y_plot = y_data[indices]
+        ax.scatter(x_plot, y_plot, s=0.05, c=mc, alpha=0.05)
+    elif n_neurons < 1000:
+        ax.scatter(x_data, y_data, s=1.0, c=mc, alpha=1.0)
     else:
-        ax.scatter(gt_weight, pred_weight / 10, s=0.1, c=mc, alpha=0.1)
+        ax.scatter(x_data, y_data, s=0.1, c=mc, alpha=0.1)
     ax.set_xlabel(r'true $J_{ij}$', fontsize=48)
     ax.set_ylabel(r'learned $J_{ij}$', fontsize=48)
-    if n_neurons == 8000:
+    if n_neurons >= 5000:
         ax.set_xlim([-0.05, 0.05])
     else:
         ax.set_xlim([-0.2, 0.2])
-    # Compute and display R² and slope
-    x_data = gt_weight.flatten()
-    y_data = (pred_weight / 10).flatten()
+    # Compute and display R² and slope (on FULL data, not subsampled)
     lin_fit, _ = curve_fit(linear_model, x_data, y_data)
     residuals = y_data - linear_model(x_data, *lin_fit)
     ss_res = np.sum(residuals ** 2)
@@ -341,7 +358,9 @@ def plot_training_signal(config, model, x, connectivity, log_dir, epoch, N, n_ne
         fig = plt.figure(figsize=(8, 8))
         rr = torch.linspace(config.plotting.xlim[0], config.plotting.xlim[1], 1000, device=device)
         func_list = []
-        for n in range(n_neurons):
+        # For large neuron counts, subsample for plotting
+        mlp1_step = max(1, n_neurons // 500) if n_neurons > 5000 else 1
+        for n in range(0, n_neurons, mlp1_step):
             if config.graph_model.signal_model_name in ['PDE_N4', 'PDE_N7', 'PDE_N11']:
                 embedding_ = model.a[n, :] * torch.ones((1000, config.graph_model.embedding_dim), device=device)
                 if model.embedding_trial:
@@ -369,9 +388,9 @@ def plot_training_signal(config, model, x, connectivity, log_dir, epoch, N, n_ne
             if config.graph_model.lin_edge_positive:
                 func = func ** 2
             func_list.append(to_numpy(func))
-            if (n % 2 == 0):
+            if (n % (2 * mlp1_step) == 0):
                 plt.plot(to_numpy(rr), to_numpy(func), 2, color=cmap.color(to_numpy(type_list)[n].astype(int)),
-                         linewidth=2, alpha=0.25)
+                         linewidth=2 if n_neurons <= 5000 else 1, alpha=0.25 if n_neurons <= 5000 else 0.1)
         plt.xlim(config.plotting.xlim)
         all_func = np.concatenate(func_list)
         plt.ylim([np.min(all_func), np.max(all_func)])
@@ -393,7 +412,9 @@ def plot_training_signal(config, model, x, connectivity, log_dir, epoch, N, n_ne
     rr = torch.linspace(config.plotting.xlim[0], config.plotting.xlim[1], 1000, device=device)
     fig = plt.figure(figsize=(8, 8))
     func_list = []
-    for n in range(n_neurons):
+    # For large neuron counts, subsample for plotting
+    mlp0_step = max(1, n_neurons // 500) if n_neurons > 5000 else 1
+    for n in range(0, n_neurons, mlp0_step):
         embedding_ = model.a[n, :] * torch.ones((1000, config.graph_model.embedding_dim), device=device)
         if 'generic' in config.graph_model.update_type:
             in_features = torch.cat((rr[:, None], embedding_, rr[:, None] * 0, rr[:, None] * 0), dim=1)
@@ -402,10 +423,10 @@ def plot_training_signal(config, model, x, connectivity, log_dir, epoch, N, n_ne
         with torch.no_grad():
             func = model.lin_phi(in_features.float())
         func_list.append(to_numpy(func))
-        if (n % 2 == 0):
+        if (n % (2 * mlp0_step) == 0):
             plt.plot(to_numpy(rr), to_numpy(func), 2,
                      color=cmap.color(to_numpy(type_list)[n].astype(int)),
-                     linewidth=1, alpha=0.1)
+                     linewidth=1 if n_neurons <= 5000 else 0.5, alpha=0.1 if n_neurons <= 5000 else 0.05)
     plt.xlim(config.plotting.xlim)
     all_func = np.concatenate(func_list)
     plt.ylim([np.min(all_func), np.max(all_func)])
@@ -507,7 +528,10 @@ def analyze_edge_function(rr=[], vizualize=False, config=None, model_MLP=[], mod
 
     print('interaction functions ...')
     func_list = []
-    for n in range(n_neurons):
+    # For large neuron counts, subsample the loop itself
+    analyze_step = max(1, n_neurons // 500) if n_neurons > 5000 else 1
+    neuron_indices = range(0, n_neurons, analyze_step)
+    for n in neuron_indices:
 
         if len(model.a.shape)==3:
             model_a= model.a[1, n, :]
@@ -530,9 +554,9 @@ def analyze_edge_function(rr=[], vizualize=False, config=None, model_MLP=[], mod
 
         should_plot = vizualize and (
                 n_neurons <= 200 or
-                (n % (n_neurons // 200) == 0) or
+                (n % max(1, n_neurons // 200) == 0) or
                 (config.graph_model.particle_model_name == 'PDE_GS') or
-                ('PDE_N' in config_model)
+                ('PDE_N' in config_model and n_neurons <= 5000)
         )
 
         if should_plot:

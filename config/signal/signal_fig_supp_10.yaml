@@ -1,9 +1,11 @@
-description: "Figure 2 baseline - 1000 neurons, 4 types, no noise, no external inputs"
-dataset: "signal_N2_a37_1"
+description: "Figure supp 10 Noise test - 1000 neurons, 4 types, no noise, no external inputs"
+dataset: "signal_fig_supp_10"
 
 simulation:
   connectivity_type: "Lorentz"
   connectivity_init: [0, 0.1]
+  # params: [g, s, c]
+  # du = -c * u + s * torch.tanh(u) + g * msg
   params:
     [[10.0, 1.0, 1.0], [10.0, 2.0, 1.0], [10.0, 1.0, 2.0], [10.0, 2.0, 2.0]]
   phi: "tanh"
@@ -40,14 +42,20 @@ plotting:
   xlim: [-4, 4]
   ylim: [-8, 8]
   label_style: "greek"
+  mlp0_xlim: [-5, 5]
+  mlp0_ylim: [-8, 8]
+  mlp1_xlim: [-5, 5]
+  mlp1_ylim: [-1.1, 1.1]
 
 training:
   n_epochs: 10
   n_runs: 1
   device: "auto"
 
-  batch_size: 8
+  batch_size: 1
   small_init_batch_size: False
+
+  seed: 16
 
   data_augmentation_loop: 50
 
@@ -57,9 +65,9 @@ training:
   cluster_distance_threshold: 0.1
   fix_cluster_embedding: True
 
-  learning_rate_W_start: 1.0E-3
-  learning_rate_start: 5.0E-4
-  learning_rate_embedding_start: 1.0E-3
+  learning_rate_W_start: 1.0E-4
+  learning_rate_start: 5.0E-5
+  learning_rate_embedding_start: 5.0E-4
 
   coeff_lin_phi_zero: 1.0
-  coeff_W_L1: 5.0e-05
+  noise_model_level: 7.2

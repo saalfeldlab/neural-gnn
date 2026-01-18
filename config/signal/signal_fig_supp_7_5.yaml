@@ -4,6 +4,8 @@ dataset: "signal_fig_supp_7_5"
 simulation:
   connectivity_type: "Lorentz"
   connectivity_init: [0, 0.1]
+  # params: [g, s, c]
+  # du = -c * u + s * torch.tanh(u) + g * msg
   params:
     [[10.0, 1.0, 1.0], [10.0, 2.0, 1.0], [10.0, 1.0, 2.0], [10.0, 2.0, 2.0]]
   phi: "tanh"
