@@ -1,9 +1,11 @@
-description: "Figure 2 baseline - 1000 neurons, 4 types, no noise, no external inputs"
-dataset: "signal_fig_2"
+description: "Figure 2 no embedding training - 1000 neurons, 4 types, no noise, no external inputs"
+dataset: "signal_fig_supp_3"
 
 simulation:
   connectivity_type: "Lorentz"
   connectivity_init: [0, 0.1]
+  # params: [g, s, c]
+  # du = -c * u + s * torch.tanh(u) + g * msg
   params:
     [[10.0, 1.0, 1.0], [10.0, 2.0, 1.0], [10.0, 1.0, 2.0], [10.0, 2.0, 2.0]]
   phi: "tanh"
@@ -37,12 +39,16 @@ graph_model:
 plotting:
   colormap: "tab10"
   arrow_length: 1
-  xlim: [-5, 5]
+  xlim: [-4, 4]
   ylim: [-8, 8]
   label_style: "greek"
+  mlp0_xlim: [-5, 5]
+  mlp0_ylim: [-8, 8]
+  mlp1_xlim: [-5, 5]
+  mlp1_ylim: [-1.1, 1.1]
 
 training:
-  n_epochs: 10
+  n_epochs: 3
   n_runs: 1
   device: "auto"
 
@@ -63,6 +69,6 @@ training:
 
   learning_rate_W_start: 1.0E-3
   learning_rate_start: 5.0E-4
-  learning_rate_embedding_start: 0
+  learning_rate_embedding_start: 7.50E-4
 
   coeff_lin_phi_zero: 1.0

@@ -437,8 +437,7 @@ def data_train_signal(config, erase, best_model, style, device, log_file=None):
                         nnr_f_T_period = model_config.nnr_f_T_period
                         if (external_input_type == 'visual') :
                             n_input_neurons = simulation_config.n_input_neurons
-                            learned_input = model_f(time=k / n_frames) ** 2
-                            x[:n_input_neurons, 4:5] = learned_input
+                            x[:n_input_neurons, 4:5] = model_f(time=k / n_frames) ** 2
                             x[n_input_neurons:n_neurons, 4:5] = 1
                         elif external_input_type == 'signal':
                             t_norm = torch.tensor([[k / nnr_f_T_period]], dtype=torch.float32, device=device)
@@ -803,20 +802,6 @@ def data_train_signal(config, erase, best_model, style, device, log_file=None):
                                                                      n_neurons=n_neurons, ynorm=ynorm,
                                                                      type_list=to_numpy(x[:, 6]),  # neuron_type is at column 6
                                                                      cmap=cmap, update_type=update_type, device=device)
-
-                # Plot UMAP projection of interaction functions
-                fig, ax = plt.subplots(figsize=(8, 8))
-                for n in range(n_neuron_types):
-                    idx = np.where(type_list == n)[0]
-                    ax.scatter(proj_interaction[idx, 0], proj_interaction[idx, 1],
-                               c=cmap.color(n), s=20, alpha=0.7, label=f'type {n}')
-                ax.set_xlabel('UMAP 1', fontsize=16)
-                ax.set_ylabel('UMAP 2', fontsize=16)
-                ax.set_title(f'UMAP projection (epoch {epoch})', fontsize=18)
-                ax.legend(fontsize=12)
-                plt.tight_layout()
-                plt.savefig(f'{log_dir}/tmp_training/umap_projection_{epoch}.png', dpi=100)
-                plt.close()
 
                 labels, n_clusters, new_labels = sparsify_cluster(train_config.cluster_method, proj_interaction, embedding, train_config.cluster_distance_threshold, type_list, n_neuron_types, embedding_cluster)
 
@@ -1481,7 +1466,7 @@ def data_test_signal(config=None, config_file=None, visualize=False, style='colo
     edge_index_generated = edge_index.clone().detach()
 
 
-    if ('modulation' in model_config.field_type) | ('visual' in model_config.field_type):
+    if ('modulation' in field_type) | ('visual' in field_type):
         print('load gt movie ...')
         im = imread(f"graphs_data/{simulation_config.node_value_map}")
         A1 = torch.zeros((n_neurons, 1), device=device)
@@ -1650,8 +1635,6 @@ def data_test_signal(config=None, config_file=None, visualize=False, style='colo
 
 
         plt.figure(figsize=(10, 10))
-        plt.rcParams['font.family'] = 'serif'
-        plt.rcParams['font.serif'] = ['Times New Roman', 'DejaVu Serif', 'Bitstream Vera Serif']
         ax = sns.heatmap(to_numpy(connectivity), center=0, square=True, cmap='bwr', cbar_kws={'fraction': 0.046},
                          vmin=-0.1, vmax=0.1)
         cbar = ax.collections[0].colorbar
@@ -1667,11 +1650,12 @@ def data_test_signal(config=None, config_file=None, visualize=False, style='colo
         plt.savefig(f'./{log_dir}/results/true connectivity.png', dpi=300)
         plt.close()
 
+        # new_params[0] is the connectivity filling factor for the generalization test
         edge_index_, connectivity, mask = init_connectivity(
                 simulation_config.connectivity_file,
                 simulation_config.connectivity_type,
-                simulation_config.connectivity_filling_factor,
-                new_params[0],
+                new_params[0],  # Use new_params[0] as connectivity_filling_factor
+                simulation_config.connectivity_init,  # T1 from original config
                 n_neurons,
                 n_neuron_types,
                 dataset_name,
@@ -1698,12 +1682,17 @@ def data_test_signal(config=None, config_file=None, visualize=False, style='colo
         plt.savefig(f'./{log_dir}/results/new connectivity.png', dpi=300)
         plt.close()
 
-        second_correction = np.load(f'{log_dir}/second_correction.npy')
-        print(f'second_correction: {second_correction}')
+        # Load W_correction (raw slope from weight comparison) for scaling learned weights
+        W_correction_path = f'{log_dir}/W_correction.npy'
+        if os.path.exists(W_correction_path):
+            W_correction = np.load(W_correction_path)
+        else:
+            W_correction = 1.0
+        print(f'W_correction: {W_correction}')
 
         with torch.no_grad():
             model_generator.W = torch.nn.Parameter(torch.tensor(connectivity, device=device))
-            model.W = torch.nn.Parameter(model_generator.W.clone() * torch.tensor(second_correction, device=device))
+            model.W = torch.nn.Parameter(model_generator.W.clone() * torch.tensor(W_correction, device=device))
 
         cell_types = to_numpy(x[:, 6]).astype(int)
         type_counts = [np.sum(cell_types == n) for n in range(n_neuron_types)]
@@ -2041,9 +2030,9 @@ def data_test_signal(config=None, config_file=None, visualize=False, style='colo
                 "ytick.labelsize": 10,
             })
 
-            plt.figure(figsize=(20, 10))
+            plt.figure(figsize=(16, 8))
 
-            ax = plt.subplot(121)
+            ax = plt.subplot(1, 2, 1)
             # Plot ground truth with distinct gray color, visible in legend
             for i in range(len(n)):
                 if ablation_ratio > 0:
@@ -2092,7 +2081,7 @@ def data_test_signal(config=None, config_file=None, visualize=False, style='colo
             plt.xticks(fontsize=24)
             plt.yticks([])
 
-            ax = plt.subplot(222)
+            ax = plt.subplot(1, 2, 2)
             x_data = to_numpy(neuron_generated_list_[-1, :])
             y_data = to_numpy(neuron_pred_list_[-1, :])
 
@@ -2149,16 +2138,6 @@ def data_test_signal(config=None, config_file=None, visualize=False, style='colo
             R2_list.append(r2)
             it_list.append(it)
 
-
-            ax = plt.subplot(224)
-            plt.scatter(it_list, R2_list, s=20, c=mc)
-            plt.xlim([0, n_test_frames])
-            plt.ylim([0, 1])
-            plt.axhline(1, color='green', linestyle='--', linewidth=2)
-            plt.xlabel('frame', fontsize=48)
-            plt.ylabel('$R^2$', fontsize=48)
-            plt.xticks(fontsize=24)
-            plt.yticks(fontsize=24)
             plt.tight_layout()
 
             if ablation_ratio>0:
@@ -2181,16 +2160,24 @@ def data_test_signal(config=None, config_file=None, visualize=False, style='colo
     dataset_name_ = dataset_name.split('/')[-1]
     generate_compressed_video_mp4(output_dir=f"./{log_dir}/results/", run=run, output_name=dataset_name_, framerate=20)
 
-    # Copy the last PNG file before erasing Fig folder
+    # Copy key frames before erasing Fig folder
     files = glob.glob(f'./{log_dir}/results/Fig/*.png')
     if files:
-        files.sort()  # Sort to get the last file
+        files.sort()
+        import shutil
+        # Copy last frame
         last_file = files[-1]
         dataset_name_ = dataset_name.split('/')[-1]
         dst_file = f"./{log_dir}/results/{dataset_name_}.png"
-        import shutil
         shutil.copy(last_file, dst_file)
         print(f"saved last frame: {dst_file}")
+        # Copy frames at time-points 400 and 800 (with step=10, these are Fig_0_000039.png and Fig_0_000079.png)
+        for fig_file in files:
+            basename = os.path.basename(fig_file)
+            if basename in ['Fig_0_000039.png', 'Fig_0_000079.png']:
+                dst = f"./{log_dir}/results/{basename}"
+                shutil.copy(fig_file, dst)
+                print(f"saved key frame: {dst}")
 
     files = glob.glob(f'./{log_dir}/results/Fig/*')
     for f in files:

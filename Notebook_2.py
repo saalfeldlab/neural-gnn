@@ -1,6 +1,6 @@
 # %% [raw]
 # ---
-# title: "Figure 2: Baseline - 1000 neurons with 4 types"
+# title: "Supplementary Figure 3: 1000 neurons with 4 types, no embedding"
 # author: Cédric Allier, Michael Bhaskara, Stephan Saalfeld
 # categories:
 #   - Neural Activity
@@ -8,20 +8,21 @@
 #   - GNN Training
 # execute:
 #   echo: false
-# image: "graphs_data/signal/signal_fig_2/activity.png"
+# image: "graphs_data/signal/signal_fig_supp_3/activity.png"
 # ---
 
 # %% [markdown]
-# This script reproduces the panels of paper's **Figure 2** and other supplementary panels related to the same dataset.
+# This script reproduces the panels of paper's **Supplementary Figure 3** and other supplementary panels related to the same dataset.
 #
 # **Simulation parameters:**
 #
 # - N_neurons: 1000
-# - N_types: 4 (parameterized by tau_i={0.5,1} and s_i={1,2})P
+# - N_types: 4 (parameterized by tau_i={0.5,1} and s_i={1,2})
 # - N_frames: 100,000
 # - Connectivity: 100% (dense)
 # - Noise: none
 # - External inputs: none
+# - Embedding: none (single type training)
 #
 # The simulation follows Equation 2 from the paper:
 #
@@ -36,7 +37,7 @@ from neural_gnn.config import NeuralGraphConfig
 from neural_gnn.generators.graph_data_generator import data_generate
 from neural_gnn.models.graph_trainer import data_train, data_test
 from neural_gnn.utils import set_device, add_pre_folder, load_and_display
-from GNN_PlotFigure import data_plot, create_training_montage
+from GNN_PlotFigure import data_plot
 
 warnings.filterwarnings("ignore", message="pkg_resources is deprecated as an API")
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -49,7 +50,7 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 #| output: false
 print()
 print("=" * 80)
-print("Figure supp 3 and 4: 1000 neurons, 4 types, dense connectivity, no embedding")
+print("Supplementary Figure 3: 1000 neurons, 4 types, dense connectivity, no embedding")
 print("=" * 80)
 
 device = []
@@ -78,8 +79,8 @@ graphs_dir = f'./graphs_data/{config_file}'
 #
 # **Outputs:**
 #
-# - Figure 2b: Sample of 10 time series
-# - Figure 2c: True connectivity matrix W_ij
+# - Sample of 10 time series
+# - True connectivity matrix W_ij
 
 # %%
 #| echo: true
@@ -87,7 +88,7 @@ graphs_dir = f'./graphs_data/{config_file}'
 # STEP 1: GENERATE
 print()
 print("-" * 80)
-print("STEP 1: GENERATE - Simulating neural activity (Fig 2a-c)")
+print("STEP 1: GENERATE - Simulating neural activity")
 print("-" * 80)
 
 # Check if data already exists
@@ -125,25 +126,24 @@ else:
     )
 
 # %%
-#| fig-cap: "Fig 2b: Sample of 10 time series taken from the activity data."
+#| fig-cap: "Sample of 10 time series taken from the activity data."
 
-load_and_display(f"./graphs_data/signal/signal_fig_2/activity.png")
+load_and_display(f"./graphs_data/signal/signal_fig_supp_3/activity.png")
 
 # %%
-#| fig-cap: "Fig 2c: True connectivity W_ij. The inset shows 20×20 weights."
+#| fig-cap: "True connectivity W_ij. The inset shows 20x20 weights."
 
-load_and_display("./graphs_data/signal/signal_fig_2/connectivity_matrix.png")
+load_and_display("./graphs_data/signal/signal_fig_supp_3/connectivity_matrix.png")
 
 # %% [markdown]
 # ## Step 2: Train GNN
-# Train the GNN to learn connectivity W, latent embeddings a_i, and functions phi/psi.
+# Train the GNN to learn connectivity W and functions phi/psi (without latent embeddings).
 # The GNN learns to predict dx/dt from the observed activity x.
 #
 # **Learning targets:**
 #
 # - Connectivity matrix W
-# - Latent vectors a_i
-# - Update function phi*(a_i, x)
+# - Update function phi*(x)
 # - Transfer function psi*(x)
 
 # %%
@@ -152,7 +152,7 @@ load_and_display("./graphs_data/signal/signal_fig_2/connectivity_matrix.png")
 # STEP 2: TRAIN
 print()
 print("-" * 80)
-print("STEP 2: TRAIN - Training GNN to learn W, embeddings, phi, psi")
+print("STEP 2: TRAIN - Training GNN to learn W, phi, psi (no embeddings)")
 print("-" * 80)
 
 # Check if trained model already exists
@@ -162,7 +162,7 @@ if os.path.exists(model_file):
     print("  Skipping training (delete models folder to retrain)")
 else:
     print(f"  Training for {config.training.n_epochs} epochs, {config.training.n_runs} run(s)")
-    print(f"  Learning: connectivity W, latent vectors a_i, functions phi* and psi*")
+    print(f"  Learning: connectivity W, functions phi* and psi* (no embeddings)")
     print(f"  Models: {log_dir}/models/")
     print(f"  Training plots: {log_dir}/tmp_training")
     print(f"  Tensorboard: tensorboard --logdir {log_dir}/")
@@ -177,15 +177,14 @@ else:
 
 # %% [markdown]
 # ## Step 3: GNN Evaluation
-# Figures matching Figure 2 from the paper.
+# Figures matching Supplementary Figure 3 from the paper.
 #
 # **Figure panels:**
 #
-# - Fig 2d: Learned connectivity matrix
-# - Fig 2e: Comparison of learned vs true connectivity 
-# - Fig 2f: Learned latent vectors a_i 
-# - Fig 2g: Learned update functions phi*(a_i, x) 
-# - Fig 2h: Learned transfer function psi*(x) 
+# - Learned connectivity matrix
+# - Comparison of learned vs true connectivity
+# - Learned update functions phi*(x)
+# - Learned transfer function psi*(x)
 
 # %%
 #| echo: true
@@ -193,13 +192,12 @@ else:
 # STEP 3: GNN EVALUATION
 print()
 print("-" * 80)
-print("STEP 3: GNN EVALUATION - Generating Figure 2 panels (d-h)")
+print("STEP 3: GNN EVALUATION - Generating Supplementary Figure 3 panels")
 print("-" * 80)
-print(f"  Fig 2d: Learned connectivity matrix")
-print(f"  Fig 2e: W learned vs true (R^2, slope)")
-print(f"  Fig 2f: Latent vectors a_i (4 clusters)")
-print(f"  Fig 2g: Update functions phi*(a_i, x)")
-print(f"  Fig 2h: Transfer function psi*(x)")
+print(f"  Learned connectivity matrix")
+print(f"  W learned vs true (R^2, slope)")
+print(f"  Update functions phi*(x)")
+print(f"  Transfer function psi*(x)")
 print(f"  Output: {log_dir}/results/")
 print()
 folder_name = './log/' + pre_folder + '/tmp_results/'
@@ -207,74 +205,35 @@ os.makedirs(folder_name, exist_ok=True)
 data_plot(config=config, config_file=config_file, epoch_list=['best'], style='color', extended='plots', device=device, apply_weight_correction=True)
 
 # %% [markdown]
-# ### Figures 2d-2h: GNN Evaluation Results
+# ### Supplementary Figure 3: GNN Evaluation Results
 
 # %%
-#| fig-cap: "Fig 2d: Learned connectivity."
-load_and_display("./log/signal/signal_fig_2/results/connectivity_learned.png")
+#| fig-cap: "Learned connectivity."
+load_and_display("./log/signal/signal_fig_supp_3/results/connectivity_learned.png")
 
 # %%
-#| fig-cap: "Fig 2e: Comparison of learned and true connectivity (given g_i=10)."
-load_and_display("./log/signal/signal_fig_2/results/weights_comparison_corrected.png")
+#| fig-cap: "Comparison of learned and true connectivity (given g_i=10)."
+load_and_display("./log/signal/signal_fig_supp_3/results/weights_comparison_corrected.png")
 
 # %%
-#| fig-cap: "Fig 2f: Learned latent vectors a_i of all neurons."
-load_and_display("./log/signal/signal_fig_2/results/embedding.png")
+#| fig-cap: "Learned update functions phi*(x)."
+load_and_display("./log/signal/signal_fig_supp_3/results/MLP0.png")
 
 # %%
-#| fig-cap: "Fig 2g: Learned update functions φ*(a_i, x). The plot shows 1000 overlaid curves, one for each vector a_i."
-load_and_display("./log/signal/signal_fig_2/results/MLP0.png")
-
-# %%
-#| fig-cap: "Fig 2h: Learned transfer function ψ*(x), normalized to a maximum value of 1. Colors indicate true neuron types. True function is overlaid in light gray."
-load_and_display("./log/signal/signal_fig_2/results/MLP1_corrected.png")
+#| fig-cap: "Learned transfer function psi*(x), normalized to a maximum value of 1. True function is overlaid in light gray."
+load_and_display("./log/signal/signal_fig_supp_3/results/MLP1_corrected.png")
 
 # %% [markdown]
-# ## Step 4: GNN Training Visualization
-# Generate training progression figures showing how the GNN learns across epochs.
-#
-# **Visualizations:**
-#
-# - Row a: Latent embeddings a_i evolution 
-# - Row b: Update functions phi*(a_i, x) 
-# - Row c: Transfer function psi*(x)
-# - Row d: Connectivity matrix W 
-# - Row e: W learned vs true scatter plot
-
-# %%
-#| echo: true
-#| output: false
-# STEP 4: GNN TRAINING VISUALIZATION
-print()
-print("-" * 80)
-print("STEP 4: GNN TRAINING - Generating training progression figures")
-print("-" * 80)
-print(f"  Generating plots for all training epochs")
-print(f"  Output: {log_dir}/results/all/")
-print()
-data_plot(config=config, config_file=config_file, epoch_list=['all'], style='color', extended='plots', device=device, apply_weight_correction=True)
-
-# Create montage from individual epoch plots
-print()
-print("  Creating training montage (8 columns x 5 rows)...")
-create_training_montage(config=config, n_cols=8)
-
-# %%
-#| fig-cap: "Supplementary Figure 1: Results plotted over 20 epochs. (a) Learned latent vectors a_i. (b) Learned update functions φ*(a,x). (c) Learned transfer function ψ*(x), normalized to max=1. (d) Learned connectivity W_ij. (e) Comparison of learned and true connectivity. Colors indicate true neuron types."
-
-load_and_display("./log/signal/signal_fig_2/results/training_montage.png")
-
-# %% [markdown]
-# ## Step 5: Test Model
+# ## Step 4: Test Model
 # Test the trained GNN model. Evaluates prediction accuracy and performs rollout inference.
 
 # %%
 #| echo: true
 #| output: false
-# STEP 5: TEST
+# STEP 4: TEST
 print()
 print("-" * 80)
-print("STEP 5: TEST - Evaluating trained model")
+print("STEP 4: TEST - Evaluating trained model")
 print("-" * 80)
 print(f"  Testing prediction accuracy and rollout inference")
 print(f"  Output: {log_dir}/results/")
@@ -283,7 +242,7 @@ config.training.noise_model_level = 0.0
 
 data_test(
     config=config,
-    visualize=True,
+    visualize=False,
     style="color name continuous_slice",
     verbose=False,
     best_model='best',
@@ -299,13 +258,14 @@ data_test(
 
 # %% [markdown]
 # ### Rollout Results
-# Display the rollout comparison figure showing:
-# - Left panels: activity traces (ground truth gray, learned colored)
-# - Top right: scatter plot of true vs learned $x_i$ with $R^2$ and slope
-# - Bottom right: $R^2$ over time
+# Display the rollout comparison figures showing:
+# - Left panel: activity traces (ground truth gray, learned colored)
+# - Right panel: scatter plot of true vs learned $x_i$ with $R^2$ and slope
 
 # %%
-# Display rollout comparison figure (last frame from rollout)
-dataset_name_ = config.dataset.split('/')[-1]
-rollout_fig_path = f"{log_dir}/results/{dataset_name_}.png"
-load_and_display(rollout_fig_path)
+#| fig-cap: "Rollout comparison at time-point 400."
+load_and_display(f"{log_dir}/results/Fig_0_000039.png")
+
+# %%
+#| fig-cap: "Rollout comparison at time-point 800."
+load_and_display(f"{log_dir}/results/Fig_0_000079.png")

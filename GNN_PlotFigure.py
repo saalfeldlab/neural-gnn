@@ -551,10 +551,8 @@ def create_signal_lin_edge_subplot(fig, ax, model, config, n_neurons, type_list,
 
     ax.set_xlabel(signal_var, fontsize=32)
     ax.set_ylabel(ylabel, fontsize=32)
-    ax.set_xlim([-to_numpy(xnorm).item(), to_numpy(xnorm).item()])
-    # set ylim to normalized range only when correction is applied
-    if apply_weight_correction:
-        ax.set_ylim([-1.2, 1.2])
+    ax.set_xlim(config.plotting.mlp1_xlim)
+    ax.set_ylim(config.plotting.mlp1_ylim)
     ax.tick_params(labelsize=16)
 
 
@@ -605,8 +603,8 @@ def create_signal_lin_phi_subplot(fig, ax, model, config, n_neurons, type_list, 
 
     ax.set_xlabel(signal_var, fontsize=32)
     ax.set_ylabel(ylabel, fontsize=32)
-    ax.set_xlim([-to_numpy(xnorm).item(), to_numpy(xnorm).item()])
-    ax.set_ylim(limits['lin_phi'])
+    ax.set_xlim(config.plotting.mlp0_xlim)
+    ax.set_ylim(config.plotting.mlp0_ylim)
     ax.tick_params(labelsize=16)
 
 
@@ -1289,8 +1287,8 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                             plt.plot(to_numpy(rr), to_numpy(func), color=cmap.color(k), linewidth=2, alpha=0.25)
                     plt.xlabel(r'$x_j$', fontsize=68)
                     plt.ylabel(r'learned $\mathrm{MLP_1}(\mathbf{a}_j, v_j)$', fontsize=68)
-                    plt.ylim([-1.6, 1.6])
-                    plt.xlim([-to_numpy(xnorm)//2, to_numpy(xnorm)//2])
+                    plt.ylim(config.plotting.mlp1_ylim)
+                    plt.xlim(config.plotting.mlp1_xlim)
                     plt.tight_layout()
                     plt.savefig(f"./{log_dir}/results/all/MLP1_{num}.png", dpi=80)
                     plt.close()
@@ -1361,8 +1359,8 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                         plt.ylabel(r'$\mathrm{MLP_1}$', fontsize=68)
                     else:
                         plt.ylabel(r'$f$', fontsize=68)
-                    plt.ylim([-1.2, 1.2])
-                    plt.xlim([-to_numpy(xnorm).item(), to_numpy(xnorm).item()])
+                    plt.ylim(config.plotting.mlp1_ylim)
+                    plt.xlim(config.plotting.mlp1_xlim)
                     plt.tight_layout()
                     plt.savefig(f"./{log_dir}/results/all/MLP1_{num}.png", dpi=80)
                     plt.close()
@@ -1392,8 +1390,8 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                         plt.plot(to_numpy(rr), to_numpy(func), color=cmap.color(neuron_type), linewidth=2, alpha=0.25)
                     plt.xlabel(r'$x_i$', fontsize=68)
                     plt.ylabel(r'learned $\psi^*(x_i)$', fontsize=68)
-                    plt.xlim([-to_numpy(xnorm), to_numpy(xnorm)])
-                    plt.ylim([-1.1, 1.1])
+                    plt.xlim(config.plotting.mlp1_xlim)
+                    plt.ylim(config.plotting.mlp1_ylim)
                     plt.tight_layout()
                     plt.savefig(f"./{log_dir}/results/all/MLP1_{num}.png", dpi=80)
                     plt.close()
@@ -1425,7 +1423,8 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                 # # Calculate ylim from actual data (like non-'all' version)
                 phi_list = torch.stack(phi_list)
 
-                plt.ylim(phi_ylim)
+                plt.xlim(config.plotting.mlp0_xlim)
+                plt.ylim(config.plotting.mlp0_ylim)
                 plt.xlabel(r'$v_i$', fontsize=68)
                 plt.ylabel(r'learned $\phi^*(\mathbf{a}_i, v_i)$', fontsize=68)
                 plt.tight_layout()
@@ -1950,7 +1949,7 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
             margin = (ymax - ymin) * 0.05
             plt.xlabel(r'$v_i$', fontsize=68)
             plt.ylabel(r'$\mathrm{MLP_1}$ (raw)', fontsize=68)
-            plt.xlim([-to_numpy(xnorm), to_numpy(xnorm)])
+            plt.xlim(config.plotting.mlp1_xlim)
             # plt.ylim([ymin - margin, ymax + margin])
             # Create yticks based on actual data range
             yticks = np.linspace(ymin, ymax, 11)
@@ -2009,9 +2008,10 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                     plt.ylabel(r'learned $\psi^*(\mathbf{a}_i, a_j, x_i)$', fontsize=68)
                 else:
                     plt.ylabel(r'learned $\psi^*(x_i)$', fontsize=68)
-            plt.xlim([-to_numpy(xnorm), to_numpy(xnorm)])
-            plt.ylim([-1.1, 1.1])
-            ax.set_yticks([-1.0, 0.0, 1.0])
+            plt.xlim(config.plotting.mlp1_xlim)
+            plt.ylim(config.plotting.mlp1_ylim)
+            ylim = config.plotting.mlp1_ylim
+            ax.set_yticks([ylim[0], (ylim[0] + ylim[1]) / 2, ylim[1]])
             plt.tight_layout()
             plt.savefig(f"./{log_dir}/results/MLP1_corrected.png", dpi=170.7)
             plt.close()
@@ -2068,9 +2068,9 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                 plt.ylabel(r'$\mathrm{MLP_0}$', fontsize=68)
             else:
                 plt.ylabel(r'learned $\phi^*(\mathbf{a}_i, x_i)$', fontsize=68)
+            plt.xlim(config.plotting.mlp0_xlim)
+            plt.ylim(config.plotting.mlp0_ylim)
             plt.tight_layout()
-            # plt.xlim([-to_numpy(xnorm), to_numpy(xnorm)])
-            plt.ylim(phi_ylim)
             plt.savefig(f'./{log_dir}/results/MLP0.png', dpi=300)
             plt.close()
 
@@ -2179,7 +2179,9 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
             print(f'R² (raw): {r_squared_raw:.3f}  slope: {np.round(lin_fit_raw[0], 4)}')
             logger.info(f'R² (raw): {np.round(r_squared_raw, 4)}  slope: {np.round(lin_fit_raw[0], 4)}')
 
-
+            # Save W_correction (raw slope) for use in data_test generalization
+            np.save(f'{log_dir}/W_correction.npy', lin_fit_raw[0])
+            print(f'saved W_correction: {lin_fit_raw[0]:.4f}')
 
 
 
@@ -2224,6 +2226,10 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
             logger.info(f'R² (corrected): {np.round(r_squared, 4)}  slope: {np.round(lin_fit[0], 4)}')
             if log_file:
                 log_file.write(f"connectivity_R2: {r_squared:.4f}\n")
+
+            # Save second_correction (slope) for use in data_test generalization
+            np.save(f'{log_dir}/second_correction.npy', lin_fit[0])
+            print(f'saved second_correction: {lin_fit[0]:.4f}')
 
             # Connectivity heatmap corrected by slope (for comparison with true)
             connectivity_corrected = pred_weight_corrected / lin_fit[0]

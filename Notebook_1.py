@@ -73,6 +73,22 @@ log_dir = f'./log/{config_file}'
 graphs_dir = f'./graphs_data/{config_file}'
 
 # %% [markdown]
+# ## Step 0: Supplementary Figure 5 - Generalization Test
+# Test the trained GNN with modified network structure:
+# - Modified neuron type proportions (10%, 20%, 30%, 40% instead of 25% each)
+# - Modified sparse connectivity (~25% sparsity, 243,831 weights instead of 10^6)
+#
+# **Outputs:**
+#
+# - Panel b: Modified neuron type proportions histogram
+# - Panel d: Modified sparse connectivity matrix
+# - Panels e,f: Rollout at 400 time-points
+# - Panels g,h: Rollout at 800 time-points
+
+
+
+
+# %% [markdown]
 # ## Step 1: Generate Data
 # Generate synthetic neural activity data using the PDE_N2 model ('src/neural-gnn/generators').
 # This creates the training dataset with 1000 neurons of 4 different types and 100,000 time points.
@@ -236,9 +252,9 @@ load_and_display("./log/signal/signal_fig_2/results/MLP1_corrected.png")
 # **Visualizations:**
 #
 # - Row a: Latent embeddings a_i evolution 
-# - Row b: Update functions phi*(a_i, x) 
+# - Row b: Update functions phi*(a_i, x)
 # - Row c: Transfer function psi*(x)
-# - Row d: Connectivity matrix W 
+# - Row d: Connectivity matrix W
 # - Row e: W learned vs true scatter plot
 
 # %%
@@ -283,7 +299,7 @@ config.training.noise_model_level = 0.0
 
 data_test(
     config=config,
-    visualize=True,
+    visualize=False,
     style="color name continuous_slice",
     verbose=False,
     best_model='best',
@@ -299,13 +315,141 @@ data_test(
 
 # %% [markdown]
 # ### Rollout Results
-# Display the rollout comparison figure showing:
-# - Left panels: activity traces (ground truth gray, learned colored)
-# - Top right: scatter plot of true vs learned $x_i$ with $R^2$ and slope
-# - Bottom right: $R^2$ over time
+# Display the rollout comparison figures showing:
+# - Left panel: activity traces (ground truth gray, learned colored)
+# - Right panel: scatter plot of true vs learned $x_i$ with $R^2$ and slope
 
 # %%
-# Display rollout comparison figure (last frame from rollout)
-dataset_name_ = config.dataset.split('/')[-1]
-rollout_fig_path = f"{log_dir}/results/{dataset_name_}.png"
-load_and_display(rollout_fig_path)
+#| fig-cap: "Rollout comparison at time-point 400."
+load_and_display(f"{log_dir}/results/Fig_0_000039.png")
+
+# %%
+#| fig-cap: "Rollout comparison at time-point 800."
+load_and_display(f"{log_dir}/results/Fig_0_000079.png")
+
+# %% [markdown]
+# ## Step 6: Supplementary Figure 5 - Generalization Test
+# Test the trained GNN with modified network structure:
+# - Modified neuron type proportions (10%, 20%, 30%, 40% instead of 25% each)
+# - Modified sparse connectivity (~25% sparsity, 243,831 weights instead of 10^6)
+#
+# **Outputs:**
+#
+# - Panel b: Modified neuron type proportions histogram
+# - Panel d: Modified sparse connectivity matrix
+# - Panels e,f: Rollout at 400 time-points
+# - Panels g,h: Rollout at 800 time-points
+
+# %%
+#| echo: true
+#| output: false
+# STEP 6: SUPPLEMENTARY FIGURE 5 - GENERALIZATION TEST
+print()
+print("-" * 80)
+print("STEP 6: SUPPLEMENTARY FIGURE 5 - Generalization test with modified network")
+print("-" * 80)
+print("  Modified neuron type proportions: 10%, 20%, 30%, 40%")
+print("  Modified connectivity: ~25% sparsity (243,831 weights)")
+print()
+
+# new_params: [connectivity_filling_factor, type0_pct, type1_pct, type2_pct, type3_pct]
+new_params_supp5 = [0.25, 10, 20, 30, 40]
+
+data_test(
+    config=config,
+    visualize=True,
+    style="color",
+    verbose=False,
+    best_model='best',
+    run=0,
+    test_mode="",
+    sample_embedding=False,
+    step=10,
+    n_rollout_frames=1000,
+    device=device,
+    particle_of_interest=0,
+    new_params=new_params_supp5,
+)
+
+# %% [markdown]
+# ### Supplementary Figure 5 Panels
+
+# %%
+#| fig-cap: "Panel b: Modified neuron type proportions (10%, 20%, 30%, 40%)."
+load_and_display(f"{log_dir}/results/new_neuron_type_histogram.png")
+
+# %%
+#| fig-cap: "Panel d: Modified sparse connectivity matrix (~25% sparsity, 243,831 weights)."
+load_and_display(f"{log_dir}/results/new connectivity.png")
+
+# %%
+#| fig-cap: "Panels e,f: Rollout at 400 time-points."
+load_and_display(f"{log_dir}/results/Fig_0_000039.png")
+
+# %%
+#| fig-cap: "Panels g,h: Rollout at 800 time-points."
+load_and_display(f"{log_dir}/results/Fig_0_000079.png")
+
+# %% [markdown]
+# ## Supplementary Figure 6 - Generalization Test (Extreme)
+# Test the trained GNN with more extreme network modifications:
+# - Modified neuron type proportions: 60%, 40%, 0%, 0% (types 2 and 3 eliminated)
+# - Modified sparse connectivity: ~50% sparsity (487,401 weights instead of 10^6)
+#
+# **Outputs:**
+#
+# - Panel b: Modified neuron type proportions histogram
+# - Panel d: Modified sparse connectivity matrix
+# - Panels e,f: Rollout at 400 time-points
+# - Panels g,h: Rollout at 800 time-points
+
+# %%
+#| echo: true
+#| output: false
+# SUPPLEMENTARY FIGURE 6 - GENERALIZATION TEST
+print()
+print("-" * 80)
+print("SUPPLEMENTARY FIGURE 6 - Generalization test with extreme network modification")
+print("-" * 80)
+print("  Modified neuron type proportions: 60%, 40%, 0%, 0% (types 2,3 eliminated)")
+print("  Modified connectivity: ~50% sparsity (487,401 weights)")
+print()
+
+# new_params: [connectivity_filling_factor, type0_pct, type1_pct, type2_pct, type3_pct]
+# 50% sparsity = 0.5 filling factor -> ~500,000 weights
+new_params_supp6 = [0.5, 60, 40, 0, 0]
+
+data_test(
+    config=config,
+    visualize=True,
+    style="color",
+    verbose=False,
+    best_model='best',
+    run=0,
+    test_mode="",
+    sample_embedding=False,
+    step=10,
+    n_rollout_frames=1000,
+    device=device,
+    particle_of_interest=0,
+    new_params=new_params_supp6,
+)
+
+# %% [markdown]
+# ### Supplementary Figure 6 Panels
+
+# %%
+#| fig-cap: "Panel b: Modified neuron type proportions (60%, 40%, types 2,3 eliminated)."
+load_and_display(f"{log_dir}/results/new_neuron_type_histogram.png")
+
+# %%
+#| fig-cap: "Panel d: Modified sparse connectivity matrix (~50% sparsity, 487,401 weights)."
+load_and_display(f"{log_dir}/results/new connectivity.png")
+
+# %%
+#| fig-cap: "Panels e,f: Rollout at 400 time-points."
+load_and_display(f"{log_dir}/results/Fig_0_000039.png")
+
+# %%
+#| fig-cap: "Panels g,h: Rollout at 800 time-points."
+load_and_display(f"{log_dir}/results/Fig_0_000079.png")

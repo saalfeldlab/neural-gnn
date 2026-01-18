@@ -40,8 +40,8 @@ if __name__ == "__main__":
             best_model = None
     else:
         best_model = ''
-        task = 'generate_train_test_plot'
-        config_list = ['signal_N2_5percent']
+        task = 'generate'
+        config_list = ['signal_fig_2']
 
     for config_file_ in config_list:
         print(" ")

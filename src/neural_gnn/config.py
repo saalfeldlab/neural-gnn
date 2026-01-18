@@ -286,6 +286,12 @@ class PlottingConfig(BaseModel):
     plot_batch_size: int = 1000
     label_style: str = "MLP"  # "MLP" for MLP_0, MLP_1 labels; "greek" for phi, f labels
 
+    # MLP plot axis limits
+    mlp0_xlim: list[float] = [-5, 5]
+    mlp0_ylim: list[float] = [-8, 8]
+    mlp1_xlim: list[float] = [-5, 5]
+    mlp1_ylim: list[float] = [-1.1, 1.1]
+
 
 class TrainingConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
