@@ -1,7 +1,7 @@
 # %% [raw]
 # ---
-# title: "Figure 2: Baseline - 1000 neurons with 4 types"
-# author: Cédric Allier, Michael Bhaskara, Stephan Saalfeld
+# title: "Figure 2: baseline - 1000 neurons with 4 types"
+# author: Cédric Allier, MichaelInnerberger, Stephan Saalfeld
 # categories:
 #   - Neural Activity
 #   - Simulation
@@ -12,7 +12,7 @@
 # ---
 
 # %% [markdown]
-# This script reproduces the panels of paper's **Figure 2** and other related supplementary panels.
+# This script reproduces the panels of paper's **Figure 2** and other related supplementary panels (1, 2, 5 and 6).
 #
 # **Simulation parameters:**
 #
@@ -72,21 +72,6 @@ if device == []:
 log_dir = f'./log/{config_file}'
 graphs_dir = f'./graphs_data/{config_file}'
 
-# %% [markdown]
-# ## Step 0: Supplementary Figure 5 - Generalization Test
-# Test the trained GNN with modified network structure:
-# - Modified neuron type proportions (10%, 20%, 30%, 40% instead of 25% each)
-# - Modified sparse connectivity (~25% sparsity, 243,831 weights instead of 10^6)
-#
-# **Outputs:**
-#
-# - Panel b: Modified neuron type proportions histogram
-# - Panel d: Modified sparse connectivity matrix
-# - Panels e,f: Rollout at 400 time-points
-# - Panels g,h: Rollout at 800 time-points
-
-
-
 
 # %% [markdown]
 # ## Step 1: Generate Data
@@ -96,7 +81,7 @@ graphs_dir = f'./graphs_data/{config_file}'
 # **Outputs:**
 #
 # - Figure 2b: Sample of 100 time series
-# - Figure 2c: True connectivity matrix W_ij
+# - Figure 2c: True connectivity matrix $W_{ij}$
 
 # %%
 #| echo: true
@@ -146,7 +131,7 @@ else:
 load_and_display(f"./graphs_data/signal/signal_fig_2/activity.png")
 
 # %%
-#| fig-cap: "Fig 2c: True connectivity W_ij. The inset shows 20×20 weights."
+#| fig-cap: "Fig 2c: True connectivity $W_{ij}$. The inset shows 20×20 weights."
 load_and_display("./graphs_data/signal/signal_fig_2/connectivity_matrix.png")
 
 # %% [markdown]
@@ -198,10 +183,10 @@ else:
 # **Figure panels:**
 #
 # - Fig 2d: Learned connectivity matrix
-# - Fig 2e: Comparison of learned vs true connectivity 
-# - Fig 2f: Learned latent vectors a_i 
-# - Fig 2g: Learned update functions phi*(a_i, x) 
-# - Fig 2h: Learned transfer function psi*(x) 
+# - Fig 2e: Comparison of learned vs true connectivity
+# - Fig 2f: Learned latent vectors $\mathbf{a}_i$
+# - Fig 2g: Learned update functions $\phi^*(\mathbf{a}_i, x)$
+# - Fig 2h: Learned transfer function $\psi^*(x)$ 
 
 # %%
 #| echo: true
@@ -230,19 +215,19 @@ data_plot(config=config, config_file=config_file, epoch_list=['best'], style='co
 load_and_display("./log/signal/signal_fig_2/results/connectivity_learned.png")
 
 # %%
-#| fig-cap: "Fig 2e: Comparison of learned and true connectivity (given g_i=10)."
+#| fig-cap: "Fig 2e: Comparison of learned and true connectivity (given $g_i$=10)."
 load_and_display("./log/signal/signal_fig_2/results/weights_comparison_corrected.png")
 
 # %%
-#| fig-cap: "Fig 2f: Learned latent vectors a_i of all neurons."
+#| fig-cap: "Fig 2f: Learned latent vectors $a_i$ of all neurons."
 load_and_display("./log/signal/signal_fig_2/results/embedding.png")
 
 # %%
-#| fig-cap: "Fig 2g: Learned update functions φ*(a_i, x). The plot shows 1000 overlaid curves, one for each vector a_i. Colors indicate true neuron types.  True functions are overlaid in light gray."
+#| fig-cap: "Fig 2g: Learned update functions $\\phi^*(a_i, x)$. The plot shows 1000 overlaid curves, one for each vector $a_i$. Colors indicate true neuron types. True functions are overlaid in light gray."
 load_and_display("./log/signal/signal_fig_2/results/MLP0.png")
 
 # %%
-#| fig-cap: "Fig 2h: Learned transfer function ψ*(x), normalized to a maximum value of 1. True function is overlaid in light gray."
+#| fig-cap: "Fig 2h: Learned transfer function $\\psi^*(x)$, normalized to a maximum value of 1. True function is overlaid in light gray."
 load_and_display("./log/signal/signal_fig_2/results/MLP1_corrected.png")
 
 # %% [markdown]
@@ -251,11 +236,11 @@ load_and_display("./log/signal/signal_fig_2/results/MLP1_corrected.png")
 #
 # **Visualizations:**
 #
-# - Row a: Latent embeddings a_i evolution 
-# - Row b: Update functions phi*(a_i, x)
-# - Row c: Transfer function psi*(x)
-# - Row d: Connectivity matrix W
-# - Row e: W learned vs true scatter plot
+# - Row a: Latent embeddings $\mathbf{a}_i$ evolution
+# - Row b: Update functions $\phi^*(\mathbf{a}_i, x)$
+# - Row c: Transfer function $\psi^*(x)$
+# - Row d: Connectivity matrix $W$
+# - Row e: $W$ learned vs true scatter plot
 
 # %%
 #| echo: true
@@ -276,7 +261,7 @@ print("  Creating training montage (8 columns x 5 rows)...")
 create_training_montage(config=config, n_cols=8)
 
 # %%
-#| fig-cap: "Supplementary Figure 1: Results plotted over 20 epochs. (a) Learned latent vectors a_i. (b) Learned update functions φ*(a,x). (c) Learned transfer function ψ*(x), normalized to max=1. (d) Learned connectivity W_ij. (e) Comparison of learned and true connectivity. Colors indicate true neuron types."
+#| fig-cap: "Supplementary Figure 1: Results plotted over 20 epochs. (a) Learned latent vectors $a_i$. (b) Learned update functions $\\phi^*(a_i, x)$. (c) Learned transfer function $\\psi^*(x)$, normalized to max=1. (d) Learned connectivity $W_{ij}$. (e) Comparison of learned and true connectivity. Colors indicate true neuron types."
 
 load_and_display("./log/signal/signal_fig_2/results/training_montage.png")
 

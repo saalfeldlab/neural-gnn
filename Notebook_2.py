@@ -1,7 +1,7 @@
 # %% [raw]
 # ---
-# title: "Supplementary Figure 3: 1000 neurons with 4 types, no embedding"
-# author: Cédric Allier, Michael Bhaskara, Stephan Saalfeld
+# title: "Supplementary Figure 3: 1000 neurons with 4 types, fixed embedding"
+# author: Cédric Allier, MichaelInnerberger, Stephan Saalfeld
 # categories:
 #   - Neural Activity
 #   - Simulation
@@ -12,12 +12,14 @@
 # ---
 
 # %% [markdown]
-# This script reproduces the panels of paper's **Supplementary Figure 3** and other supplementary panels related to the same dataset.
+# This script reproduces the panels of paper's **Supplementary Figure 3**.
+# To assess the importance of learning latent neuron types, we trained
+# a GNN with fixed embedding.
 #
 # **Simulation parameters:**
 #
 # - N_neurons: 1000
-# - N_types: 4 (parameterized by tau_i={0.5,1} and s_i={1,2})
+# - N_types: 4 (parameterized by $\tau_i$={0.5,1} and $s_i$={1,2})
 # - N_frames: 100,000
 # - Connectivity: 100% (dense)
 # - Noise: none
@@ -80,7 +82,7 @@ graphs_dir = f'./graphs_data/{config_file}'
 # **Outputs:**
 #
 # - Sample of 10 time series
-# - True connectivity matrix W_ij
+# - True connectivity matrix $W_{ij}$
 
 # %%
 #| echo: true
@@ -131,7 +133,7 @@ else:
 load_and_display(f"./graphs_data/signal/signal_fig_supp_3/activity.png")
 
 # %%
-#| fig-cap: "True connectivity W_ij. The inset shows 20x20 weights."
+#| fig-cap: "True connectivity $W_{ij}$. The inset shows 20×20 weights."
 
 load_and_display("./graphs_data/signal/signal_fig_supp_3/connectivity_matrix.png")
 
@@ -142,9 +144,9 @@ load_and_display("./graphs_data/signal/signal_fig_supp_3/connectivity_matrix.png
 #
 # **Learning targets:**
 #
-# - Connectivity matrix W
-# - Update function phi*(x)
-# - Transfer function psi*(x)
+# - Connectivity matrix $W$
+# - Update function $\phi^*(x)$
+# - Transfer function $\psi^*(x)$
 
 # %%
 #| echo: true
@@ -183,8 +185,8 @@ else:
 #
 # - Learned connectivity matrix
 # - Comparison of learned vs true connectivity
-# - Learned update functions phi*(x)
-# - Learned transfer function psi*(x)
+# - Learned update functions $\phi^*(x)$
+# - Learned transfer function $\psi^*(x)$
 
 # %%
 #| echo: true
@@ -212,15 +214,15 @@ data_plot(config=config, config_file=config_file, epoch_list=['best'], style='co
 load_and_display("./log/signal/signal_fig_supp_3/results/connectivity_learned.png")
 
 # %%
-#| fig-cap: "Comparison of learned and true connectivity (given g_i=10)."
+#| fig-cap: "Comparison of learned and true connectivity (given $g_i$=10)."
 load_and_display("./log/signal/signal_fig_supp_3/results/weights_comparison_corrected.png")
 
 # %%
-#| fig-cap: "Learned update functions phi*(x)."
+#| fig-cap: "Learned update functions $\\phi^*(x)$."
 load_and_display("./log/signal/signal_fig_supp_3/results/MLP0.png")
 
 # %%
-#| fig-cap: "Learned transfer function psi*(x), normalized to a maximum value of 1. True function is overlaid in light gray."
+#| fig-cap: "Learned transfer function $\\psi^*(x)$, normalized to a maximum value of 1. True function is overlaid in light gray."
 load_and_display("./log/signal/signal_fig_supp_3/results/MLP1_corrected.png")
 
 # %% [markdown]

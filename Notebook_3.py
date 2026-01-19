@@ -1,18 +1,19 @@
 # %% [raw]
 # ---
-# title: "Supplementary Figure 7: Effect of Training Dataset Size"
-# author: Cédric Allier, Michael Bhaskara, Stephan Saalfeld
+# title: "Supplementary Figure 7: Effect of training dataset size"
+# author: Cédric Allier, MichaelInnerberger, Stephan Saalfeld
 # categories:
 #   - Neural Activity
 #   - Simulation
 #   - GNN Training
 # execute:
 #   echo: false
-# image: "log/signal/signal_fig_2/tmp_training/matrix/comparison_3_124999.tif"
+# image: "log/signal/signal_fig_2/results/weights_comparison_corrected.png"
 # ---
 
 # %% [markdown]
-# This script displays the panels for **Supplementary Figure 7** from the paper.
+# This script displays the panels for **Supplementary Figure 7** from the paper. 
+# Performance scales with the length of the training series.
 #
 # **Supplementary Figure 7** shows R² vs epochs for different training dataset sizes.
 # This notebook displays connectivity matrix comparison and MLP0 plots for each dataset size.
@@ -20,7 +21,7 @@
 # **Simulation parameters (constant across all experiments):**
 #
 # - N_neurons: 1000
-# - N_types: 4 parameterized by τ_i={0.5,1}, s_i={1,2} and g_i=10
+# - N_types: 4 parameterized by $\tau_i$={0.5,1}, $s_i$={1,2} and $g_i$=10
 # - Connectivity: 100% (dense), Lorentz distribution
 #
 # **Variable: Training dataset size (n_frames)**
@@ -183,8 +184,8 @@ for config_file_ in config_files:
 # %% [markdown]
 # ## Connectivity Matrix Comparison (Final)
 #
-# Learned vs true connectivity matrix W_ij after training.
-# The scatter plot shows R² and slope metrics.
+# Learned vs true connectivity matrix $W_{ij}$ after training.
+# The scatter plot shows $R^2$ and slope metrics.
 
 # %%
 #| fig-cap: "Connectivity comparison (100,000 frames - baseline)"
@@ -211,31 +212,31 @@ load_and_display("./log/signal/signal_fig_supp_7_4/results/weights_comparison_co
 load_and_display("./log/signal/signal_fig_supp_7_5/results/weights_comparison_corrected.png")
 
 # %% [markdown]
-# ## Update Function φ*(a_i, x) (MLP0) - Final
+# ## Update Function $\phi^*(\mathbf{a}_i, x)$ (MLP0) - Final
 #
 # Learned update functions after training. Each curve represents one neuron.
 # Colors indicate true neuron types. True functions overlaid in gray.
 
 # %%
-#| fig-cap: "Update functions φ*(a_i, x) (100,000 frames - baseline)"
+#| fig-cap: "Update functions $\\phi^*(a_i, x)$ (100,000 frames - baseline)"
 load_and_display("./log/signal/signal_fig_2/results/MLP0.png")
 
 # %%
-#| fig-cap: "Update functions φ*(a_i, x) (50,000 frames)"
+#| fig-cap: "Update functions $\\phi^*(a_i, x)$ (50,000 frames)"
 load_and_display("./log/signal/signal_fig_supp_7_1/results/MLP0.png")
 
 # %%
-#| fig-cap: "Update functions φ*(a_i, x) (40,000 frames)"
+#| fig-cap: "Update functions $\\phi^*(a_i, x)$ (40,000 frames)"
 load_and_display("./log/signal/signal_fig_supp_7_2/results/MLP0.png")
 
 # %%
-#| fig-cap: "Update functions φ*(a_i, x) (30,000 frames)"
+#| fig-cap: "Update functions $\\phi^*(a_i, x)$ (30,000 frames)"
 load_and_display("./log/signal/signal_fig_supp_7_3/results/MLP0.png")
 
 # %%
-#| fig-cap: "Update functions φ*(a_i, x) (20,000 frames)"
+#| fig-cap: "Update functions $\\phi^*(a_i, x)$ (20,000 frames)"
 load_and_display("./log/signal/signal_fig_supp_7_4/results/MLP0.png")
 
 # %%
-#| fig-cap: "Update functions φ*(a_i, x) (10,000 frames)"
+#| fig-cap: "Update functions $\\phi^*(a_i, x)$ (10,000 frames)"
 load_and_display("./log/signal/signal_fig_supp_7_5/results/MLP0.png")
