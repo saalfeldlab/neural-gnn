@@ -18,6 +18,10 @@ class PDE_N5(pyg.nn.MessagePassing):
     x[:, 6]   = neuron_type
     x[:, 7]   = calcium
 
+    params: [a, b, g, s, w, h]
+    a: decay, b: offset, g: gain, s: self-recurrence, w: width, h: threshold
+    MLP1((u-h)/w)
+
     Inputs
     ----------
     data : a torch_geometric.data object
@@ -43,52 +47,56 @@ class PDE_N5(pyg.nn.MessagePassing):
 
         neuron_type = x[:, 6].long()
         parameters = self.p[neuron_type]
-        g = parameters[:, 0:1]
-        s = parameters[:, 1:2]
-        c = parameters[:, 2:3]
-        t = parameters[:, 3:4]
-        l = torch.log(parameters[:, 3:4])
+        # params: [a, b, g, s, w, h]
+        a = parameters[:, 0:1]  # decay
+        b = parameters[:, 1:2]  # offset
+        g = parameters[:, 2:3]  # gain
+        s = parameters[:, 3:4]  # self-recurrence
+        w = parameters[:, 4:5]  # width
+        l = torch.log(parameters[:, 4:5])  # log(width)
 
-        if parameters.shape[1] < 5:
-            b = torch.zeros_like(t)
+        if parameters.shape[1] < 6:
+            h = torch.zeros_like(w)  # threshold defaults to 0
         else:
-            b = parameters[:, 4:5]
+            h = parameters[:, 5:6]  # threshold
 
         u = x[:, 3:4]  # signal state
-        
 
         if has_field:
             field = x[:, 4:5]
-            msg = self.propagate(edge_index, u=u, t=t, l=l, b=b, field=field)
-            du = -c * u + s * torch.tanh(u) + g * msg
+            msg = self.propagate(edge_index, u=u, w=w, l=l, h=h, field=field)
+            du = -a * u + b + s * torch.tanh(u) + g * msg
         else:
             field = torch.ones_like(u)
             external_input = x[:, 4:5]  # external input
-            msg = self.propagate(edge_index, u=u, t=t, l=l, b=b, field=field)
-            du = -c * u + s * torch.tanh(u) + g * msg + external_input
+            msg = self.propagate(edge_index, u=u, w=w, l=l, h=h, field=field)
+            du = -a * u + b + s * torch.tanh(u) + g * msg + external_input
 
         return du
 
 
-    def message(self, edge_index_i, edge_index_j, u_j, t_i, l_j, b_j, field_i):
+    def message(self, edge_index_i, edge_index_j, u_j, w_i, l_j, h_j, field_i):
 
         T = self.W
-        return T[edge_index_i, edge_index_j][:, None]  * (self.phi((u_j-b_j)/t_i) - u_j*l_j/50) * field_i
+        return T[edge_index_i, edge_index_j][:, None] * (self.phi((u_j - h_j) / w_i) - u_j * l_j / 50) * field_i
 
 
     def func(self, u, type, function):
 
-        if function=='phi':
-
-            t = self.p[type, 3:4]
-            l = torch.log(self.p[type, 3:4])
-            if self.p.shape[1] < 5:
-                b = torch.zeros_like(t)
+        if function == 'phi':
+            # params: [a, b, g, s, w, h]
+            w = self.p[type, 4:5]  # width
+            l = torch.log(self.p[type, 4:5])  # log(width)
+            if self.p.shape[1] < 6:
+                h = torch.zeros_like(w)
             else:
-                b = self.p[type, 4:5]
+                h = self.p[type, 5:6]  # threshold
 
-            return self.phi((u-b)/t) - u*l/50
+            return self.phi((u - h) / w) - u * l / 50
 
-        elif function=='update':
-            _g, s, c = self.p[type, 0:1], self.p[type, 1:2], self.p[type, 2:3]
-            return -c * u + s * torch.tanh(u)
+        elif function == 'update':
+            # params: [a, b, g, s, w, h]
+            a = self.p[type, 0:1]  # decay
+            b = self.p[type, 1:2]  # offset
+            s = self.p[type, 3:4]  # self-recurrence
+            return -a * u + b + s * torch.tanh(u)

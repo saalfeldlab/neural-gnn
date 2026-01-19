@@ -1,5 +1,5 @@
 description: "heterogeneity MLP0 and MLP1 slope"
-dataset: "signal_fig_supp_13"
+dataset: "signal_fig_supp_14"
 
 simulation:
   connectivity_type: "Lorentz"
@@ -23,12 +23,12 @@ simulation:
   start_frame: -1000
 
 graph_model:
-  signal_model_name: "PDE_N4"
+  signal_model_name: "PDE_N5"
   particle_model_name: ""
   mesh_model_name: ""
   prediction: "first_derivative"
 
-  input_size: 3
+  input_size: 5
   output_size: 1
   hidden_dim: 64
   n_layers: 3
@@ -76,4 +76,4 @@ training:
   learning_rate_start: 5.0E-4
   learning_rate_embedding_start: 2.5E-4
 
-  coeff_edge_diff: 100
+  coeff_edge_diff: 500

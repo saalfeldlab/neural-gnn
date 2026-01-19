@@ -39,6 +39,7 @@ from neural_gnn.models.utils import (
     plot_weight_comparison,
     get_index_particles,
     analyze_data_svd,
+    LossRegularizer,
 )
 from neural_gnn.utils import (
     to_numpy,
@@ -51,7 +52,6 @@ from neural_gnn.utils import (
     open_gcs_zarr,
     compute_trace_metrics,
     get_datavis_root_dir,
-    LossRegularizer,
 )
 from neural_gnn.models.Siren_Network import Siren, Siren_Network
 from neural_gnn.models.LowRank_INR import LowRankINR

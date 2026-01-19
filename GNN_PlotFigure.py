@@ -27,9 +27,9 @@ import pandas as pd
 # from data_loaders import *
 
 
-from NeuralGraph.fitting_models import linear_model
-from NeuralGraph.sparsify import EmbeddingCluster, sparsify_cluster, clustering_gmm
-from NeuralGraph.models.utils import (
+from neural_gnn.fitting_models import linear_model
+from neural_gnn.sparsify import EmbeddingCluster, sparsify_cluster, clustering_gmm
+from neural_gnn.models.utils import (
     choose_training_model,
     get_in_features,
     get_in_features_update,
@@ -37,16 +37,17 @@ from NeuralGraph.models.utils import (
     analyze_odor_responses_by_neuron,
     plot_odor_heatmaps,
     analyze_data_svd,
+    compute_normalization_value,
 )
-from NeuralGraph.models.plot_utils import (
+from neural_gnn.models.plot_utils import (
     analyze_mlp_edge_lines,
     analyze_mlp_edge_lines_weighted_with_max,
     analyze_mlp_phi_synaptic,
     find_top_responding_pairs,
     run_neural_architecture_pipeline,
 )
-from neural_gnn.generators.utils import plot_connectivity_matrix
-from NeuralGraph.utils import (
+from neural_gnn.generators.utils import plot_connectivity_matrix, choose_model
+from neural_gnn.utils import (
     to_numpy,
     CustomColorMap,
     sort_key,
@@ -57,12 +58,9 @@ from NeuralGraph.utils import (
     find_suffix_pairs_with_index,
     add_pre_folder
 )
-from NeuralGraph.models.Siren_Network import Siren, Siren_Network
-from NeuralGraph.models.graph_trainer import data_test
-from NeuralGraph.generators.utils import choose_model
-from NeuralGraph.config import NeuralGraphConfig
-
-from NeuralGraph.models.Ising_analysis import analyze_ising_model
+from neural_gnn.models.Siren_Network import Siren, Siren_Network
+from neural_gnn.models.graph_trainer import data_test
+from neural_gnn.config import NeuralGraphConfig
 
 from scipy import stats
 from io import StringIO
@@ -350,7 +348,18 @@ def create_signal_weight_subplot(fig, ax, model, connectivity, mc, epoch, iterat
                 func = func ** 2
             func_list.append(func)
         func_list = torch.stack(func_list).squeeze()
-        upper = torch.median(func_list[:, 850:1000], dim=1)[0]
+        # Use compute_normalization_value with config parameters
+        xnorm_val = xnorm.squeeze().item()
+        norm_method = getattr(config.plotting, 'norm_method', 'median')
+        norm_x_start = getattr(config.plotting, 'norm_x_start', None)
+        norm_x_stop = getattr(config.plotting, 'norm_x_stop', None)
+        # Default: use 85%-100% of the rr range (which goes to 4*xnorm)
+        x_start = norm_x_start * xnorm_val if norm_x_start is not None else 0.85 * xnorm_val * 4
+        x_stop = norm_x_stop * xnorm_val if norm_x_stop is not None else xnorm_val * 4
+        upper = compute_normalization_value(func_list, rr, method=norm_method,
+                                            x_start=x_start,
+                                            x_stop=x_stop,
+                                            per_neuron=True)
         correction = 1 / (upper + 1E-16)
 
         # apply correction: transpose, apply row-wise, transpose back
@@ -508,7 +517,18 @@ def create_signal_lin_edge_subplot(fig, ax, model, config, n_neurons, type_list,
                 func_list.append(func)
             func_list = torch.stack(func_list).squeeze()
 
-            upper = torch.median(func_list[:,850:1000], dim=1)[0]
+            # Use compute_normalization_value with config parameters
+            xnorm_val = xnorm.squeeze().item()
+            norm_method = getattr(config.plotting, 'norm_method', 'median')
+            norm_x_start = getattr(config.plotting, 'norm_x_start', None)
+            norm_x_stop = getattr(config.plotting, 'norm_x_stop', None)
+            # Default: use 85%-100% of the rr range (which goes to 4*xnorm)
+            x_start = norm_x_start * xnorm_val if norm_x_start is not None else 0.85 * xnorm_val * 4
+            x_stop = norm_x_stop * xnorm_val if norm_x_stop is not None else xnorm_val * 4
+            upper = compute_normalization_value(func_list, rr, method=norm_method,
+                                                x_start=x_start,
+                                                x_stop=x_stop,
+                                                per_neuron=True)
             correction = 1 / (upper + 1E-16)
 
             # Second pass: plot with correction applied
@@ -1244,8 +1264,26 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                         for spine in ax.spines.values():
                             spine.set_edgecolor(cmap.color(k))
                             spine.set_linewidth(3)
-                        if k==0:
-                            plt.ylabel(r'learned $\mathrm{MLP_1}( a_i, a_j, v_j)$', fontsize=32)
+                        if k == 0:
+                            plt.ylabel(r'learned $\psi^*(a_i, a_j, x_i)$', fontsize=32)
+
+                        # Plot true curves first (gray, in background)
+                        if true_model is not None:
+                            for n in range(n_neuron_types):
+                                # Get width (w) from target neuron type k
+                                w_target = true_model.p[k, 4:5]
+                                # Get threshold (h) from source neuron type n
+                                if true_model.p.shape[1] >= 6:
+                                    h_source = true_model.p[n, 5:6]
+                                else:
+                                    h_source = torch.zeros_like(w_target)
+                                # Compute phi((u - h_source) / w_target) - u * log(w_source) / 50
+                                func_true = true_model.phi((rr[:, None] - h_source) / w_target)
+                                l_source = torch.log(true_model.p[n, 4:5])
+                                func_true = func_true - rr[:, None] * l_source / 50
+                                plt.plot(to_numpy(rr), to_numpy(func_true), color='gray', linewidth=4, alpha=0.5)
+
+                        # Plot learned curves
                         for n in range(n_neuron_types):
                             for m in range(250):
                                 pos0 = to_numpy(torch.argwhere(type_list == k).squeeze())
@@ -1260,8 +1298,9 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                                 func = model.lin_edge(in_features.float())
                                 if apply_weight_correction:
                                     func = func * correction[n0]
-                                plt.plot(to_numpy(rr), to_numpy(func), 2, color=cmap.color(n), linewidth=3, alpha=0.25)
-                        plt.ylim([-1.6, 1.6])
+                                plt.plot(to_numpy(rr), to_numpy(func), color=cmap.color(n), linewidth=2, alpha=0.25)
+
+                        plt.ylim([-1.1, 1.1])
                         plt.xlim([-5, 5])
                         plt.xticks([])
                         plt.yticks([])
@@ -1720,29 +1759,32 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
         # Fig2a: Kinograph (activity heatmap - all neurons × all frames)
         # Use imshow instead of sns.heatmap for large data (much faster)
         kinograph_path = f'./{log_dir}/results/kinograph.png'
-        # Always regenerate kinograph
-        plt.figure(figsize=(15, 10))
-        # Use LaTeX fonts with Palatino (same as other plots in codebase)
-        # plt.rcParams['text.usetex'] = True
-        # rc('font', **{'family': 'serif', 'serif': ['Palatino']})
-        activity_np = to_numpy(activity)
-        vmax = np.abs(activity_np).max()
-        # origin='lower' so neuron 1 at bottom, n_neurons at top (matching reference)
-        im = plt.imshow(activity_np, aspect='auto', cmap='viridis', vmin=-vmax, vmax=vmax, origin='lower')
-        cbar = plt.colorbar(im, fraction=0.046, pad=0.04)
-        # Set colorbar ticks explicitly (rounded to nearest 10)
-        vmax_rounded = int(np.ceil(vmax / 10) * 10)
-        cbar_ticks = np.arange(-vmax_rounded, vmax_rounded + 1, 10)
-        cbar_ticks = cbar_ticks[(cbar_ticks >= -vmax) & (cbar_ticks <= vmax)]
-        cbar.set_ticks(cbar_ticks)
-        cbar.ax.tick_params(labelsize=32)
-        plt.ylabel('neurons', fontsize=64)
-        plt.xlabel('time', fontsize=64)
-        plt.xticks([0, n_frames - 1], [0, n_frames], fontsize=48)
-        plt.yticks([0, n_neurons - 1], [1, n_neurons], fontsize=48)
-        plt.tight_layout()
-        plt.savefig(kinograph_path, dpi=300)
-        plt.close()
+        # Skip if kinograph already exists (takes a long time to generate)
+        if os.path.exists(kinograph_path):
+            print(f'  kinograph already exists, skipping: {kinograph_path}')
+        else:
+            plt.figure(figsize=(15, 10))
+            # Use LaTeX fonts with Palatino (same as other plots in codebase)
+            # plt.rcParams['text.usetex'] = True
+            # rc('font', **{'family': 'serif', 'serif': ['Palatino']})
+            activity_np = to_numpy(activity)
+            vmax = np.abs(activity_np).max()
+            # origin='lower' so neuron 1 at bottom, n_neurons at top (matching reference)
+            im = plt.imshow(activity_np, aspect='auto', cmap='viridis', vmin=-vmax, vmax=vmax, origin='lower')
+            cbar = plt.colorbar(im, fraction=0.046, pad=0.04)
+            # Set colorbar ticks explicitly (rounded to nearest 10)
+            vmax_rounded = int(np.ceil(vmax / 10) * 10)
+            cbar_ticks = np.arange(-vmax_rounded, vmax_rounded + 1, 10)
+            cbar_ticks = cbar_ticks[(cbar_ticks >= -vmax) & (cbar_ticks <= vmax)]
+            cbar.set_ticks(cbar_ticks)
+            cbar.ax.tick_params(labelsize=32)
+            plt.ylabel('neurons', fontsize=64)
+            plt.xlabel('time', fontsize=64)
+            plt.xticks([0, n_frames - 1], [0, n_frames], fontsize=48)
+            plt.yticks([0, n_neurons - 1], [1, n_neurons], fontsize=48)
+            plt.tight_layout()
+            plt.savefig(kinograph_path, dpi=300)
+            plt.close()
 
         # Fig2b: Sample 100 traces if n_neurons > 200
         if n_neurons >= 200:
@@ -1884,7 +1926,7 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
             fig, ax = fig_init()
             for n in range(n_neuron_types,-1,-1):
                 pos = torch.argwhere(type_list == n).squeeze()
-                plt.scatter(to_numpy(model.a[pos, 0]), to_numpy(model.a[pos, 1]), s=200, color=cmap.color(n), alpha=0.25, edgecolors='none')
+                plt.scatter(to_numpy(model.a[pos, 0]), to_numpy(model.a[pos, 1]), s=200, color=cmap.color(n), alpha=0.1, edgecolors='none')
             if 'latex' in style:
                 plt.xlabel(r'$\ensuremath{\mathbf{a}}_{i0}$', fontsize=68)
                 plt.ylabel(r'$\ensuremath{\mathbf{a}}_{i1}$', fontsize=68)
@@ -1917,12 +1959,22 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                 func_list.append(func)
             func_list = torch.stack(func_list).squeeze()
 
-            # Calculate normalization - use mean of plateau region
-            upper = func_list.mean(dim=1)
+            # Calculate normalization using compute_normalization_value with config parameters
+            xnorm_val = xnorm.squeeze().item()
+            norm_method = getattr(config.plotting, 'norm_method', 'mean')
+            norm_x_start = getattr(config.plotting, 'norm_x_start', None)
+            norm_x_stop = getattr(config.plotting, 'norm_x_stop', None)
+            # Default for 'best' mode: use [0.8*xnorm, xnorm] plateau region
+            x_start = norm_x_start * xnorm_val if norm_x_start is not None else 0.8 * xnorm_val
+            x_stop = norm_x_stop * xnorm_val if norm_x_stop is not None else xnorm_val
+            upper = compute_normalization_value(func_list, rr, method=norm_method,
+                                                x_start=x_start,
+                                                x_stop=x_stop,
+                                                per_neuron=True)
 
-            print(f'normalization (v range: {0.8 * xnorm.squeeze():.2f} to {xnorm.squeeze():.2f}):')
-            print(f'  mean:   min={upper.min():.4f}, max={upper.max():.4f}, mean={upper.mean():.4f}')
-            print(f'  correction will be: {(1/upper.mean()):.4f}')
+            print(f'normalization (v range: {x_start:.2f} to {x_stop:.2f}, method={norm_method}):')
+            print(f'  values: min={upper.min():.4f}, max={upper.max():.2f}, mean={upper.mean():.2f}')
+            print(f'  correction will be around {(1/upper.mean()):.2f}')
 
             correction = 1 / (upper + 1E-16)
             torch.save(correction, f'{log_dir}/correction.pt')
@@ -1930,7 +1982,7 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
             print('plot functions ...')
 
 
-            rr = torch.linspace(-xnorm.squeeze()  , xnorm.squeeze() , 1000).to(device)
+            rr = torch.linspace(-2*xnorm.squeeze(), 2*xnorm.squeeze() , 1000).to(device)
             # MLP1 raw (without correction)
             fig, ax = fig_init()
             func_vals = []
@@ -1949,7 +2001,7 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
             margin = (ymax - ymin) * 0.05
             plt.xlabel(r'$v_i$', fontsize=68)
             plt.ylabel(r'$\mathrm{MLP_1}$ (raw)', fontsize=68)
-            plt.xlim(config.plotting.mlp1_xlim)
+            plt.xlim([to_numpy(-2*xnorm.squeeze()),to_numpy(2*xnorm.squeeze())])
             # plt.ylim([ymin - margin, ymax + margin])
             # Create yticks based on actual data range
             yticks = np.linspace(ymin, ymax, 11)
@@ -2153,8 +2205,8 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                 scatter_size = 1
                 scatter_alpha = 1.0
             else:
-                scatter_size = 0.1
-                scatter_alpha = 0.1
+                scatter_size = 0.05
+                scatter_alpha = 0.05
             # Raw weights: compute R² and slope
             plt.scatter(gt_weight, pred_weight, s=scatter_size, c=mc, alpha=scatter_alpha)
             x_data_raw = np.reshape(gt_weight, (n_plot * n_plot))
@@ -3054,778 +3106,6 @@ def analyze_neuron_type_reconstruction(config, model, edges, true_weights, gt_ta
         'rmse_tau_per_type': rmse_taus,
         'rmse_vrest_per_type': rmse_vrests
     }
-
-
-def plot_ising_comparison_from_saved(config_list, labels=None, output_path='fig/ising_noise_comparison.png'):
-    valid_configs = []
-
-    for config_file_ in config_list:
-        try:
-            config_file, pre_folder = add_pre_folder(config_file_)
-            data_path = f'./log/{config_file}/results/info_ratio_results.npz'
-            if not os.path.exists(data_path):
-                print(f"Warning: {data_path} not found")
-                continue
-            valid_configs.append(config_file)
-        except Exception as e:
-            print(f"Error processing {config_file_}: {e}")
-            continue
-
-    if len(valid_configs) != 3:
-        raise ValueError(f"Need exactly 3 valid configs, got {len(valid_configs)}")
-
-    # Default sigma labels with lowercase noise descriptions
-    if labels is None:
-        labels = [r'$\sigma=10^{-6}$ (low noise)',
-                 r'$\sigma=0.25$ (moderate noise)',
-                 r'$\sigma=2.5$ (large noise)']
-
-    fig, axes = plt.subplots(1, 3, figsize=(18, 6))
-    plt.subplots_adjust(wspace=0.4)
-
-    for col, (config_file, label) in enumerate(zip(valid_configs, labels)):
-        data_path = f'./log/{config_file}/results/info_ratio_results.npz'
-        data = np.load(data_path)
-
-        obs_rates = data['observed_rates'].flatten()
-        pair_rates = data['predicted_rates_pairwise'].flatten()
-        indep_rates = data['predicted_rates_independent'].flatten()
-
-        # Rate scatter plots
-        ax = axes[col]
-
-        # Plot data
-        ax.loglog(obs_rates, pair_rates, 'r.', alpha=0.1, markersize=1.5)
-        ax.loglog(obs_rates, indep_rates, 'g.', alpha=0.1, markersize=1.5)
-        ax.plot([1e-4, 1e1], [1e-4, 1e1], 'k--', alpha=0.5, linewidth=1)
-
-        ax.set_xlabel(r'observed rate (s$^{-1}$)', fontsize=18)
-        ax.set_ylabel(r'predicted rate (s$^{-1}$)' if col == 0 else '', fontsize=18)
-        ax.set_title(f'{label}\n$I_N$={data["I_N_median"]:.2f} bits', fontsize=16)
-        ax.set_xlim(1e-4, 1e1)
-        ax.set_ylim(1e-4, 1e1)
-        ax.tick_params(labelsize=14)
-
-        # Legend only on the first panel - top left
-        if col == 0:
-            red_patch = plt.Rectangle((0, 0), 1, 1, facecolor='red', alpha=1.0)
-            green_patch = plt.Rectangle((0, 0), 1, 1, facecolor='green', alpha=1.0)
-            ax.legend([red_patch, green_patch], ['pairwise ($P_2$)', 'independent ($P_1$)'],
-                     loc='upper left', fontsize=14, frameon=False)
-
-    # Add panel labels - moved upwards
-    for i, ax in enumerate(axes):
-        ax.text(-0.15, 1.15, f'{chr(97+i)})', transform=ax.transAxes, fontsize=20, va='top', ha='left')
-
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=400, bbox_inches='tight')
-    plt.show()
-
-
-
-
-
-def compare_gnn_results(config_list, varied_parameter):
-    """
-    Compare GNN experiments by reading config files and results.log files
-    Focuses on: weights/tau/V_rest R², clustering accuracy, loss curves
-    """
-
-    # Global style
-    plt.style.use('ggplot')
-    plt.rcParams['axes.facecolor'] = 'black'
-    plt.rcParams['figure.facecolor'] = 'black'
-    plt.rcParams['axes.edgecolor'] = 'white'
-    plt.rcParams['axes.labelcolor'] = 'white'
-    plt.rcParams['xtick.color'] = 'white'
-    plt.rcParams['ytick.color'] = 'white'
-    plt.rcParams['grid.color'] = 'gray'
-    plt.rcParams['text.color'] = 'white'
-
-    plt.style.use('default')
-
-    results = []
-
-    # Read & parse per-config files
-    for config_file_ in config_list:
-        try:
-            config_file, pre_folder = add_pre_folder(config_file_)
-            config = NeuralGraphConfig.from_yaml(f'./config/{config_file}.yaml')
-
-            # Resolve varied parameter value
-            if varied_parameter is None:
-                parts = config_file_.split('_')
-                if len(parts) >= 2:
-                    param_value = parts[-1]
-                else:
-                    print(f"warning: cannot extract indices from config name '{config_file_}'")
-                    continue
-            else:
-                if '.' not in varied_parameter:
-                    raise ValueError("parameter must be in 'section.parameter' format")
-                section_name, param_name = varied_parameter.split('.', 1)
-                section = getattr(config, section_name, None)
-                if section is None:
-                    raise ValueError(f"config section '{section_name}' not found")
-                param_value = getattr(section, param_name, None)
-                if param_value is None:
-                    print(f"warning: parameter '{param_name}' not found")
-                    continue
-
-            # Parse results.log
-            results_log_path = os.path.join('./log', config_file, 'results.log')
-            if not os.path.exists(results_log_path):
-                print(f"warning: {results_log_path} not found")
-                continue
-
-            with open(results_log_path, 'r') as f:
-                content = f.read()
-
-            # Parse standard metrics
-            r2_match = re.search(r'second weights fit\s+R²:\s*([\d.-]+)', content)
-            r2 = float(r2_match.group(1)) if r2_match else None
-
-            tau_r2_match = re.search(r'tau reconstruction R²:\s*([\d.-]+)', content)
-            tau_r2 = float(tau_r2_match.group(1)) if tau_r2_match else None
-
-            vrest_r2_match = re.search(r'V_rest reconstruction R²:\s*([\d.-]+)', content)
-            vrest_r2 = float(vrest_r2_match.group(1)) if vrest_r2_match else None
-
-            acc_match = re.search(r'accuracy=([\d.-]+)', content)
-            best_clustering_acc = float(acc_match.group(1)) if acc_match else None
-
-            results.append({
-                'config': config_file_,
-                'param_value': param_value,
-                'r2': r2,
-                'tau_r2': tau_r2,
-                'vrest_r2': vrest_r2,
-                'best_clustering_acc': best_clustering_acc,
-            })
-
-        except Exception as e:
-            print(f"error processing {config_file_}: {e}")
-
-    # Group by parameter value
-    grouped_results = defaultdict(list)
-    for r in results:
-        if all(r[k] is not None for k in ['r2', 'tau_r2', 'vrest_r2', 'best_clustering_acc']):
-            grouped_results[r['param_value']].append(r)
-
-    # Aggregate into summary
-    summary_results = []
-    for param_val, group in grouped_results.items():
-        r2_values = [r['r2'] for r in group]
-        tau_r2_values = [r['tau_r2'] for r in group]
-        vrest_r2_values = [r['vrest_r2'] for r in group]
-        acc_values = [r['best_clustering_acc'] for r in group]
-
-        summary_results.append({
-            'param_value': param_val,
-            'r2_mean': np.mean(r2_values),
-            'tau_r2_mean': np.mean(tau_r2_values),
-            'vrest_r2_mean': np.mean(vrest_r2_values),
-            'acc_mean': np.mean(acc_values),
-            'r2_std': np.std(r2_values) if len(r2_values) > 1 else 0,
-            'tau_r2_std': np.std(tau_r2_values) if len(tau_r2_values) > 1 else 0,
-            'vrest_r2_std': np.std(vrest_r2_values) if len(vrest_r2_values) > 1 else 0,
-            'acc_std': np.std(acc_values) if len(acc_values) > 1 else 0,
-            'n_configs': len(group)
-        })
-
-    # Sort results
-    summary_results.sort(key=lambda x: x['param_value'])
-
-    # Display parameter name
-    if varied_parameter is None:
-        param_display_name = "config_indices"
-    else:
-        param_display_name = varied_parameter.split('.')[1]
-
-    # Print summary table
-    print("-" * 75)
-    print(f"{'parameter':<15} {'weights R²':<15} {'tau R²':<15} {'V_rest R²':<15} {'clustering':<15}")
-    print("-" * 75)
-
-    for r in summary_results:
-        r2_str = f"{r['r2_mean']:.3f}±{r['r2_std']:.3f}" if r['r2_std'] > 0 else f"{r['r2_mean']:.3f}"
-        tau_str = f"{r['tau_r2_mean']:.3f}±{r['tau_r2_std']:.3f}" if r['tau_r2_std'] > 0 else f"{r['tau_r2_mean']:.3f}"
-        vrest_str = f"{r['vrest_r2_mean']:.3f}±{r['vrest_r2_std']:.3f}" if r['vrest_r2_std'] > 0 else f"{r['vrest_r2_mean']:.3f}"
-        acc_str = f"{r['acc_mean']:.3f}±{r['acc_std']:.3f}" if r['acc_std'] > 0 else f"{r['acc_mean']:.3f}"
-
-        print(f"{str(r['param_value']):<15} {r2_str:<15} {tau_str:<15} {vrest_str:<15} {acc_str:<15}")
-
-
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(12, 10))
-    fig.subplots_adjust(left=0.13, right=0.97, top=0.90, bottom=0.10, wspace=0.32, hspace=0.45)
-    ax1.text(-0.08, 1.05, 'a)', transform=ax1.transAxes, fontsize=18, va='top', ha='right')
-    ax2.text(-0.08, 1.05, 'b)', transform=ax2.transAxes, fontsize=18, va='top', ha='right')
-    ax3.text(-0.08, 1.05, 'c)', transform=ax3.transAxes, fontsize=18, va='top', ha='right')
-    ax4.text(-0.08, 1.05, 'd)', transform=ax4.transAxes, fontsize=18, va='top', ha='right')
-
-    param_values = [r['param_value'] for r in summary_results]
-    # param_display_name = 'noise level'
-
-    x_values = [float(p) for p in param_values]
-    use_log = min(x_values) > 0 and max(x_values)/min(x_values) > 10 and varied_parameter != None
-
-    for ax, ydata, label, color in [
-        (ax1, [r['r2_mean'] for r in summary_results], 'weights R²', 'blue'),
-        (ax2, [r['tau_r2_mean'] for r in summary_results], 'tau R²', 'green'),
-        (ax3, [r['vrest_r2_mean'] for r in summary_results], 'V_rest R²', 'orange'),
-        (ax4, [r['acc_mean'] for r in summary_results], 'clustering accuracy', 'red'),
-    ]:
-
-        if use_log:
-            plot_fn = ax.semilogx
-            plot_fn(x_values, ydata, 'o', color=color, linewidth=2, markersize=8)
-            ax.set_xlim(left=0, right=5)
-        else:
-            plot_fn = ax.plot
-            plot_fn(x_values, ydata, 'o', color=color, linewidth=2, markersize=8)
-
-        ax.set_xlabel(param_display_name, fontsize=18)
-
-        if label == 'clustering accuracy':
-            ax.set_ylabel('classification accuracy', fontsize=18)
-        elif label == 'weights R²':
-            ax.set_ylabel(r'learned $W_{ij}\quad R²$', fontsize=18)
-        elif label == 'tau R²':
-            ax.set_ylabel(r'learned $\tau_i \quad R^2$', fontsize=18)
-        elif label == 'V_rest R²':
-            ax.set_ylabel(r'learned $V^{rest}_i\quad R^2$', fontsize=18)
-        ax.set_ylim(0, 1.1)
-        if use_log:
-            ax.set_xscale('log')
-        # ax.set_xlim(left=1e-6, right=1)
-        ax.axhline(y=1.0, color='gray', linestyle='--', alpha=0.5)
-
-    sigma_labels = [r"$\sigma=1E-6$", r"$\sigma=0.25$", r"$\sigma=2.5$"]
-    if not use_log and len(x_values) == 3:
-        for ax in [ax1, ax2, ax3, ax4]:
-            ax.set_xticks(x_values)
-            ax.set_xticklabels(sigma_labels, fontsize=18)
-
-    for ax in [ax1, ax2, ax3, ax4]:
-        ax.xaxis.label.set_size(18)
-        ax.yaxis.label.set_size(18)
-        ax.tick_params(axis='both', which='major', labelsize=10)
-
-    for ax in [ax1, ax2, ax3, ax4]:
-        ax.axvspan(0.25, 100, color='green', alpha=0.35, zorder=-1, linewidth=0)
-
-    plt.tight_layout()
-    plt.savefig(f'fig/gnn_comparison_{param_display_name}.png', dpi=400, bbox_inches='tight')
-    plt.show()
-
-    return summary_results
-
-
-def collect_gnn_results_multimodel(config_list, varied_parameter=None):
-    """
-    Collect per-model GNN experiment metrics (parameter reconstruction +
-    rollout quality) for runs launched via GNN_Main_multimodel.py.
-
-    This version does NOT plot anything; it just returns a tidy pandas
-    DataFrame where each row corresponds to one (config, model_id).
-
-    Parameters
-    ----------
-    config_list : list[str]
-        Base config names, e.g. ['fly_N9_22_10', 'fly_N9_44_24'].
-        These are the same strings you pass to GNN_Main_multimodel.py.
-    varied_parameter : str or None
-        Optional 'section.parameter' name inside NeuralGraphConfig to treat
-        as the varied hyperparameter (e.g. 'training.noise_model_level').
-        If None, falls back to using the trailing token in the config name.
-    log_root : str
-        Root directory containing log folders (default: './log').
-
-    Returns
-    -------
-    pandas.DataFrame
-        Columns include:
-        - 'base_config', 'config_file', 'pre_folder', 'model_id'
-        - 'param_value'
-        - 'weights_r2', 'tau_r2', 'vrest_r2', 'clustering_acc'
-        - rollout metrics:
-          'rollout_rmse_mean', 'rollout_rmse_std', 'rollout_rmse_min', 'rollout_rmse_max'
-          'rollout_pearson_mean', 'rollout_pearson_std', 'rollout_pearson_min', 'rollout_pearson_max'
-          'rollout_r2_mean', 'rollout_r2_std', 'rollout_r2_min', 'rollout_r2_max'
-          'rollout_feve_mean', 'rollout_feve_std', 'rollout_feve_min', 'rollout_feve_max'
-          'rollout_n_neurons', 'rollout_start_frame', 'rollout_end_frame'
-    """
-    records = []
-
-    this_file_parent = os.path.dirname(__file__)
-    log_root = os.path.join(this_file_parent, "log")
-    config_root = os.path.join(this_file_parent, "config")
-
-    for base_config in config_list:
-        try:
-            config_file, pre_folder = add_pre_folder(base_config)
-            config = NeuralGraphConfig.from_yaml(f'{config_root}/{config_file}.yaml')
-        except Exception as e:
-            print(f"error loading base config '{base_config}': {e}")
-            continue
-
-        # Determine parameter value for this base config
-        if varied_parameter is None:
-            parts = base_config.split('_')
-            if len(parts) >= 2:
-                param_value = parts[-1]
-            else:
-                print(f"warning: cannot extract indices from config name '{base_config}'")
-                param_value = None
-        else:
-            if '.' not in varied_parameter:
-                raise ValueError("parameter must be in 'section.parameter' format")
-            section_name, param_name = varied_parameter.split('.', 1)
-            section = getattr(config, section_name, None)
-            if section is None:
-                print(f"warning: config section '{section_name}' not found in '{base_config}'")
-                param_value = None
-            else:
-                param_value = getattr(section, param_name, None)
-                if param_value is None:
-                    print(f"warning: parameter '{param_name}' not found in section '{section_name}' for '{base_config}'")
-
-        # Discover per-model log directories created by GNN_Main_multimodel
-        pre_log_root = os.path.join(log_root, pre_folder)
-        if not os.path.isdir(pre_log_root):
-            print(f"warning: log root '{pre_log_root}' not found for base config '{base_config}'")
-            continue
-
-        for entry in os.listdir(pre_log_root):
-            # Expect entries like 'fly_N9_22_10__mid_000'
-            if not entry.startswith(base_config + "__mid_"):
-                continue
-
-            model_id_str = entry.split("__mid_")[-1]
-            try:
-                model_id = int(model_id_str)
-            except ValueError:
-                model_id = None
-
-            config_file_with_mid = os.path.join(pre_folder, entry)
-            log_dir = os.path.join(log_root, pre_folder, entry)
-
-            results_log_path = os.path.join(log_dir, "results.log")
-            rollout_log_path = os.path.join(log_dir, "results_rollout.log")
-
-            if not os.path.exists(results_log_path):
-                print(f"warning: {results_log_path} not found, skipping")
-                continue
-            if not os.path.exists(rollout_log_path):
-                print(f"warning: {rollout_log_path} not found, skipping")
-                continue
-
-            # --- Parse results.log (parameter reconstructions, clustering) ---
-            try:
-                with open(results_log_path, "r") as f:
-                    content = f.read()
-            except Exception as e:
-                print(f"error reading {results_log_path}: {e}")
-                continue
-
-            r2_match = re.search(r'second weights fit\s+R²:\s*([\d.eE+-]+)', content)
-            tau_r2_match = re.search(r'tau reconstruction R²:\s*([\d.eE+-]+)', content)
-            vrest_r2_match = re.search(r'V_rest reconstruction R²:\s*([\d.eE+-]+)', content)
-            acc_match = re.search(r'accuracy=([\d.eE+-]+)', content)
-
-            weights_r2 = float(r2_match.group(1)) if r2_match else None
-            tau_r2 = float(tau_r2_match.group(1)) if tau_r2_match else None
-            vrest_r2 = float(vrest_r2_match.group(1)) if vrest_r2_match else None
-            clustering_acc = float(acc_match.group(1)) if acc_match else None
-
-            # --- Parse results_rollout.log (rollout metrics) ---
-            try:
-                with open(rollout_log_path, "r") as f:
-                    r_content = f.read()
-            except Exception as e:
-                print(f"error reading {rollout_log_path}: {e}")
-                continue
-
-            def _parse_metric(line_prefix, text):
-                # Example line:
-                # RMSE: 0.0066 ± 0.0052 [0.0002, 0.0478]
-                pat = rf'{line_prefix}:\s*([\d.eE+-]+)\s*±\s*([\d.eE+-]+)\s*\[([\d.eE+-]+),\s*([\d.eE+-]+)\]'
-                m = re.search(pat, text)
-                if not m:
-                    return (None, None, None, None)
-                return tuple(float(g) for g in m.groups())
-
-            rmse_mean, rmse_std, rmse_min, rmse_max = _parse_metric("RMSE", r_content)
-            pearson_mean, pearson_std, pearson_min, pearson_max = _parse_metric("Pearson r", r_content)
-            r2_mean, r2_std, r2_min, r2_max = _parse_metric("R²", r_content)
-            feve_mean, feve_std, feve_min, feve_max = _parse_metric("FEVE", r_content)
-
-            n_neurons = None
-            start_frame = None
-            end_frame = None
-
-            m_neurons = re.search(r"Number of neurons evaluated:\s*(\d+)", r_content)
-            if m_neurons:
-                n_neurons = int(m_neurons.group(1))
-
-            m_frames = re.search(r"Frames evaluated:\s*(\d+)\s*to\s*(\d+)", r_content)
-            if m_frames:
-                start_frame = int(m_frames.group(1))
-                end_frame = int(m_frames.group(2))
-
-            # --- Compute per-neuron RMSEs and correlations from saved rollout traces ---
-            rollout_rmse_per_neuron = None
-            rollout_rmse_median = None
-            rollout_corr_per_neuron = None
-            rollout_corr_median = None
-            try:
-                results_dir = os.path.join(log_dir, "results")
-                # Prefer modified activity arrays; fall back to standard if present
-                act_mod = os.path.join(results_dir, "activity_modified.npy")
-                act_mod_pred = os.path.join(results_dir, "activity_modified_pred.npy")
-                act_true = os.path.join(results_dir, "activity_true.npy")
-                act_pred = os.path.join(results_dir, "activity_pred.npy")
-
-                if os.path.exists(act_mod) and os.path.exists(act_mod_pred):
-                    act_path_true, act_path_pred = act_mod, act_mod_pred
-                elif os.path.exists(act_true) and os.path.exists(act_pred):
-                    act_path_true, act_path_pred = act_true, act_pred
-                else:
-                    act_path_true = act_path_pred = None
-
-                if act_path_true is not None:
-                    a_true = np.load(act_path_true)
-                    a_pred = np.load(act_path_pred)
-                    if a_true.shape == a_pred.shape and a_true.ndim == 2:
-                        # Expect shape (n_neurons, n_frames)
-                        diff = a_true - a_pred
-                        mse_per_neuron = np.mean(diff ** 2, axis=1)
-                        rmse_per_neuron = np.sqrt(mse_per_neuron)
-                        rollout_rmse_per_neuron = rmse_per_neuron.tolist()
-                        rollout_rmse_median = float(np.median(rmse_per_neuron))
-
-                        # Vectorized per-neuron Pearson correlation over time
-                        # Center each neuron's trace
-                        x = a_true
-                        y = a_pred
-                        x_mean = x.mean(axis=1, keepdims=True)
-                        y_mean = y.mean(axis=1, keepdims=True)
-                        x_centered = x - x_mean
-                        y_centered = y - y_mean
-
-                        # Standard deviations per neuron
-                        x_std = x_centered.std(axis=1, ddof=0)
-                        y_std = y_centered.std(axis=1, ddof=0)
-
-                        # Mask neurons with zero variance in either trace
-                        valid = (x_std > 0) & (y_std > 0)
-                        corr = np.full(x_std.shape, np.nan, dtype=float)
-                        if np.any(valid):
-                            x_norm = x_centered[valid] / x_std[valid, None]
-                            y_norm = y_centered[valid] / y_std[valid, None]
-                            corr_valid = np.mean(x_norm * y_norm, axis=1)
-                            corr[valid] = corr_valid
-
-                        rollout_corr_per_neuron = corr.tolist()
-                        rollout_corr_median = float(np.nanmedian(corr))
-            except Exception as e:
-                print(f"warning: could not compute per-neuron RMSE for '{log_dir}': {e}")
-
-            records.append(
-                {
-                    "base_config": base_config,
-                    "config_file": config_file_with_mid,
-                    "pre_folder": pre_folder,
-                    "model_id": model_id,
-                    "param_value": param_value,
-                    # Parameter reconstruction metrics
-                    "weights_r2": weights_r2,
-                    "tau_r2": tau_r2,
-                    "vrest_r2": vrest_r2,
-                    "clustering_acc": clustering_acc,
-                    # Rollout metrics
-                    "rollout_rmse_mean": rmse_mean,
-                    "rollout_rmse_std": rmse_std,
-                    "rollout_rmse_min": rmse_min,
-                    "rollout_rmse_max": rmse_max,
-                    "rollout_pearson_mean": pearson_mean,
-                    "rollout_pearson_std": pearson_std,
-                    "rollout_pearson_min": pearson_min,
-                    "rollout_pearson_max": pearson_max,
-                    "rollout_r2_mean": r2_mean,
-                    "rollout_r2_std": r2_std,
-                    "rollout_r2_min": r2_min,
-                    "rollout_r2_max": r2_max,
-                    "rollout_feve_mean": feve_mean,
-                    "rollout_feve_std": feve_std,
-                    "rollout_feve_min": feve_min,
-                    "rollout_feve_max": feve_max,
-                    "rollout_n_neurons": n_neurons,
-                    "rollout_start_frame": start_frame,
-                    "rollout_end_frame": end_frame,
-                    "rollout_rmse_per_neuron": rollout_rmse_per_neuron,
-                    "rollout_rmse_median": rollout_rmse_median,
-                    "rollout_corr_per_neuron": rollout_corr_per_neuron,
-                    "rollout_corr_median": rollout_corr_median,
-                }
-            )
-
-    if len(records) == 0:
-        return pd.DataFrame()
-
-    df = pd.DataFrame.from_records(records)
-    return df
-
-
-def compare_ising_results(config_list, varied_parameter):
-    """
-    Compare Ising/information theory metrics across experiments
-    Focuses on: I_N, I_2, I_2/I_N ratio, higher-order correlations
-    """
-
-    from NeuralGraph.config import NeuralGraphConfig
-    from NeuralGraph.models.utils import add_pre_folder
-
-    def parse_ising_metrics(content):
-        """Extract Ising metrics from results.log content"""
-        metrics = {}
-
-        # Parse I_N
-        match = re.search(r'I_N:\s*median=([0-9eE+\-\.]+),\s*IQR=\[\s*([0-9eE+\-\.]+),\s*([0-9eE+\-\.]+)\s*\]', content)
-        if match:
-            metrics['I_N_median'] = float(match.group(1))
-            metrics['I_N_q1'] = float(match.group(2))
-            metrics['I_N_q3'] = float(match.group(3))
-
-        # Parse I2
-        match = re.search(r'I2:\s*median=([0-9eE+\-\.]+),\s*IQR=\[\s*([0-9eE+\-\.]+),\s*([0-9eE+\-\.]+)\s*\]', content)
-        if match:
-            metrics['I2_median'] = float(match.group(1))
-            metrics['I2_q1'] = float(match.group(2))
-            metrics['I2_q3'] = float(match.group(3))
-
-        # Parse I_HOC
-        match = re.search(r'I_HOC:\s*median=([0-9eE+\-\.]+),\s*IQR=\[\s*([0-9eE+\-\.]+),\s*([0-9eE+\-\.]+)\s*\]', content)
-        if match:
-            metrics['I_HOC_median'] = float(match.group(1))
-            metrics['I_HOC_q1'] = float(match.group(2))
-            metrics['I_HOC_q3'] = float(match.group(3))
-
-        # Parse ratio
-        match = re.search(r'(?:ratio|I_2/I_N):\s*median=([0-9eE+\-\.]+),\s*IQR=\[\s*([0-9eE+\-\.]+),\s*([0-9eE+\-\.]+)\s*\]', content)
-        if match:
-            metrics['ratio_median'] = float(match.group(1))
-            metrics['ratio_q1'] = float(match.group(2))
-            metrics['ratio_q3'] = float(match.group(3))
-
-        # Parse C_3 (connected triplets)
-        match = re.search(r'C_3:\s*(?:mean=)?([0-9eE+\-\.]+)\s*±\s*([0-9eE+\-\.]+)', content)
-        if match:
-            metrics['C3_mean'] = float(match.group(1))
-            metrics['C3_std'] = float(match.group(2))
-
-        return metrics
-
-    results = []
-
-    # Parse each config
-    for config_file_ in config_list:
-        try:
-            config_file, _ = add_pre_folder(config_file_)
-            config = NeuralGraphConfig.from_yaml(f'./config/{config_file}.yaml')
-
-            # Get parameter value
-            if varied_parameter is None:
-                parts = config_file_.split('_')
-                param_value = f"{parts[-2]}_{parts[-1]}" if len(parts) >= 2 else config_file_
-            else:
-                section_name, param_name = varied_parameter.split('.', 1)
-                section = getattr(config, section_name, None)
-                param_value = getattr(section, param_name, config_file_) if section else config_file_
-
-            # Read results.log
-            results_log_path = os.path.join('./log', config_file, 'results.log')
-            if not os.path.exists(results_log_path):
-                continue
-
-            with open(results_log_path, 'r') as f:
-                content = f.read()
-
-            # Parse Ising metrics
-            metrics = parse_ising_metrics(content)
-            if metrics:
-                metrics['param_value'] = param_value
-                metrics['config'] = config_file_
-                results.append(metrics)
-
-        except Exception as e:
-            print(f"Error processing {config_file_}: {e}")
-
-    if not results:
-        # print("No Ising metrics found")
-        return None
-
-    # Sort by parameter value
-    try:
-        results.sort(key=lambda x: float(x['param_value']))
-    except:
-        results.sort(key=lambda x: str(x['param_value']))
-
-    # Display name
-    if varied_parameter is None:
-        param_display_name = "config"
-    else:
-        param_display_name = varied_parameter.split('.')[1]
-
-    # Print summary table
-    print(f"\n=== Ising Analysis Comparison: {param_display_name} ===")
-    print(f"{'Parameter':<12} {'I_N (bits)':<15} {'I_2 (bits)':<15} {'I_HOC (bits)':<15} {'I_2/I_N':<12} {'C_3':<15}")
-    print("-" * 85)
-
-    for r in results:
-        i_n = f"{r.get('I_N_median', 0):.3f}" if 'I_N_median' in r else "N/A"
-        i_2 = f"{r.get('I2_median', 0):.3f}" if 'I2_median' in r else "N/A"
-        i_hoc = f"{r.get('I_HOC_median', 0):.3f}" if 'I_HOC_median' in r else "N/A"
-        ratio = f"{r.get('ratio_median', 0):.3f}" if 'ratio_median' in r else "N/A"
-        c3 = f"{r.get('C3_mean', 0):.4f}±{r.get('C3_std', 0):.4f}" if 'C3_mean' in r else "N/A"
-
-        print(f"{str(r['param_value']):<12} {i_n:<15} {i_2:<15} {i_hoc:<15} {ratio:<12} {c3:<15}")
-
-    # Create plots
-    plt.style.use('default')
-    fig, axes = plt.subplots(2, 2, figsize=(12, 10))
-    # Add panel labels a), b), c), d)
-    axes[0, 0].text(-0.08, 1.05, 'a)', transform=axes[0, 0].transAxes, fontsize=18, va='top', ha='right')
-    axes[0, 1].text(-0.08, 1.05, 'b)', transform=axes[0, 1].transAxes, fontsize=18, va='top', ha='right')
-    axes[1, 0].text(-0.08, 1.05, 'c)', transform=axes[1, 0].transAxes, fontsize=18, va='top', ha='right')
-    # axes[1, 1].text(-0.15, 1.08, 'd)', transform=axes[1, 1].transAxes, fontsize=18, va='top', ha='right')
-
-    param_values = [r['param_value'] for r in results]
-    param_display_name = 'noise level'
-
-    # Try to convert to numeric for better plotting
-    try:
-        x_values = [float(p) for p in param_values]
-        use_log = min(x_values) > 0 and max(x_values)/min(x_values) > 10
-    except:
-        x_values = range(len(param_values))
-        use_log = False
-
-    # Panel 1: I_N and I_2
-    ax = axes[0, 0]
-    if 'I_N_median' in results[0]:
-        i_n_vals = [r.get('I_N_median', 0) for r in results]
-        i_2_vals = [r.get('I2_median', 0) for r in results]
-
-        plot_fn = ax.semilogx if use_log else ax.plot
-        plot_fn(x_values, i_n_vals, 'o', label='$I_N$', linewidth=2, markersize=8)
-        plot_fn(x_values, i_2_vals, 's', label='$I^{(2)}$', linewidth=2, markersize=8)
-        # Add shaded region for sigma in [0.25, right edge]
-        ax.axvspan(0.25, 100, color='green', alpha=0.35, zorder=-1, linewidth=0)
-        ax.set_xlabel(param_display_name, fontsize=18)
-        ax.set_ylabel('information (bits)', fontsize=18)
-        ax.legend(fontsize=18)
-        ax.set_xlim(left=0, right=5)
-        # ax.grid(True, alpha=0.3)
-
-    # Panel 2: I_2/I_N ratio
-    ax = axes[0, 1]
-    if 'ratio_median' in results[0]:
-        ratio_vals = [r.get('ratio_median', 0) for r in results]
-        plot_fn = ax.semilogx if use_log else ax.plot
-        plot_fn(x_values, ratio_vals, 'o', color='green', linewidth=2, markersize=8)
-        # Add shaded region for sigma in [0.25, right edge]
-        ax.axvspan(0.25, 100, color='green', alpha=0.35, zorder=-1, linewidth=0)
-        ax.set_xlabel(param_display_name, fontsize=18)
-        ax.set_ylabel('$I^{(2)}/I_N$', fontsize=18)
-        ax.set_ylim(0, 1.1)
-        ax.set_xlim(left=0, right=5)
-        ax.axhline(y=1.0, color='gray', linestyle='--', alpha=0.5)
-        # ax.grid(True, alpha=0.3)
-
-    # Panel 3: Higher-order correlation
-    ax = axes[1, 0]
-    if 'I_HOC_median' in results[0]:
-        i_hoc_vals = [r.get('I_HOC_median', 0) for r in results]
-        plot_fn = ax.semilogx if use_log else ax.plot
-        plot_fn(x_values, i_hoc_vals, 'o', color='purple', linewidth=2, markersize=8)
-        # Add shaded region for sigma in [0.25, right edge]
-        ax.axvspan(0.25, 100, color='green', alpha=0.35, zorder=-1, linewidth=0)
-        ax.set_xlabel(param_display_name, fontsize=18)
-        ax.set_ylabel('$I_{HOC}$ (bits)', fontsize=18)
-        ax.set_xlim(left=0, right=5)
-        # ax.grid(True, alpha=0.3)
-
-    # Panel 4: Connected triplets C_3
-    ax = axes[1, 1]
-    # if 'C3_mean' in results[0]:
-    #     c3_vals = [r.get('C3_mean', 0) for r in results]
-    #     c3_err = [r.get('C3_std', 0) for r in results]
-
-    #     if use_log:
-    #         ax.errorbar(x_values, c3_vals, yerr=c3_err, fmt='o', color='teal',
-    #                    linewidth=2, markersize=8, capsize=5)
-    #         ax.set_xscale('log')
-    #     else:
-    #         ax.errorbar(x_values, c3_vals, yerr=c3_err, fmt='o', color='teal',
-    #                    linewidth=2, markersize=8, capsize=5)
-    #     ax.set_xlabel(param_display_name, fontsize=18)
-    #     ax.set_ylabel('$C_3$ (triplet correlation)', fontsize=18)
-    #     # ax.grid(True, alpha=0.3)
-
-    ax.axis('off')
-
-    # Set x-axis labels if not numeric
-    if not isinstance(x_values[0], (int, float)):
-        for ax in axes.flat:
-            ax.set_xticks(x_values)
-            ax.set_xticklabels(param_values, rotation=45, ha='right')
-
-    # plt.suptitle(f'Information Structure vs {param_display_name}', fontsize=14)
-    plt.tight_layout()
-    plt.savefig(f'fig/ising_comparison_{param_display_name}.png', dpi=400, bbox_inches='tight')
-    plt.show()
-
-    return results
-
-
-def compare_experiments(config_list, varied_parameter=None):
-    """
-    Run both GNN and Ising comparisons
-
-    Args:
-        config_list: list of config file names
-        varied_parameter: 'section.parameter' format or None for config indices
-    """
-
-    # print("\n" + "="*80)
-    # print("EXPERIMENT COMPARISON")
-    # print("="*80)
-
-    # Run GNN comparison
-    gnn_results = compare_gnn_results(config_list, varied_parameter)
-
-    # Run Ising comparison
-    ising_results = compare_ising_results(config_list, varied_parameter)
-
-    # Optional: Create combined summary plot if both analyses succeeded
-    if gnn_results and ising_results:
-        create_combined_summary_plot(gnn_results, ising_results, varied_parameter)
-
-    return {'gnn': gnn_results, 'ising': ising_results}
-
-
-def create_combined_summary_plot(gnn_results, ising_results, varied_parameter):
-    """Create a combined plot showing both GNN performance and information metrics"""
-
-    # This is where you could create your custom combined visualization
-    # For example, showing GNN accuracy alongside I_HOC to demonstrate
-    # the relationship between higher-order correlations and performance
-
-    pass  # Implement as needed
-
-
-
 
 
 def plot_neuron_activity_analysis(activity, target_type_name_list, type_list, index_to_name, n_neurons, n_frames, delta_t, output_path):

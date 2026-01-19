@@ -112,4 +112,4 @@ if __name__ == "__main__":
         if 'plot' in task:
             folder_name = './log/' + pre_folder + '/tmp_results/'
             os.makedirs(folder_name, exist_ok=True)
-            data_plot(config=config, config_file=config_file, epoch_list=['best'], style='black color', extended='plots', device=device, apply_weight_correction=True)
+            data_plot(config=config, config_file=config_file, epoch_list=['best'], style='color', extended='plots', device=device, apply_weight_correction=True)

@@ -292,6 +292,13 @@ class PlottingConfig(BaseModel):
     mlp1_xlim: list[float] = [-5, 5]
     mlp1_ylim: list[float] = [-1.1, 1.1]
 
+    # MLP1 normalization parameters
+    # method: 'max', 'median', 'mean', or 'plateau'
+    norm_method: str = "median"
+    # x_start and x_stop as multipliers of xnorm (e.g., 0.8 means 0.8*xnorm)
+    norm_x_start: float | None = None  # None = auto (0.85 * xnorm * 4 for training, 0.8 * xnorm for best)
+    norm_x_stop: float | None = None   # None = auto (xnorm * 4 for training, xnorm for best)
+
 
 class TrainingConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")

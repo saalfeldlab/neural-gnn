@@ -870,8 +870,12 @@ def plot_activity_sample(x_list, n_neurons, n_frames, dataset_name, n_traces=10)
     plt.close()
 
 
-def plot_synaptic_mlp_functions(model, x_list, n_neurons, dataset_name, colormap, device):
-    """Plot MLP0 and MLP1 functions for synaptic simulation."""
+def plot_synaptic_mlp_functions(model, x_list, n_neurons, dataset_name, colormap, device, signal_model_name=None):
+    """Plot MLP0 and MLP1 functions for synaptic simulation.
+
+    For PDE_N5, plots a 2x2 montage showing neuron-neuron dependent transfer functions.
+    Each subplot shows target neuron type k receiving from all source neuron types.
+    """
     if not hasattr(model, 'func'):
         return
 
@@ -883,7 +887,56 @@ def plot_synaptic_mlp_functions(model, x_list, n_neurons, dataset_name, colormap
     n_neuron_types = int(neuron_types.max()) + 1
     cmap = plt.cm.get_cmap(colormap)
 
-    # Plot MLP1 (message/phi function) - all neurons
+    # For PDE_N5: plot 2x2 montage of neuron-neuron dependent MLP1
+    if signal_model_name == 'PDE_N5' and n_neuron_types == 4:
+        print('  PDE_N5: plotting 2x2 neuron-neuron dependent MLP1 montage ...')
+        fig = plt.figure(figsize=(16, 16))
+        plt.axis('off')
+
+        for k in range(n_neuron_types):  # target neuron type
+            ax = fig.add_subplot(2, 2, k + 1)
+            # Color the subplot border by target neuron type
+            for spine in ax.spines.values():
+                spine.set_edgecolor(cmap(k))
+                spine.set_linewidth(3)
+
+            if k == 0:
+                plt.ylabel(r'$\psi^*(a_i, a_j, x_i)$', fontsize=32)
+
+            # Plot MLP1 for all source neuron types -> target type k
+            for n in range(n_neuron_types):  # source neuron type
+                # Get width (w) from target neuron type k
+                w_target = model.p[k, 4:5]  # width of target
+
+                # Sample multiple neurons of source type n
+                for m in range(250):
+                    # Get threshold (h) from source neuron type n
+                    if model.p.shape[1] >= 6:
+                        h_source = model.p[n, 5:6]
+                    else:
+                        h_source = torch.zeros_like(w_target)
+
+                    # Compute phi((u - h_source) / w_target)
+                    func_phi = model.phi((rr[:, None] - h_source) / w_target)
+                    # Add the log term: - u * log(w_source) / 50
+                    l_source = torch.log(model.p[n, 4:5])
+                    func_phi = func_phi - rr[:, None] * l_source / 50
+
+                    plt.plot(to_numpy(rr), to_numpy(func_phi), color=cmap(n),
+                             linewidth=2, alpha=0.25)
+
+            plt.ylim([-1.1, 1.1])
+            plt.xlim([-5, 5])
+            if k >= 2:  # bottom row
+                plt.xlabel(r'$x_j$', fontsize=32)
+            plt.xticks(fontsize=20)
+            plt.yticks(fontsize=20)
+
+        plt.tight_layout()
+        plt.savefig(f"graphs_data/{dataset_name}/MLP1_neuron_neuron.png", dpi=150)
+        plt.close()
+
+    # Plot MLP1 (message/phi function) - all neurons (standard plot)
     plt.figure(figsize=(10, 8))
     for n in range(n_neurons):
         neuron_type = neuron_types[n]
