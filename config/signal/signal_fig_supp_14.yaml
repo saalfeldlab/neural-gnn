@@ -61,14 +61,13 @@ training:
   batch_size: 1
   small_init_batch_size: False
 
-  init_training_single_type: True
-
   seed: 24
 
   data_augmentation_loop: 100
 
   sparsity: "replace_embedding_function"
   sparsity_freq: 4
+  cluster_distance_threshold: 0.2
   cluster_method: "distance_plot"
   fix_cluster_embedding: True
 

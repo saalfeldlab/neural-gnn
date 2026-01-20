@@ -127,14 +127,22 @@ class Signal_Propagation(pyg.nn.MessagePassing):
 
             if self.low_rank_factorization:
 
-                self.WL = nn.Parameter(torch.randn((int(self.n_neurons),int(self.low_rank)), device=self.device, requires_grad=True, dtype=torch.float32))
-                self.WR = nn.Parameter(torch.randn((int(self.low_rank),int(self.n_neurons)), device=self.device, requires_grad=True, dtype=torch.float32))
+                WL_init = torch.randn((int(self.n_neurons),int(self.low_rank)), device=self.device, dtype=torch.float32)
+                WL_init[:min(self.n_neurons, self.low_rank), :min(self.n_neurons, self.low_rank)].fill_diagonal_(0)
+                self.WL = nn.Parameter(WL_init, requires_grad=True)
+
+                WR_init = torch.randn((int(self.low_rank),int(self.n_neurons)), device=self.device, dtype=torch.float32)
+                WR_init[:min(self.low_rank, self.n_neurons), :min(self.low_rank, self.n_neurons)].fill_diagonal_(0)
+                self.WR = nn.Parameter(WR_init, requires_grad=True)
+
                 # W as buffer for saving/post-analysis (updated each forward pass)
                 self.register_buffer('W', torch.zeros((int(self.n_neurons),int(self.n_neurons)), dtype=torch.float32))
 
             else:
 
-                self.W = nn.Parameter(torch.randn((int(self.n_neurons),int(self.n_neurons)), device=self.device, requires_grad=True, dtype=torch.float32))
+                W_init = torch.randn((int(self.n_neurons),int(self.n_neurons)), device=self.device, dtype=torch.float32)
+                W_init.fill_diagonal_(0)
+                self.W = nn.Parameter(W_init, requires_grad=True)
 
 
         self.register_buffer('mask', torch.ones((int(self.n_neurons),int(self.n_neurons)), requires_grad=False, dtype=torch.float32))

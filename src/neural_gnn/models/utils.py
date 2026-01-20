@@ -2389,31 +2389,29 @@ class LossRegularizer:
         n_neurons = self.n_neurons
         total_regul = torch.tensor(0.0, device=device)
 
-        # Get model W (handle multi-run case and low_rank_factorization)
+        # Get model W (handle multi-run case not working here)
         # For low_rank_factorization, compute W from WL @ WR to allow gradient flow
+        
+        # --- W regularization ---
         low_rank = getattr(model, 'low_rank_factorization', False)
         if low_rank and hasattr(model, 'WL') and hasattr(model, 'WR'):
-            model_W = model.WL @ model.WR  # Compute W for regularization (gradients flow to WL/WR)
-        elif hasattr(model, 'W'):
-            if len(model.W.shape) == 3:
-                model_W = model.W[0]  # First run
-            else:
-                model_W = model.W
+            if self._coeffs['W_L1'] > 0 and not self._W_L1_applied_this_iter:
+                regul_term = (model.WL.norm(1) + model.WR) * self._coeffs['W_L1']
+                total_regul = total_regul + regul_term
+                self._add('W_L1', regul_term)
+                self._W_L1_applied_this_iter = True
         else:
-            model_W = None
+            # W_L1: Apply only once per iteration (not per batch item)
+            if self._coeffs['W_L1'] > 0 and not self._W_L1_applied_this_iter:
+                regul_term = model.W.norm(1) * self._coeffs['W_L1']
+                total_regul = total_regul + regul_term
+                self._add('W_L1', regul_term)
+                self._W_L1_applied_this_iter = True
 
-        # --- W regularization ---
-        # W_L1: Apply only once per iteration (not per batch item)
-        if self._coeffs['W_L1'] > 0 and model_W is not None and not self._W_L1_applied_this_iter:
-            regul_term = model_W.norm(1) * self._coeffs['W_L1']
-            total_regul = total_regul + regul_term
-            self._add('W_L1', regul_term)
-            self._W_L1_applied_this_iter = True
-
-        if self._coeffs['W_L2'] > 0 and model_W is not None:
-            regul_term = model_W.norm(2) * self._coeffs['W_L2']
-            total_regul = total_regul + regul_term
-            self._add('W_L2', regul_term)
+            if self._coeffs['W_L2'] > 0 and not self._W_L1_applied_this_iter:
+                regul_term = model.W.norm(2) * self._coeffs['W_L2']
+                total_regul = total_regul + regul_term
+                self._add('W_L2', regul_term)
 
         # --- Edge/Phi weight regularization ---
         if (self._coeffs['edge_weight_L1'] + self._coeffs['edge_weight_L2']) > 0:

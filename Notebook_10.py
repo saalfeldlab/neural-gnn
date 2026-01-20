@@ -41,7 +41,7 @@ import shutil
 
 from neural_gnn.config import NeuralGraphConfig
 from neural_gnn.generators.graph_data_generator import data_generate
-from neural_gnn.models.graph_trainer import data_train, data_test
+from neural_gnn.models.graph_trainer import data_train
 from neural_gnn.utils import set_device, add_pre_folder, load_and_display
 from GNN_PlotFigure import data_plot
 
@@ -182,40 +182,7 @@ if __name__ == "__main__":
         )
 
 # %% [markdown]
-# ## Step 3: Test Model
-# Test the trained GNN model. Evaluates prediction accuracy and performs rollout inference.
-
-# %%
-#| echo: true
-#| output: false
-    # STEP 3: TEST
-    print()
-    print("-" * 80)
-    print("STEP 3: TEST - Evaluating trained model")
-    print("-" * 80)
-    print(f"  Testing prediction accuracy and rollout inference")
-    print(f"  Output: {log_dir}/results/")
-    print()
-    config.training.noise_model_level = 0.0
-
-    data_test(
-        config=config,
-        visualize=False,
-        style="color name continuous_slice",
-        verbose=False,
-        best_model='best',
-        run=0,
-        test_mode="",
-        sample_embedding=False,
-        step=10,
-        n_rollout_frames=1000,
-        device=device,
-        particle_of_interest=0,
-        new_params=None,
-    )
-
-# %% [markdown]
-# ## Step 4: Generate Publication Figures
+# ## Step 3: Generate Publication Figures
 # Generate publication-quality figures matching Figure 3 from the paper.
 #
 # **Figure panels:**
@@ -228,10 +195,10 @@ if __name__ == "__main__":
 # %%
 #| echo: true
 #| output: false
-    # STEP 4: PLOT
+    # STEP 3: PLOT
     print()
     print("-" * 80)
-    print("STEP 4: PLOT - Generating Figure 3 panels (d-g)")
+    print("STEP 3: PLOT - Generating Figure 3 panels (d-g)")
     print("-" * 80)
     print(f"  Fig 3d: W learned vs true (R^2, slope)")
     print(f"  Fig 3e: Omega learned vs true")

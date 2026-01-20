@@ -1,20 +1,15 @@
-description: "heterogeneity MLP0 and MLP1 slope"
-dataset: "signal_fig_supp_13"
+description: "Figure supp 11 - 8000 neurons, 4 types, little noise, no external inputs"
+dataset: "signal_fig_supp_11"
 
 simulation:
   connectivity_type: "Lorentz"
   connectivity_init: [0, 0.1]
-  # params: [a, b, g, s, w, h]
-  # a: decay, b: offset, g: gain, s: self-recurrence, w: width, h: threshold   MLP1((u-h)/w)
+  # params: [g, s, c]
+  # du = -c * u + s * torch.tanh(u) + g * msg
   params:
-    [
-      [1.0, 0.0, 10.0, 1.0, 1.0, 0.0],
-      [1.0, 0.0, 10.0, 2.0, 2.0, 0.0],
-      [2.0, 0.0, 10.0, 1.0, 4.0, 0.0],
-      [2.0, 0.0, 10.0, 2.0, 8.0, 0.0],
-    ]
+    [[10.0, 1.0, 1.0], [10.0, 2.0, 1.0], [10.0, 1.0, 2.0], [10.0, 2.0, 2.0]]
   phi: "tanh"
-  n_neurons: 1000
+  n_neurons: 8000
   n_neuron_types: 4
   n_frames: 100000
   delta_t: 0.01
@@ -23,12 +18,12 @@ simulation:
   start_frame: -1000
 
 graph_model:
-  signal_model_name: "PDE_N4"
+  signal_model_name: "PDE_N2"
   particle_model_name: ""
   mesh_model_name: ""
   prediction: "first_derivative"
 
-  input_size: 3
+  input_size: 1
   output_size: 1
   hidden_dim: 64
   n_layers: 3
@@ -44,35 +39,37 @@ graph_model:
 plotting:
   colormap: "tab10"
   arrow_length: 1
-  xlim: [-5, 5]
+  xlim: [-4, 4]
   ylim: [-8, 8]
+  label_style: "greek"
+  mlp0_xlim: [-5, 5]
+  mlp0_ylim: [-8, 8]
   mlp1_xlim: [-5, 5]
   mlp1_ylim: [-1.1, 1.1]
-  # MLP1 normalization: plateau detection between x=10 and x=20
-  norm_method: "max"
-  norm_x_start: 25.0
-  norm_x_stop: 30.0
 
 training:
-  n_epochs: 20
+  n_epochs: 10
   n_runs: 1
   device: "auto"
 
   batch_size: 1
   small_init_batch_size: False
 
-  seed: 24
+  seed: 16
 
-  data_augmentation_loop: 100
+  data_augmentation_loop: 15
 
   sparsity: "replace_embedding_function"
   sparsity_freq: 4
-  cluster_distance_threshold: 0.2
   cluster_method: "distance_plot"
+  cluster_distance_threshold: 0.1
   fix_cluster_embedding: True
 
   learning_rate_W_start: 1.0E-3
-  learning_rate_start: 5.0E-4
-  learning_rate_embedding_start: 2.5E-4
+  learning_rate_start: 5.0E-5
+  learning_rate_embedding_start: 5.0E-4
 
+  noise_model_level: 1
+
+  coeff_lin_phi_zero: 1.0
   coeff_edge_diff: 100

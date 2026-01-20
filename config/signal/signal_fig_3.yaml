@@ -82,7 +82,7 @@ training:
   cluster_distance_threshold: 0.1
   fix_cluster_embedding: True
 
-  coeff_W_L1: 1.0E-6
+  coeff_W_L1: 1.0E-12
   coeff_edge_diff: 10
   coeff_update_diff: 5
   coeff_lin_phi_zero: 1.0
