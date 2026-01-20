@@ -314,7 +314,13 @@ def data_train_signal(config, erase, best_model, style, device, log_file=None):
                 model.W.copy_(model.W * model.mask)
     else:
 
-        edges = torch.load(f'./graphs_data/{dataset_name}/edge_index.pt', map_location=device)
+        # edges = torch.load(f'./graphs_data/{dataset_name}/edge_index.pt', map_location=device)
+        # Create fully connected edges (all pairs except self-loops)
+        i_indices = torch.arange(n_neurons, device=device).repeat_interleave(n_neurons)
+        j_indices = torch.arange(n_neurons, device=device).repeat(n_neurons)
+        # Remove self-loops (i != j)
+        mask_edges = i_indices != j_indices
+        edges = torch.stack([i_indices[mask_edges], j_indices[mask_edges]], dim=0)
         edges_all = edges.clone().detach()
 
     if train_config.coeff_W_sign > 0:

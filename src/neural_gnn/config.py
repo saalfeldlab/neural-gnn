@@ -407,6 +407,10 @@ class TrainingConfig(BaseModel):
     coeff_W_sign: float = 0
     W_sign_temperature: float = 10.0
 
+    # Two-phase training (like ParticleGraph data_train_synaptic2)
+    n_epochs_init: int = 0              # Number of epochs in phase 1 (0 = disabled)
+    first_coeff_L1: float = 0.0         # L1 coefficient during phase 1
+
     coeff_lin_phi_zero: float = 0
     coeff_entropy_loss: float = 0
     coeff_edge_diff: float = 0

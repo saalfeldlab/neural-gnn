@@ -2300,21 +2300,34 @@ class LossRegularizer:
         tc = self.train_config
         epoch = self.epoch
 
+        # Two-phase training support (like ParticleGraph data_train_synaptic2)
+        n_epochs_init = getattr(tc, 'n_epochs_init', 0)
+        first_coeff_L1 = getattr(tc, 'first_coeff_L1', tc.coeff_W_L1)
+
         if self.trainer_type == 'flyvis':
             # Flyvis: annealed coefficients
             self._coeffs['W_L1'] = tc.coeff_W_L1 * (1 - np.exp(-tc.coeff_W_L1_rate * epoch))
             self._coeffs['edge_weight_L1'] = tc.coeff_edge_weight_L1 * (1 - np.exp(-tc.coeff_edge_weight_L1_rate ** epoch))
             self._coeffs['phi_weight_L1'] = tc.coeff_phi_weight_L1 * (1 - np.exp(-tc.coeff_phi_weight_L1_rate * epoch))
         else:
-            # Signal: no annealing
-            self._coeffs['W_L1'] = tc.coeff_W_L1
+            # Signal: two-phase training if n_epochs_init > 0
+            if n_epochs_init > 0 and epoch < n_epochs_init:
+                # Phase 1: use first_coeff_L1 (typically 0 or small)
+                self._coeffs['W_L1'] = first_coeff_L1
+            else:
+                # Phase 2: use coeff_W_L1 (target L1)
+                self._coeffs['W_L1'] = tc.coeff_W_L1
             self._coeffs['edge_weight_L1'] = tc.coeff_edge_weight_L1
             self._coeffs['phi_weight_L1'] = tc.coeff_phi_weight_L1
 
         # Non-annealed coefficients (same for both)
         self._coeffs['W_L2'] = tc.coeff_W_L2
         self._coeffs['W_sign'] = tc.coeff_W_sign
-        self._coeffs['edge_diff'] = tc.coeff_edge_diff
+        # Two-phase: edge_diff is active in phase 1, disabled in phase 2
+        if n_epochs_init > 0 and epoch >= n_epochs_init:
+            self._coeffs['edge_diff'] = 0  # Phase 2: no monotonicity constraint
+        else:
+            self._coeffs['edge_diff'] = tc.coeff_edge_diff
         self._coeffs['edge_norm'] = tc.coeff_edge_norm
         self._coeffs['edge_weight_L2'] = tc.coeff_edge_weight_L2
         self._coeffs['phi_weight_L2'] = tc.coeff_phi_weight_L2

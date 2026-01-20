@@ -65,6 +65,12 @@ training:
   learning_rate_start: 1.0E-4
   learning_rate_embedding_start: 1.0E-4
 
-  coeff_lin_phi_zero: 1.0
+  # Two-phase training (like ParticleGraph)
+  n_epochs_init: 2             # epochs in phase 1
+  first_coeff_L1: 0            # phase 1: no L1
+  coeff_W_L1: 1.0E-5           # phase 2: target L1
 
-  coeff_W_L1: 1.0e-05
+  # Regularization coefficients
+  coeff_edge_diff: 100         # Monotonicity constraint (phase 1 only, disabled in phase 2)
+  coeff_update_diff: 0         # Monotonicity constraint on update function
+  coeff_lin_phi_zero: 1.0      # Penalize phi output at zero

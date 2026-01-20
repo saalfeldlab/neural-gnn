@@ -39,7 +39,7 @@ if __name__ == "__main__":
         else:
             best_model = None
     else:
-        best_model = '3_0'
+        best_model = ''
         task = 'train'
         config_list = ['signal_fig_supp_14']
 
@@ -81,7 +81,7 @@ if __name__ == "__main__":
         elif "train" in task:
             data_train(
                 config=config,
-                erase=False,
+                erase=True,
                 best_model=best_model,
                 style='',
                 device=device,
