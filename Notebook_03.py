@@ -1,18 +1,18 @@
 # %% [raw]
 # ---
 # title: "Supplementary Figure 7: Effect of training dataset size"
-# author: Cédric Allier, MichaelInnerberger, Stephan Saalfeld
+# author: Cédric Allier, Michael Innerberger, Stephan Saalfeld
 # categories:
 #   - Neural Activity
 #   - Simulation
 #   - GNN Training
 # execute:
 #   echo: false
-# image: "log/signal/signal_fig_2/results/weights_comparison_corrected.png"
+# image: "log/signal/signal_fig_supp_7_5/results/MLP0.png"
 # ---
 
 # %% [markdown]
-# This script displays the panels for **Supplementary Figure 7** from the paper. 
+# This script reproduce the panels of paper's **Supplementary Figure 7**. 
 # Performance scales with the length of the training series.
 #
 # **Supplementary Figure 7** shows R² vs epochs for different training dataset sizes.
@@ -133,9 +133,11 @@ for config_file_ in config_files:
     config.dataset = config_file
 
     log_dir = f'./log/{config_file}'
-    model_file = f'{log_dir}/models/best_model_with_0_graphs_0_0.pt'
+    # Check if trained model already exists (any .pt file in models folder)
+    import glob
+    model_files = glob.glob(f'{log_dir}/models/*.pt')
 
-    if os.path.exists(model_file):
+    if model_files:
         print(f"  Trained model already exists at {log_dir}/models/")
         print("  Skipping training...")
     else:

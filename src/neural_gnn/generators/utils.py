@@ -565,7 +565,7 @@ def plot_synaptic_frame_visual(X1, A1, H1, dataset_name, run, num):
     plt.axis("off")
     plt.subplot(211)
     plt.axis("off")
-    plt.title("$b_i$", fontsize=24)
+    plt.title("$\Omega_i$", fontsize=24)
     plt.scatter(
         to_numpy(X1[0:1024, 1]) * 0.95,
         to_numpy(X1[0:1024, 0]) * 0.95,
@@ -761,12 +761,12 @@ def plot_synaptic_activity_traces(x_list, n_neurons, n_frames, dataset_name, mod
 
     ax = plt.gca()
     ax.set_xlabel('time', fontsize=24)
-    ax.set_ylabel('neuron index', fontsize=24)
     ax.tick_params(labelsize=16)
     ax.spines['left'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.set_yticks([])
+    ax.yaxis.set_visible(False)  # Hide entire y-axis including ticks
     plt.xlim([0, min(n_frames, 10000)])
     plt.tight_layout()
     plt.savefig(f"graphs_data/{dataset_name}/activity.png", dpi=100)

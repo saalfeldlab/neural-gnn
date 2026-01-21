@@ -279,6 +279,20 @@ def data_generate_synaptic(
                                       n_input_neurons=n_input_neurons)
             # Plot activity sample (Fig 3c)
             plot_activity_sample(x_list, n_neurons, n_frames, dataset_name, n_traces=10)
+
+            # Generate Fig 3a/3b style frames if external input exists
+            external_input = x_list[:, :, 4] if x_list.shape[2] > 4 else None
+            has_visual_input = external_input is not None and np.abs(external_input).max() > 1e-6
+            if has_visual_input:
+                # Create Fig directory if needed
+                fig_dir = f"./graphs_data/{dataset_name}/Fig"
+                os.makedirs(fig_dir, exist_ok=True)
+                # Generate frame at t=0 for Fig 3a/3b
+                x = x_list[0]
+                X1 = x[:, 1:3]  # positions
+                A1 = x[:, 4:5]  # external input (Omega)
+                H1 = x[:, 3:4]  # activity
+                plot_synaptic_frame_visual(X1, A1, H1, dataset_name, 0, "000000")
             return
         else:
             print(f"data files not found in {folder}, running full generation...")

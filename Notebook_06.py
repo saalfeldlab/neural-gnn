@@ -1,7 +1,7 @@
 # %% [raw]
 # ---
 # title: "Supplementary Figure 11: large scale - 8000 neurons"
-# author: Cédric Allier, MichaelInnerberger, Stephan Saalfeld
+# author: Cédric Allier, Michael Innerberger, Stephan Saalfeld
 # categories:
 #   - Neural Activity
 #   - Simulation
@@ -9,7 +9,7 @@
 #   - Large Scale
 # execute:
 #   echo: false
-# image: "graphs_data/signal/signal_fig_supp_11/activity.png"
+# image: "graphs_data/signal/signal_fig_supp_11/connectivity_matrix.png"
 # ---
 
 # %% [markdown]
@@ -154,9 +154,10 @@ print("-" * 80)
 print("STEP 2: TRAIN - Training GNN to learn 64M connectivity weights")
 print("-" * 80)
 
-# Check if trained model already exists
-model_file = f'{log_dir}/models/best_model_with_0_graphs_0_0.pt'
-if os.path.exists(model_file):
+# Check if trained model already exists (any .pt file in models folder)
+import glob
+model_files = glob.glob(f'{log_dir}/models/*.pt')
+if model_files:
     print(f"  Trained model already exists at {log_dir}/models/")
     print("  Skipping training (delete models folder to retrain)")
 else:
@@ -227,3 +228,51 @@ load_and_display("./log/signal/signal_fig_supp_11/results/MLP0.png")
 # %%
 #| fig-cap: "Learned transfer function $\\psi^*(x)$, normalized to a maximum value of 1. True function is overlaid in light gray."
 load_and_display("./log/signal/signal_fig_supp_11/results/MLP1_corrected.png")
+
+# %% [markdown]
+# ## Step 4: Test Model
+# Test the trained GNN model. Evaluates prediction accuracy and performs rollout inference.
+
+# %%
+#| echo: true
+#| output: false
+# STEP 4: TEST
+print()
+print("-" * 80)
+print("STEP 4: TEST - Evaluating trained model")
+print("-" * 80)
+print(f"  Testing prediction accuracy and rollout inference")
+print(f"  Output: {log_dir}/results/")
+print()
+
+from neural_gnn.models.graph_trainer import data_test
+config.training.noise_model_level = 0.0
+
+data_test(
+    config=config,
+    visualize=False,
+    style="color name continuous_slice",
+    verbose=False,
+    best_model='best',
+    run=0,
+    test_mode="",
+    sample_embedding=False,
+    step=10,
+    n_rollout_frames=1000,
+    device=device,
+    particle_of_interest=0,
+    new_params=None,
+)
+
+# %% [markdown]
+# ### Rollout Results
+# - Left panel: activity traces (ground truth gray, learned colored)
+# - Right panel: scatter plot of true vs learned $x_i$ with $R^2$ and slope
+
+# %%
+#| fig-cap: "Rollout comparison at time-point 400."
+load_and_display(f"{log_dir}/results/Fig_0_000039.png")
+
+# %%
+#| fig-cap: "Rollout comparison at time-point 800."
+load_and_display(f"{log_dir}/results/Fig_0_000079.png")

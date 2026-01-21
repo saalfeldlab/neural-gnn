@@ -1756,35 +1756,35 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
         plot_connectivity_matrix(connectivity_plot, f'./{log_dir}/results/connectivity_true.png',
                                  vmin_vmax_method='percentile', show_title=False, dpi=100)
 
-        # Fig2a: Kinograph (activity heatmap - all neurons × all frames)
-        # Use imshow instead of sns.heatmap for large data (much faster)
-        kinograph_path = f'./{log_dir}/results/kinograph.png'
-        # Skip if kinograph already exists (takes a long time to generate)
-        if os.path.exists(kinograph_path):
-            print(f'  kinograph already exists, skipping: {kinograph_path}')
-        else:
-            plt.figure(figsize=(15, 10))
-            # Use LaTeX fonts with Palatino (same as other plots in codebase)
-            # plt.rcParams['text.usetex'] = True
-            # rc('font', **{'family': 'serif', 'serif': ['Palatino']})
-            activity_np = to_numpy(activity)
-            vmax = np.abs(activity_np).max()
-            # origin='lower' so neuron 1 at bottom, n_neurons at top (matching reference)
-            im = plt.imshow(activity_np, aspect='auto', cmap='viridis', vmin=-vmax, vmax=vmax, origin='lower')
-            cbar = plt.colorbar(im, fraction=0.046, pad=0.04)
-            # Set colorbar ticks explicitly (rounded to nearest 10)
-            vmax_rounded = int(np.ceil(vmax / 10) * 10)
-            cbar_ticks = np.arange(-vmax_rounded, vmax_rounded + 1, 10)
-            cbar_ticks = cbar_ticks[(cbar_ticks >= -vmax) & (cbar_ticks <= vmax)]
-            cbar.set_ticks(cbar_ticks)
-            cbar.ax.tick_params(labelsize=32)
-            plt.ylabel('neurons', fontsize=64)
-            plt.xlabel('time', fontsize=64)
-            plt.xticks([0, n_frames - 1], [0, n_frames], fontsize=48)
-            plt.yticks([0, n_neurons - 1], [1, n_neurons], fontsize=48)
-            plt.tight_layout()
-            plt.savefig(kinograph_path, dpi=300)
-            plt.close()
+        # # Fig2a: Kinograph (activity heatmap - all neurons × all frames)
+        # # Use imshow instead of sns.heatmap for large data (much faster)
+        # kinograph_path = f'./{log_dir}/results/kinograph.png'
+        # # Skip if kinograph already exists (takes a long time to generate)
+        # if os.path.exists(kinograph_path):
+        #     print(f'  kinograph already exists, skipping: {kinograph_path}')
+        # else:
+        #     plt.figure(figsize=(15, 10))
+        #     # Use LaTeX fonts with Palatino (same as other plots in codebase)
+        #     # plt.rcParams['text.usetex'] = True
+        #     # rc('font', **{'family': 'serif', 'serif': ['Palatino']})
+        #     activity_np = to_numpy(activity)
+        #     vmax = np.abs(activity_np).max()
+        #     # origin='lower' so neuron 1 at bottom, n_neurons at top (matching reference)
+        #     im = plt.imshow(activity_np, aspect='auto', cmap='viridis', vmin=-vmax, vmax=vmax, origin='lower')
+        #     cbar = plt.colorbar(im, fraction=0.046, pad=0.04)
+        #     # Set colorbar ticks explicitly (rounded to nearest 10)
+        #     vmax_rounded = int(np.ceil(vmax / 10) * 10)
+        #     cbar_ticks = np.arange(-vmax_rounded, vmax_rounded + 1, 10)
+        #     cbar_ticks = cbar_ticks[(cbar_ticks >= -vmax) & (cbar_ticks <= vmax)]
+        #     cbar.set_ticks(cbar_ticks)
+        #     cbar.ax.tick_params(labelsize=32)
+        #     plt.ylabel('neurons', fontsize=64)
+        #     plt.xlabel('time', fontsize=64)
+        #     plt.xticks([0, n_frames - 1], [0, n_frames], fontsize=48)
+        #     plt.yticks([0, n_neurons - 1], [1, n_neurons], fontsize=48)
+        #     plt.tight_layout()
+        #     plt.savefig(kinograph_path, dpi=300)
+        #     plt.close()
 
         # Fig2b: Sample 100 traces if n_neurons > 200
         if n_neurons >= 200:
@@ -2068,7 +2068,67 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
             plt.savefig(f"./{log_dir}/results/MLP1_corrected.png", dpi=170.7)
             plt.close()
 
+            # PDE_N5: Generate 2x2 montage for neuron-neuron dependent MLP1
+            if model_config.signal_model_name == 'PDE_N5' and n_neuron_types == 4:
+                print('  PDE_N5: plotting 2x2 neuron-neuron dependent MLP1 montage ...')
+                fig = plt.figure(figsize=(16, 16))
+                plt.axis('off')
+                rr_montage = torch.linspace(-xnorm.squeeze(), xnorm.squeeze(), 1000).to(device)
 
+                for k in range(n_neuron_types):  # target neuron type
+                    ax = fig.add_subplot(2, 2, k + 1)
+                    # Color the subplot border by target neuron type
+                    for spine in ax.spines.values():
+                        spine.set_edgecolor(cmap.color(k))
+                        spine.set_linewidth(3)
+
+                    if k == 0:
+                        plt.ylabel(r'learned $\psi^*(a_i, a_j, x_j)$', fontsize=32)
+
+                    # Plot true curves first (gray, in background)
+                    if true_model is not None:
+                        for n in range(n_neuron_types):
+                            # Get width (w) from target neuron type k
+                            w_target = true_model.p[k, 4:5]
+                            # Get threshold (h) from source neuron type n
+                            if true_model.p.shape[1] >= 6:
+                                h_source = true_model.p[n, 5:6]
+                            else:
+                                h_source = torch.zeros_like(w_target)
+                            # Compute phi((u - h_source) / w_target) - u * log(w_source) / 50
+                            func_true = true_model.phi((rr_montage[:, None] - h_source) / w_target)
+                            l_source = torch.log(true_model.p[n, 4:5])
+                            func_true = func_true - rr_montage[:, None] * l_source / 50
+                            plt.plot(to_numpy(rr_montage), to_numpy(func_true), color='lightgray', linewidth=8, alpha=0.7)
+
+                    # Plot learned curves
+                    for n in range(n_neuron_types):  # source neuron type
+                        for m in range(250):
+                            pos0 = to_numpy(torch.argwhere(type_list == k).squeeze())
+                            pos1 = to_numpy(torch.argwhere(type_list == n).squeeze())
+                            n0 = np.random.randint(len(pos0))
+                            n0 = pos0[n0, 0]
+                            n1 = np.random.randint(len(pos1))
+                            n1 = pos1[n1, 0]
+                            embedding0 = model.a[n0, :] * torch.ones((1000, config.graph_model.embedding_dim), device=device)
+                            embedding1 = model.a[n1, :] * torch.ones((1000, config.graph_model.embedding_dim), device=device)
+                            in_features = torch.cat((rr_montage[:, None], embedding0, embedding1), dim=1)
+                            with torch.no_grad():
+                                func = model.lin_edge(in_features.float())
+                            if apply_weight_correction:
+                                func = func * correction[n0]
+                            plt.plot(to_numpy(rr_montage), to_numpy(func), color=cmap.color(n), linewidth=2, alpha=0.25)
+
+                    plt.ylim([-1.1, 1.1])
+                    plt.xlim([-5, 5])
+                    if k >= 2:  # bottom row
+                        plt.xlabel(r'$x_j$', fontsize=32)
+                    plt.xticks(fontsize=20)
+                    plt.yticks(fontsize=20)
+
+                plt.tight_layout()
+                plt.savefig(f"./{log_dir}/results/MLP1_neuron_neuron.png", dpi=150)
+                plt.close()
 
             fig, ax = fig_init()
 

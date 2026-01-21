@@ -7,7 +7,7 @@ website:
     tools:
       - icon: github
         href: https://github.com/saalfeldlab/neural-gnn
-  page-footer: "Copyright 2025, Cédric Allier, MichaelInnerberger, Stephan Saalfeld"
+  page-footer: "Copyright 2025, Cédric Allier, Michael Innerberger, Stephan Saalfeld"
 
 format:
   html:

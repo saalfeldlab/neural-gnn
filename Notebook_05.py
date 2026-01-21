@@ -1,7 +1,7 @@
 # %% [raw]
 # ---
 # title: "Supplementary Figure 10: effect of Gaussian noise"
-# author: Cédric Allier, MichaelInnerberger, Stephan Saalfeld
+# author: Cédric Allier, Michael Innerberger, Stephan Saalfeld
 # categories:
 #   - Neural Activity
 #   - Simulation
@@ -14,7 +14,7 @@
 
 # %% [markdown]
 # This script reproduces the panels of paper's **Supplementary Figure 10**.
-# Gaussian noise i sinjected into the simulated dynamics (SNR of ∼10 dB). 
+# Gaussian noise is injected into the simulated dynamics (SNR of ∼10 dB). 
 #
 # **Simulation parameters:**
 #
@@ -161,9 +161,10 @@ print("-" * 80)
 print("STEP 2: TRAIN - Training GNN to learn W, embeddings, phi, psi from noisy data")
 print("-" * 80)
 
-# Check if trained model already exists
-model_file = f'{log_dir}/models/best_model_with_0_graphs_0_0.pt'
-if os.path.exists(model_file):
+# Check if trained model already exists (any .pt file in models folder)
+import glob
+model_files = glob.glob(f'{log_dir}/models/*.pt')
+if model_files:
     print(f"  Trained model already exists at {log_dir}/models/")
     print("  Skipping training (delete models folder to retrain)")
 else:

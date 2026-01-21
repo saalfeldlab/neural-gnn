@@ -66,10 +66,10 @@ training:
   fix_cluster_embedding: True
 
   learning_rate_W_start: 1.0E-3
-  learning_rate_start: 5.0E-4
-  learning_rate_embedding_start: 7.50E-4
+  learning_rate_start: 5.0E-5
+  learning_rate_embedding_start: 5.0E-4
 
   noise_model_level: 1
 
   coeff_lin_phi_zero: 1.0
-  coeff_W_L1: 1.0E-5
+  coeff_edge_diff: 100

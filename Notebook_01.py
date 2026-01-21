@@ -1,7 +1,7 @@
 # %% [raw]
 # ---
 # title: "Figure 2: baseline - 1000 neurons with 4 types"
-# author: Cédric Allier, MichaelInnerberger, Stephan Saalfeld
+# author: Cédric Allier, Michael Innerberger, Stephan Saalfeld
 # categories:
 #   - Neural Activity
 #   - Simulation
@@ -156,9 +156,10 @@ print("-" * 80)
 print("STEP 2: TRAIN - Training GNN to learn W, embeddings, phi, psi")
 print("-" * 80)
 
-# Check if trained model already exists
-model_file = f'{log_dir}/models/best_model_with_0_graphs_0_0.pt'
-if os.path.exists(model_file):
+# Check if trained model already exists (any .pt file in models folder)
+import glob
+model_files = glob.glob(f'{log_dir}/models/*.pt')
+if model_files:
     print(f"  Trained model already exists at {log_dir}/models/")
     print("  Skipping training (delete models folder to retrain)")
 else:
@@ -300,7 +301,6 @@ data_test(
 
 # %% [markdown]
 # ### Rollout Results
-# Display the rollout comparison figures showing:
 # - Left panel: activity traces (ground truth gray, learned colored)
 # - Right panel: scatter plot of true vs learned $x_i$ with $R^2$ and slope
 
@@ -376,8 +376,8 @@ load_and_display(f"{log_dir}/results/Fig_0_000039.png")
 load_and_display(f"{log_dir}/results/Fig_0_000079.png")
 
 # %% [markdown]
-# ## Supplementary Figure 6 - Generalization Test (Extreme)
-# Test the trained GNN with more extreme network modifications:
+# ## Supplementary Figure 6 - Generalization Test
+# Test the trained GNN with network modifications:
 # - Modified neuron type proportions: 60%, 40%, 0%, 0% (types 2 and 3 eliminated)
 # - Modified sparse connectivity: ~50% sparsity (487,401 weights instead of 10^6)
 #

@@ -6,6 +6,7 @@ listing:
   categories: true
   image-align: left
   fields: [image, title, description, categories, filename]
+  sort: "filename"
   sort-ui: [title, file-modified]
   filter-ui: true
 ---

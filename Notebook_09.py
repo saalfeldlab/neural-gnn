@@ -1,7 +1,7 @@
 # %% [raw]
 # ---
 # title: "Supplementary Figure 14: neuron-dependent transfer functions"
-# author: Cédric Allier, MichaelInnerberger, Stephan Saalfeld
+# author: Cédric Allier, Michael Innerberger, Stephan Saalfeld
 # categories:
 #   - Neural Activity
 #   - Simulation
@@ -9,12 +9,13 @@
 #   - Neuron-dependent
 # execute:
 #   echo: false
-# image: "graphs_data/signal/signal_fig_supp_14/activity.png"
+# image: "log/signal/signal_fig_supp_14/results/MLP1_neuron_neuron.png"
 # ---
 
 # %% [markdown]
 # This script reproduces the panels of paper's **Supplementary Figure 14**.
-# Training with neuron-dependent transfer functions of the form $\psi(a_i, a_j, x_j)$.
+# Training with neuron-neuron dependent transfer functions (transmitters & receptors)
+# of the form $\psi(\mathbf{a}_i, \mathbf{a}_j, x_j)$.
 #
 # **Simulation parameters:**
 #
@@ -25,14 +26,21 @@
 # - Connectivity weights: random, Lorentz distribution
 # - Noise: none
 # - External inputs: none
-# - Transfer function width $\gamma_i$={1,2,4,8} (neuron-specific)
+# - Transfer function width $\gamma_i$={1,2,4,8} (receiver-dependent)
+# - Linear slope $\theta_j$={0, 0.013, 0.027, 0.040} (sender-dependent)
 #
 # The simulation follows an extended version of Equation 2:
 #
-# $$\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \cdot \tanh(x_i) + g_i \cdot \sum_j W_{ij} \cdot \psi\left(\frac{x_j}{\gamma_i}\right)$$
+# $$\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \cdot \tanh(x_i) + g_i \cdot \sum_j W_{ij} \cdot \psi_{ij}(x_j)$$
 #
-# The GNN jointly optimizes the shared MLP $\psi^*(\mathbf{a}_i, \mathbf{a}_j, x_j)$ and latent vectors $\mathbf{a}_i$ to
-# accurately identify the neuron-neuron dependent transfer functions.
+# where the transfer function depends on both sender $j$ and receiver $i$:
+#
+# $$\psi_{ij}(x_j) = \tanh\left(\frac{x_j}{\gamma_i}\right) - \theta_j \cdot x_j$$
+#
+# The GNN jointly optimizes the shared MLP $\psi^*$ and latent vectors $\mathbf{a}_i$ to
+# accurately identify the neuron-neuron dependent transfer functions:
+#
+# $$\hat{\dot{x}}_i = \phi^*(\mathbf{a}_i, x_i) + \sum_j W_{ij} \cdot \psi^*(\mathbf{a}_i, \mathbf{a}_j, x_j)$$
 
 # %%
 #| output: false
@@ -146,13 +154,6 @@ load_and_display("./graphs_data/signal/signal_fig_supp_14/connectivity_matrix.pn
 # ## Step 2: Train GNN
 # Train the GNN to learn connectivity W, latent embeddings $a_i$, and functions $\phi^*, \psi^*$.
 # The GNN must learn neuron-neuron dependent transfer functions $\psi^*(a_i, a_j, x_j)$.
-#
-# The GNN optimizes the update rule:
-#
-# $$\hat{\dot{x}}_i = \phi^*(\mathbf{a}_i, x_i) + \sum_j W_{ij} \psi^*(\mathbf{a}_i, \mathbf{a}_j, x_j)$$
-#
-# where the transfer function $\psi^*$ depends on both the source ($\mathbf{a}_j$) and
-# target ($\mathbf{a}_i$) latent vectors.
 
 # %%
 #| echo: true
@@ -163,9 +164,10 @@ print("-" * 80)
 print("STEP 2: TRAIN - Training GNN to learn neuron-dependent transfer functions")
 print("-" * 80)
 
-# Check if trained model already exists
-model_file = f'{log_dir}/models/best_model_with_0_graphs_0_0.pt'
-if os.path.exists(model_file):
+# Check if trained model already exists (any .pt file in models folder)
+import glob
+model_files = glob.glob(f'{log_dir}/models/*.pt')
+if model_files:
     print(f"  Trained model already exists at {log_dir}/models/")
     print("  Skipping training (delete models folder to retrain)")
 else:
@@ -237,5 +239,5 @@ load_and_display("./log/signal/signal_fig_supp_14/results/embedding.png")
 load_and_display("./log/signal/signal_fig_supp_14/results/MLP0.png")
 
 # %%
-#| fig-cap: "Learned transfer functions $\\psi^*(a_i, a_j, x)$. Colors indicate true neuron types. True functions are overlaid in light gray."
-load_and_display("./log/signal/signal_fig_supp_14/results/MLP1_corrected.png")
+#| fig-cap: "Learned transfer functions $\\psi^*(a_i, a_j, x_j)$. 2x2 montage: each panel corresponds to a receiving neuron type (border color), showing curves for all sending neuron types (line colors). True functions in gray."
+load_and_display("./log/signal/signal_fig_supp_14/results/MLP1_neuron_neuron.png")

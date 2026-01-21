@@ -1,10 +1,10 @@
-description: "test sparsity 5%  synaptic network 100.000 points"
-dataset: "signal_fig_supp_8"
+description: "test sparsity 20%  synaptic network 100.000 points"
+dataset: "signal_fig_supp_8_2"
 
 simulation:
   connectivity_type: "Lorentz"
   connectivity_init: [0, 0.1]
-  connectivity_filling_factor: 0.05
+  connectivity_filling_factor: 0.2
   # params: [g, s, c]
   # du = -c * u + s * torch.tanh(u) + g * msg
   params:
