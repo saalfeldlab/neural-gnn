@@ -64,7 +64,8 @@ def data_generate(
     if (os.path.isfile(f"./graphs_data/{dataset_name}/x_list_0.npy")) | (
         os.path.isfile(f"./graphs_data/{dataset_name}/x_list_0.pt")
     ):
-        print("watch out: data already generated")
+        if not regenerate_plots_only:
+            print("watch out: data already generated")
         # return
 
     if config.data_folder_name != "none":
