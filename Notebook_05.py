@@ -100,8 +100,8 @@ print("-" * 80)
 # Check if data already exists
 data_file = f'{graphs_dir}/x_list_0.npy'
 if os.path.exists(data_file):
-    print(f"  Data already exists at {graphs_dir}/")
-    print("  Skipping simulation, regenerating figures...")
+    print(f"data already exists at {graphs_dir}/")
+    print("skipping simulation, regenerating figures...")
     data_generate(
         config,
         device=device,
@@ -115,9 +115,9 @@ if os.path.exists(data_file):
         regenerate_plots_only=True,
     )
 else:
-    print(f"  Simulating {config.simulation.n_neurons} neurons, {config.simulation.n_neuron_types} types")
-    print(f"  Generating {config.simulation.n_frames} time frames with Gaussian noise")
-    print(f"  Output: {graphs_dir}/")
+    print(f"simulating {config.simulation.n_neurons} neurons, {config.simulation.n_neuron_types} types")
+    print(f"generating {config.simulation.n_frames} time frames with Gaussian noise")
+    print(f"output: {graphs_dir}/")
     print()
     data_generate(
         config,
@@ -165,14 +165,14 @@ print("-" * 80)
 import glob
 model_files = glob.glob(f'{log_dir}/models/*.pt')
 if model_files:
-    print(f"  Trained model already exists at {log_dir}/models/")
-    print("  Skipping training (delete models folder to retrain)")
+    print(f"trained model already exists at {log_dir}/models/")
+    print("skipping training (delete models folder to retrain)")
 else:
-    print(f"  Training for {config.training.n_epochs} epochs, {config.training.n_runs} run(s)")
-    print(f"  Learning: connectivity W, latent vectors a_i, functions phi* and psi*")
-    print(f"  Models: {log_dir}/models/")
-    print(f"  Training plots: {log_dir}/tmp_training")
-    print(f"  Tensorboard: tensorboard --logdir {log_dir}/")
+    print(f"training for {config.training.n_epochs} epochs, {config.training.n_runs} run(s)")
+    print(f"learning: connectivity W, latent vectors a_i, functions phi* and psi*")
+    print(f"models: {log_dir}/models/")
+    print(f"training plots: {log_dir}/tmp_training")
+    print(f"tensorboard: tensorboard --logdir {log_dir}/")
     print()
     data_train(
         config=config,
@@ -202,12 +202,12 @@ print()
 print("-" * 80)
 print("STEP 3: GNN EVALUATION - Generating Supplementary Figure 10 panels (d-h)")
 print("-" * 80)
-print(f"  Panel (d): Learned connectivity matrix")
-print(f"  Panel (e): W learned vs true (R^2, slope)")
-print(f"  Panel (f): Latent vectors a_i (4 clusters)")
-print(f"  Panel (g): Update functions phi*(a_i, x)")
-print(f"  Panel (h): Transfer function psi*(x)")
-print(f"  Output: {log_dir}/results/")
+print(f"panel (d): Learned connectivity matrix")
+print(f"panel (e): W learned vs true (R^2, slope)")
+print(f"panel (f): Latent vectors a_i (4 clusters)")
+print(f"panel (g): Update functions phi*(a_i, x)")
+print(f"panel (h): Transfer function psi*(x)")
+print(f"output: {log_dir}/results/")
 print()
 folder_name = './log/' + pre_folder + '/tmp_results/'
 os.makedirs(folder_name, exist_ok=True)

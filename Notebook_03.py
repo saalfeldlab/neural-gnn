@@ -94,11 +94,11 @@ print("-" * 80)
 
 data_file = f'{graphs_dir}/x_list_0.npy'
 if os.path.exists(data_file):
-    print(f"  Data already exists at {graphs_dir}/")
-    print("  Skipping simulation...")
+    print(f"data already exists at {graphs_dir}/")
+    print("skipping simulation...")
 else:
-    print(f"  Simulating {config.simulation.n_neurons} neurons, {config.simulation.n_frames} frames")
-    print(f"  Output: {graphs_dir}/")
+    print(f"simulating {config.simulation.n_neurons} neurons, {config.simulation.n_frames} frames")
+    print(f"output: {graphs_dir}/")
     data_generate(
         config,
         device=device,
@@ -129,11 +129,11 @@ import glob
 model_files = glob.glob(f'{log_dir}/models/*.pt')
 
 if model_files:
-    print(f"  Trained model already exists at {log_dir}/models/")
-    print("  Skipping training...")
+    print(f"trained model already exists at {log_dir}/models/")
+    print("skipping training...")
 else:
-    print(f"  Training for {config.training.n_epochs} epochs")
-    print(f"  n_frames: {config.simulation.n_frames}")
+    print(f"training for {config.training.n_epochs} epochs")
+    print(f"n_frames: {config.simulation.n_frames}")
     data_train(
         config=config,
         erase=False,

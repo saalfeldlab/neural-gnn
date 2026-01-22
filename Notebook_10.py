@@ -103,8 +103,8 @@ print("-" * 80)
 # Check if data already exists
 data_file = f'{graphs_dir}/x_list_0.npy'
 if os.path.exists(data_file):
-    print(f"  Data already exists at {graphs_dir}/")
-    print("  Skipping simulation, regenerating figures...")
+    print(f"data already exists at {graphs_dir}/")
+    print("skipping simulation, regenerating figures...")
     data_generate(
         config,
         device=device,
@@ -118,10 +118,10 @@ if os.path.exists(data_file):
         regenerate_plots_only=True,
     )
 else:
-    print(f"  Simulating {config.simulation.n_neurons} neurons, {config.simulation.n_neuron_types} types")
-    print(f"  External inputs: {config.simulation.n_input_neurons} neurons modulated by Omega(t)")
-    print(f"  Generating {config.simulation.n_frames} time frames")
-    print(f"  Output: {graphs_dir}/")
+    print(f"simulating {config.simulation.n_neurons} neurons, {config.simulation.n_neuron_types} types")
+    print(f"external inputs: {config.simulation.n_input_neurons} neurons modulated by Omega(t)")
+    print(f"generating {config.simulation.n_frames} time frames")
+    print(f"output: {graphs_dir}/")
     print()
     data_generate(
         config,
@@ -169,15 +169,15 @@ print("-" * 80)
 import glob
 model_files = glob.glob(f'{log_dir}/models/*.pt')
 if model_files:
-    print(f"  Trained model already exists at {log_dir}/models/")
-    print("  Skipping training (delete models folder to retrain)")
+    print(f"trained model already exists at {log_dir}/models/")
+    print("skipping training (delete models folder to retrain)")
 else:
-    print(f"  Training for {config.training.n_epochs} epochs, {config.training.n_runs} run(s)")
-    print(f"  Learning: connectivity W, latent vectors a_i, functions phi*, psi*")
-    print(f"  Learning: external input field Omega*(x, y, t) via SIREN network")
-    print(f"  Models: {log_dir}/models/")
-    print(f"  Training plots: {log_dir}/tmp_training")
-    print(f"  Tensorboard: tensorboard --logdir {log_dir}/")
+    print(f"training for {config.training.n_epochs} epochs, {config.training.n_runs} run(s)")
+    print(f"learning: connectivity W, latent vectors a_i, functions phi*, psi*")
+    print(f"learning: external input field Omega*(x, y, t) via SIREN network")
+    print(f"models: {log_dir}/models/")
+    print(f"training plots: {log_dir}/tmp_training")
+    print(f"tensorboard: tensorboard --logdir {log_dir}/")
     print()
     data_train(
         config=config,
@@ -206,11 +206,11 @@ print()
 print("-" * 80)
 print("STEP 3: PLOT - Generating Figure 3 panels (d-g)")
 print("-" * 80)
-print(f"  Fig 3d: W learned vs true (R^2, slope)")
-print(f"  Fig 3e: Omega learned vs true")
-print(f"  Fig 3f: True field Omega_i(t) at different times")
-print(f"  Fig 3g: Learned field Omega*(t) at different times")
-print(f"  Output: {log_dir}/results/")
+print(f"Fig 3d: W learned vs true (R^2, slope)")
+print(f"Fig 3e: Omega learned vs true")
+print(f"Fig 3f: True field Omega_i(t) at different times")
+print(f"Fig 3g: Learned field Omega*(t) at different times")
+print(f"output: {log_dir}/results/")
 print()
 folder_name = './log/' + pre_folder + '/tmp_results/'
 os.makedirs(folder_name, exist_ok=True)
@@ -226,7 +226,7 @@ data_plot(config=config, config_file=config_file, epoch_list=['best'], style='co
 # Rename output files to match Figure 3 panels
 print()
 print("-" * 80)
-print("Renaming output files to Figure 3 panels")
+print("renaming output files to Figure 3 panels")
 print("-" * 80)
 
 results_dir = f'{log_dir}/results'
@@ -241,7 +241,7 @@ file_mapping = {
 for src, dst in file_mapping.items():
     if os.path.exists(src):
         shutil.copy2(src, dst)
-        print(f"  {os.path.basename(dst)}")
+        print(f"{os.path.basename(dst)}")
 
 import glob
 import numpy as np
@@ -252,15 +252,15 @@ import matplotlib.image as mpimg
 fig_file = f'{graphs_dir}/Fig/Fig_0_000000.png'
 if os.path.exists(fig_file):
     shutil.copy2(fig_file, f'{results_dir}/Fig3ab_external_input_activity.png')
-    print(f"  Fig3ab_external_input_activity.png")
+    print(f"Fig3ab_external_input_activity.png")
 
 # Copy Fig 3c: Activity time series
 if os.path.exists(f'{graphs_dir}/activity.png'):
     shutil.copy2(f'{graphs_dir}/activity.png', f'{results_dir}/Fig3c_activity_time_series.png')
-    print(f"  Fig3c_activity_time_series.png")
+    print(f"Fig3c_activity_time_series.png")
 
 # Generate Fig 3f: True field Omega_i(t) montage from field images
-print("  Generating Fig3f_omega_field_true.png (5-frame montage)...")
+print("generating Fig3f_omega_field_true.png (5-frame montage)...")
 field_dir = f'{results_dir}/field'
 frame_indices = [0, 10000, 20000, 30000, 40000]
 
@@ -279,10 +279,10 @@ for idx, frame in enumerate(frame_indices):
 plt.tight_layout()
 plt.savefig(f'{results_dir}/Fig3f_omega_field_true.png', dpi=150)
 plt.close()
-print(f"  Fig3f_omega_field_true.png")
+print(f"Fig3f_omega_field_true.png")
 
 # Generate Fig 3g: Learned field Omega*(t) montage from field images
-print("  Generating Fig3g_omega_field_learned.png (5-frame montage)...")
+print("generating Fig3g_omega_field_learned.png (5-frame montage)...")
 fig, axes = plt.subplots(1, 5, figsize=(20, 4))
 for idx, frame in enumerate(frame_indices):
     ax = axes[idx]
@@ -298,12 +298,12 @@ for idx, frame in enumerate(frame_indices):
 plt.tight_layout()
 plt.savefig(f'{results_dir}/Fig3g_omega_field_learned.png', dpi=150)
 plt.close()
-print(f"  Fig3g_omega_field_learned.png")
+print(f"Fig3g_omega_field_learned.png")
 
 print()
 print("=" * 80)
 print("Figure 3 complete!")
-print(f"Results saved to: {log_dir}/results/")
+print(f"results saved to: {log_dir}/results/")
 print("=" * 80)
 
 # %% [markdown]

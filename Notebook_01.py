@@ -95,8 +95,8 @@ print("-" * 80)
 # Check if data already exists
 data_file = f'{graphs_dir}/x_list_0.npy'
 if os.path.exists(data_file):
-    print(f"  Data already exists at {graphs_dir}/")
-    print("  Skipping simulation, regenerating figures...")
+    print(f"data already exists at {graphs_dir}/")
+    print("skipping simulation, regenerating figures...")
     data_generate(
         config,
         device=device,
@@ -110,9 +110,9 @@ if os.path.exists(data_file):
         regenerate_plots_only=True,
     )
 else:
-    print(f"  Simulating {config.simulation.n_neurons} neurons, {config.simulation.n_neuron_types} types")
-    print(f"  Generating {config.simulation.n_frames} time frames")
-    print(f"  Output: {graphs_dir}/")
+    print(f"simulating {config.simulation.n_neurons} neurons, {config.simulation.n_neuron_types} types")
+    print(f"generating {config.simulation.n_frames} time frames")
+    print(f"output: {graphs_dir}/")
     print()
     data_generate(
         config,
@@ -160,14 +160,14 @@ print("-" * 80)
 import glob
 model_files = glob.glob(f'{log_dir}/models/*.pt')
 if model_files:
-    print(f"  Trained model already exists at {log_dir}/models/")
-    print("  Skipping training (delete models folder to retrain)")
+    print(f"trained model already exists at {log_dir}/models/")
+    print("skipping training (delete models folder to retrain)")
 else:
-    print(f"  Training for {config.training.n_epochs} epochs, {config.training.n_runs} run(s)")
-    print(f"  Learning: connectivity W, latent vectors a_i, functions phi* and psi*")
-    print(f"  Models: {log_dir}/models/")
-    print(f"  Training plots: {log_dir}/tmp_training")
-    print(f"  Tensorboard: tensorboard --logdir {log_dir}/")
+    print(f"training for {config.training.n_epochs} epochs, {config.training.n_runs} run(s)")
+    print(f"learning: connectivity W, latent vectors a_i, functions phi* and psi*")
+    print(f"models: {log_dir}/models/")
+    print(f"training plots: {log_dir}/tmp_training")
+    print(f"tensorboard: tensorboard --logdir {log_dir}/")
     print()
     data_train(
         config=config,
@@ -197,12 +197,12 @@ print()
 print("-" * 80)
 print("STEP 3: GNN EVALUATION - Generating Figure 2 panels (d-h)")
 print("-" * 80)
-print(f"  Fig 2d: Learned connectivity matrix")
-print(f"  Fig 2e: W learned vs true (R^2, slope)")
-print(f"  Fig 2f: Latent vectors a_i (4 clusters)")
-print(f"  Fig 2g: Update functions phi*(a_i, x)")
-print(f"  Fig 2h: Transfer function psi*(x)")
-print(f"  Output: {log_dir}/results/")
+print(f"Fig 2d: Learned connectivity matrix")
+print(f"Fig 2e: W learned vs true (R^2, slope)")
+print(f"Fig 2f: Latent vectors a_i (4 clusters)")
+print(f"Fig 2g: Update functions phi*(a_i, x)")
+print(f"Fig 2h: Transfer function psi*(x)")
+print(f"output: {log_dir}/results/")
 print()
 folder_name = './log/' + pre_folder + '/tmp_results/'
 os.makedirs(folder_name, exist_ok=True)
@@ -251,14 +251,14 @@ print()
 print("-" * 80)
 print("STEP 4: GNN TRAINING - Generating training progression figures")
 print("-" * 80)
-print(f"  Generating plots for all training epochs")
-print(f"  Output: {log_dir}/results/all/")
+print(f"generating plots for all training epochs")
+print(f"output: {log_dir}/results/all/")
 print()
 data_plot(config=config, config_file=config_file, epoch_list=['all'], style='color', extended='plots', device=device, apply_weight_correction=True)
 
 # Create montage from individual epoch plots
 print()
-print("  Creating training montage (8 columns x 5 rows)...")
+print("creating training montage (8 columns x 5 rows)...")
 create_training_montage(config=config, n_cols=8)
 
 # %%
@@ -278,8 +278,8 @@ print()
 print("-" * 80)
 print("STEP 5: TEST - Evaluating trained model")
 print("-" * 80)
-print(f"  Testing prediction accuracy and rollout inference")
-print(f"  Output: {log_dir}/results/")
+print(f"testing prediction accuracy and rollout inference")
+print(f"output: {log_dir}/results/")
 print()
 config.simulation.noise_model_level = 0.0
 
@@ -333,8 +333,8 @@ print()
 print("-" * 80)
 print("STEP 6: SUPPLEMENTARY FIGURE 5 - Generalization test with modified network")
 print("-" * 80)
-print("  Modified neuron type proportions: 10%, 20%, 30%, 40%")
-print("  Modified connectivity: ~25% sparsity (243,831 weights)")
+print("modified neuron type proportions: 10%, 20%, 30%, 40%")
+print("modified connectivity: ~25% sparsity (243,831 weights)")
 print()
 
 # new_params: [connectivity_filling_factor, type0_pct, type1_pct, type2_pct, type3_pct]
@@ -396,8 +396,8 @@ print()
 print("-" * 80)
 print("SUPPLEMENTARY FIGURE 6 - Generalization test with extreme network modification")
 print("-" * 80)
-print("  Modified neuron type proportions: 60%, 40%, 0%, 0% (types 2,3 eliminated)")
-print("  Modified connectivity: ~50% sparsity (487,401 weights)")
+print("modified neuron type proportions: 60%, 40%, 0%, 0% (types 2,3 eliminated)")
+print("modified connectivity: ~50% sparsity (487,401 weights)")
 print()
 
 # new_params: [connectivity_filling_factor, type0_pct, type1_pct, type2_pct, type3_pct]
