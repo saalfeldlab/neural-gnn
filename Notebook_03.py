@@ -109,7 +109,7 @@ for config_file_ in config_files:
             run_vizualized=0,
             style="color",
             alpha=1,
-            erase=True,
+            erase=False,
             bSave=True,
             step=2,
         )
@@ -145,9 +145,9 @@ for config_file_ in config_files:
         print(f"  n_frames: {config.simulation.n_frames}")
         data_train(
             config=config,
-            erase=True,
+            erase=False,
             best_model=best_model,
-            style='black',
+            style='color',
             device=device
         )
 

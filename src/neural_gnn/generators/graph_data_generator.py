@@ -236,7 +236,7 @@ def data_generate_synaptic(
     has_particle_dropout = training_config.particle_dropout > 0
 
     dataset_name = config.dataset
-    noise_model_level = training_config.noise_model_level
+    noise_model_level = simulation_config.noise_model_level
     measurement_noise_level = training_config.measurement_noise_level
     
     CustomColorMap(config=config)

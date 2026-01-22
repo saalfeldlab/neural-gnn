@@ -3855,7 +3855,7 @@ def get_figures(index):
             config.config_file = pre_folder + config_file_
             logdir = 'log/fly/fly_N9_44_6'
 
-            # config.training.noise_model_level = 0.0
+            # config.simulation.noise_model_level = 0.0
             config.simulation.visual_input_type = "DAVIS"
 
             data_test(

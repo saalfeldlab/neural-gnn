@@ -15,6 +15,7 @@ simulation:
   delta_t: 0.1
   boundary: "no"
   start_frame: 0
+  noise_model_level: 0.0
 
 graph_model:
   signal_model_name: "PDE_N11"
@@ -61,7 +62,6 @@ training:
   coeff_edge_norm: 0.0
   coeff_edge_diff: 100
 
-  noise_model_level: 0.0
 
   training_single_type: True
 

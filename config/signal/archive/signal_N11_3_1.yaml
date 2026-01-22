@@ -14,6 +14,7 @@ simulation:
     delta_t: 0.1
     boundary: 'no'
     start_frame: 0
+    noise_model_level: 1.0
 
 graph_model:
     signal_model_name: 'PDE_N11'
@@ -62,5 +63,4 @@ training:
     learning_rate_embedding_start: 5.0E-4
     learning_rate_modulation_start: 1.0E-4
 
-    noise_model_level: 1.0
 

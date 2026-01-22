@@ -98,6 +98,7 @@ class SimulationConfig(BaseModel):
     calcium_beta: float = 0.0  # baseline offset for fluorescence
     calcium_initial: float = 0.0  # initial calcium concentration
     calcium_noise_level: float = 0.0  # optional Gaussian noise added to [Ca] updates
+    noise_model_level: float = 0.0  # process noise added during dynamics simulation
     calcium_saturation_kd: float = 1.0  # for nonlinear saturation models
     calcium_num_compartments: int = 1
     calcium_down_sample: int = 1  # down-sample [Ca] time series by this factor
@@ -441,7 +442,6 @@ class TrainingConfig(BaseModel):
 
     noise_level: float = 0
     measurement_noise_level: float = 0
-    noise_model_level: float = 0
     loss_noise_level: float = 0.0
 
     # external input learning

@@ -20,6 +20,7 @@ simulation:
     oscillation_frequency: 10.0
 
     n_excitatory_neurons: 1
+    noise_model_level: 2.0
 
 graph_model:
     signal_model_name: 'PDE_N11'
@@ -77,5 +78,4 @@ training:
 
     init_training_single_type: True
 
-    noise_model_level: 2.0
 

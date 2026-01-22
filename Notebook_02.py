@@ -123,7 +123,7 @@ else:
         run_vizualized=0,
         style="color",
         alpha=1,
-        erase=True,
+        erase=False,
         bSave=True,
         step=2,
     )
@@ -173,9 +173,9 @@ else:
     print()
     data_train(
         config=config,
-        erase=True,
+        erase=False,
         best_model=best_model,
-        style='black',
+        style='color',
         device=device
     )
 
@@ -242,7 +242,7 @@ print("-" * 80)
 print(f"  Testing prediction accuracy and rollout inference")
 print(f"  Output: {log_dir}/results/")
 print()
-config.training.noise_model_level = 0.0
+config.simulation.noise_model_level = 0.0
 
 data_test(
     config=config,

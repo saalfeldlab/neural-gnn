@@ -22,6 +22,7 @@ simulation:
     boundary: 'no'
     start_frame: -1000
     node_value_map: 'video_bisons_32.tif'
+    noise_model_level: 1
 
 graph_model:
     field_type: 'visual_a'
@@ -71,7 +72,6 @@ training:
     learning_rate_embedding_start: 5.0E-4
     learning_rate_modulation_start: 1.0E-4
 
-    noise_model_level: 1
 
 
 

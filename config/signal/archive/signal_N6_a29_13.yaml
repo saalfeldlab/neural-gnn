@@ -19,6 +19,7 @@ simulation:
     dpos_init:  0
     boundary: 'no'
     start_frame: -2000
+    noise_model_level: 1
 
 graph_model:
     field_type: 'short_term_plasticity_derivative'
@@ -84,5 +85,4 @@ training:
 
     learning_rate_NNR: 1.0E-5
 
-    noise_model_level: 1
 

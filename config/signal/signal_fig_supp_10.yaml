@@ -16,6 +16,7 @@ simulation:
   dpos_init: 0
   boundary: "no"
   start_frame: -1000
+  noise_model_level: 7.2
 
 graph_model:
   signal_model_name: "PDE_N2"
@@ -70,4 +71,3 @@ training:
   learning_rate_embedding_start: 5.0E-4
 
   coeff_lin_phi_zero: 1.0
-  noise_model_level: 7.2

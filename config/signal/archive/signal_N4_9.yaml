@@ -22,6 +22,7 @@ simulation:
   delta_t: 0.1
   boundary: "no"
   start_frame: -500
+  noise_model_level: 1
 
 graph_model:
   signal_model_name: "PDE_N4"
@@ -68,4 +69,3 @@ training:
 
   init_training_single_type: True
 
-  noise_model_level: 1

@@ -21,6 +21,7 @@ simulation:
     dpos_init:  0
     boundary: 'no'
     start_frame: -1000
+    noise_model_level: 5
 
 graph_model:
     signal_model_name: 'PDE_N4'
@@ -76,5 +77,4 @@ training:
     coeff_W_L1: 0
     coeff_edge_diff: 100
 
-    noise_model_level: 5
 
