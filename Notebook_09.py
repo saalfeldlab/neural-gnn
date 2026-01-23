@@ -14,7 +14,7 @@
 
 # %% [markdown]
 # This script reproduces the panels of paper's **Supplementary Figure 14**.
-# Training with neuron-neuron dependent transfer functions (transmitters & receptors)
+# Training with neuron-neuron dependent transfer functions
 # of the form $\psi(a_i, a_j, x_j)$.
 #
 # **Simulation parameters:**
@@ -26,7 +26,7 @@
 # - Connectivity weights: random, Lorentz distribution
 # - Noise: none
 # - External inputs: none
-# - Transfer function width $\gamma_i$={1,2,4,8} (receiver-dependent)
+# - Transfer function $\gamma_i$={1,2,4,8} (receiver-dependent)
 # - Linear slope $\theta_j$={0, 0.013, 0.027, 0.040} (sender-dependent)
 #
 # The simulation follows an extended version of Equation 2:
@@ -127,7 +127,7 @@ if os.path.exists(data_file):
 else:
     print(f"simulating {config.simulation.n_neurons} neurons, {config.simulation.n_neuron_types} types")
     print(f"generating {config.simulation.n_frames} time frames")
-    print(f"transfer function widths gamma_i = [1, 2, 4, 8]")
+    print(f"transfer function gamma_i = [1, 2, 4, 8]")
     print(f"output: {graphs_dir}/")
     print()
     data_generate(
@@ -152,8 +152,8 @@ load_and_display("./graphs_data/signal/signal_fig_supp_14/connectivity_matrix.pn
 
 # %% [markdown]
 # ## Step 2: Train GNN
-# Train the GNN to learn connectivity W, latent embeddings $a_i$, and functions $\phi^*, \psi^*$.
-# The GNN must learn neuron-neuron dependent transfer functions $\psi^*(a_i, a_j, x_j)$.
+# Train the GNN to learn connectivity $W$, latent embeddings $\mathbf{a}_i$, and functions $\phi^*, \psi^*$.
+# The GNN must learn neuron-neuron dependent transfer functions $\psi^*(\mathbf{a}_i, \mathbf{a}_j, x_j)$.
 
 # %%
 #| echo: true

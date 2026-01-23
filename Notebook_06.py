@@ -139,7 +139,7 @@ load_and_display("./graphs_data/signal/signal_fig_supp_11/connectivity_matrix.pn
 
 # %% [markdown]
 # ## Step 2: Train GNN
-# Train the GNN to learn the 64 million connectivity weights, latent embeddings $a_i$, and functions $\phi^*, \psi^*$.
+# Train the GNN to learn the 64 million connectivity weights, latent embeddings $\mathbf{a}_i$, and functions $\phi^*, \psi^*$.
 #
 # The GNN optimizes the update rule (Equation 3 from the paper):
 #

@@ -19,11 +19,11 @@
 # **Simulation parameters:**
 #
 # - N_neurons: 2048 (1024 with external inputs + 1024 without)
-# - N_types: 4 (parameterized by tau_i={0.5,1}, s_i={1,2}, gamma_j={1,2,4,8})
+# - N_types: 4 (parameterized by $\tau_i$={0.5,1}, $s_i$={1,2}, $\gamma_j$={1,2,4,8})
 # - N_frames: 50,000
 # - Connectivity: 100% (dense)
 # - Noise: yes (sigma^2=1)
-# - External inputs: yes - time-dependent scalar field Omega_i(t)
+# - External inputs: yes - time-dependent scalar field $\Omega_i(t)$
 #
 # The simulation follows:
 #
@@ -146,16 +146,16 @@ load_and_display(f"{graphs_dir}/activity.png")
 
 # %% [markdown]
 # ## Step 2: Train GNN
-# Train the GNN to learn connectivity W, latent embeddings a_i, functions phi/psi,
-# and the external input field Omega*(x, y, t) using a coordinate-based MLP (SIREN).
+# Train the GNN to learn connectivity $W$, latent embeddings $\mathbf{a}_i$, functions $\phi^*/\psi^*$,
+# and the external input field $\Omega^*(x, y, t)$ using a coordinate-based MLP (SIREN).
 #
 # **Learning targets:**
 #
-# - Connectivity matrix W
-# - Latent vectors a_i
-# - Update function phi*(a_i, x)
-# - Transfer function psi*(x)
-# - External input field Omega*(x, y, t) via SIREN network
+# - Connectivity matrix $W$
+# - Latent vectors $\mathbf{a}_i$
+# - Update function $\phi^*(\mathbf{a}_i, x)$
+# - Transfer function $\psi^*(x)$
+# - External input field $\Omega^*(x, y, t)$ via SIREN network
 
 # %%
 #| echo: true
@@ -399,5 +399,5 @@ load_and_display(f"{log_dir}/results/embedding.png")
 load_and_display(f"{log_dir}/results/MLP0.png")
 
 # %%
-#| fig-cap: "Fig 3: Learned transfer function $\\psi^*(x)$, normalized to a maximum value of 1. True function is overlaid in light gray."
+#| fig-cap: "Fig 3: Learned transfer function $\\psi^*(x)$, normalized to a maximum value of 1. True functions are overlaid in light gray."
 load_and_display(f"{log_dir}/results/MLP1_corrected.png")

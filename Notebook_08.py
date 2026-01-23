@@ -14,7 +14,7 @@
 
 # %% [markdown]
 # This script reproduces the panels of paper's **Supplementary Figure 13**.
-# Test with neuron-specific transfer functions (transmitters) of the form $\psi(x_j/\gamma_i)$.
+# Test with neuron-specific transfer functions of the form $\psi(x_j/\gamma_i)$.
 #
 # **Simulation parameters:**
 #
@@ -25,7 +25,7 @@
 # - Connectivity weights: random, Lorentz distribution
 # - Noise: none
 # - External inputs: none
-# - Transfer function width $\gamma_i$={1,2,4,8} (neuron-specific)
+# - Transfer function $\gamma_i$={1,2,4,8} (neuron-specific)
 #
 # The simulation follows an extended version of Equation 2:
 #
@@ -82,7 +82,7 @@ graphs_dir = f'./graphs_data/{config_file}'
 # %% [markdown]
 # ## Step 1: Generate Data
 # Generate synthetic neural activity data using the PDE_N4 model with neuron-specific
-# transfer functions. Each neuron type has a different width parameter $\gamma_i$ in
+# transfer functions. Each neuron type has a different parameter $\gamma_i$ in
 # the transfer function $\psi(x_j/\gamma_i)$.
 #
 # **Outputs:**
@@ -119,7 +119,7 @@ if os.path.exists(data_file):
 else:
     print(f"simulating {config.simulation.n_neurons} neurons, {config.simulation.n_neuron_types} types")
     print(f"generating {config.simulation.n_frames} time frames")
-    print(f"transfer function widths gamma_i = [1, 2, 4, 8]")
+    print(f"transfer function gamma_i = [1, 2, 4, 8]")
     print(f"output: {graphs_dir}/")
     print()
     data_generate(
@@ -144,8 +144,8 @@ load_and_display("./graphs_data/signal/signal_fig_supp_13/connectivity_matrix.pn
 
 # %% [markdown]
 # ## Step 2: Train GNN
-# Train the GNN to learn connectivity W, latent embeddings $a_i$, and functions $\phi^*, \psi^*$.
-# The GNN must learn neuron-specific transfer functions $\psi(x_j/\gamma_i)$ with different widths.
+# Train the GNN to learn connectivity $W$, latent embeddings $\mathbf{a}_i$, and functions $\phi^*, \psi^*$.
+# The GNN must learn neuron-specific transfer functions $\psi(x_j/\gamma_i)$.
 #
 # The GNN optimizes the update rule:
 #
@@ -193,7 +193,7 @@ else:
 # - Comparison of learned vs true connectivity (expected: $R^2$=0.99, slope=0.99)
 # - Learned latent vectors $\mathbf{a}_i$
 # - Learned update functions $\phi^*(\mathbf{a}_i, x)$
-# - Learned transfer functions $\psi^*(\mathbf{a}_j, x)$ (4 different widths)
+# - Learned transfer functions $\psi^*(\mathbf{a}_j, x)$
 
 # %%
 #| echo: true
@@ -207,7 +207,7 @@ print(f"learned connectivity matrix")
 print(f"W learned vs true (R^2, slope)")
 print(f"latent vectors a_i (4 clusters)")
 print(f"update functions phi*(a_i, x)")
-print(f"transfer functions psi*(a_j, x) - 4 different widths")
+print(f"transfer functions psi*(a_j, x)")
 print(f"output: {log_dir}/results/")
 print()
 folder_name = './log/' + pre_folder + '/tmp_results/'
@@ -234,5 +234,5 @@ load_and_display("./log/signal/signal_fig_supp_13/results/embedding.png")
 load_and_display("./log/signal/signal_fig_supp_13/results/MLP0.png")
 
 # %%
-#| fig-cap: "Learned transfer functions $\\psi^*(a_j, x)$ with 4 different widths ($\\gamma$=1,2,4,8), normalized to a maximum value of 1. True functions are overlaid in light gray."
+#| fig-cap: "Learned transfer functions $\\psi^*(a_j, x)$ ($\\gamma$=1,2,4,8), normalized to a maximum value of 1. True functions are overlaid in light gray."
 load_and_display("./log/signal/signal_fig_supp_13/results/MLP1_corrected.png")

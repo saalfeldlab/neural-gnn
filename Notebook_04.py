@@ -142,29 +142,53 @@ else:
 
 # %% [markdown]
 # ## Step 3: Generate Plots
-# Generate evaluation plots.
+# Generate evaluation plots for all sparsity levels.
 
 # %%
 #| echo: true
 #| output: false
-# STEP 3: PLOT
+# STEP 3: PLOT - Generate figures for all sparsity levels
 print()
 print("-" * 80)
-print("STEP 3: PLOT - Generating figures")
+print("STEP 3: PLOT - Generating figures for all sparsity levels")
 print("-" * 80)
 
-folder_name = f'{log_dir}/tmp_results/'
-os.makedirs(folder_name, exist_ok=True)
+# All configurations to process
+sparsity_configs = [
+    ('signal_fig_supp_8', '5%'),
+    ('signal_fig_supp_8_3', '10%'),
+    ('signal_fig_supp_8_2', '20%'),
+    ('signal_fig_supp_8_1', '50%'),
+    ('signal_fig_2', '100%'),
+]
 
-data_plot(
-    config=config,
-    config_file=config_file,
-    epoch_list=['best'],
-    style='color',
-    extended='plots',
-    device=device,
-    apply_weight_correction=True
-)
+for config_name, sparsity in sparsity_configs:
+    config_file_i, _ = add_pre_folder(config_name)
+    log_dir_i = f'./log/{config_file_i}'
+    model_files_i = glob.glob(f'{log_dir_i}/models/*.pt')
+
+    if model_files_i:
+        print(f"\n--- {config_name} ({sparsity} sparsity) ---")
+        config_i = NeuralGraphConfig.from_yaml(f"{config_root}/{config_file_i}.yaml")
+        config_i.config_file = config_file_i
+        config_i.dataset = config_file_i
+
+        folder_name_i = f'{log_dir_i}/tmp_results/'
+        os.makedirs(folder_name_i, exist_ok=True)
+
+        data_plot(
+            config=config_i,
+            config_file=config_file_i,
+            epoch_list=['best'],
+            style='color',
+            extended='plots',
+            device=device,
+            apply_weight_correction=True
+        )
+    else:
+        print(f"\n--- {config_name} ({sparsity} sparsity) ---")
+        print(f"  No trained model found at {log_dir_i}/models/")
+        print(f"  Skipping plot generation...")
 
 # %% [markdown]
 # ## Activity Time Series

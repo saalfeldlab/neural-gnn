@@ -140,8 +140,8 @@ load_and_display("./graphs_data/signal/signal_fig_supp_3/connectivity_matrix.png
 
 # %% [markdown]
 # ## Step 2: Train GNN
-# Train the GNN to learn connectivity W and functions phi/psi (without latent embeddings).
-# The GNN learns to predict dx/dt from the observed activity x.
+# Train the GNN to learn connectivity $W$ and functions $\phi^*/\psi^*$ (without latent embeddings).
+# The GNN learns to predict $dx/dt$ from the observed activity $x$.
 #
 # **Learning targets:**
 #

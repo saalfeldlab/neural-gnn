@@ -136,7 +136,7 @@ load_and_display("./graphs_data/signal/signal_fig_2/connectivity_matrix.png")
 
 # %% [markdown]
 # ## Step 2: Train GNN
-# Train the GNN to learn connectivity W, latent embeddings a_i, and functions $\phi^*, \psi^*$ with the SignalPropagation model  ('src/neural-gnn/models').
+# Train the GNN to learn connectivity $W$, latent embeddings $\mathbf{a}_i$, and functions $\phi^*, \psi^*$ with the SignalPropagation model  ('src/neural-gnn/models').
 # The GNN learns to predict $dx_i/dt$ from the observed activity $x_i$.
 #
 # The GNN optimizes the update rule (Equation 3 from the paper):
