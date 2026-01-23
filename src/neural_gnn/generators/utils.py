@@ -745,28 +745,12 @@ def plot_synaptic_activity_traces(x_list, n_neurons, n_frames, dataset_name, mod
     # Plot all traces
     plt.plot(activity_plot.T, linewidth=2, alpha=0.7)
 
-    # Plot external_input trace at the top (from x_list[:, :, 4])
-    external_input = x_list[:, :, 4]  # (n_frames, n_neurons)
-    if np.abs(external_input).max() > 1e-6:  # Only plot if there's external input
-        # Average external input across all neurons or use max
-        external_input_mean = np.mean(external_input, axis=1)  # (n_frames,)
-        # Scale and offset to show at top of plot
-        ext_scale = 20 / (np.abs(external_input_mean).max() + 1e-6)
-        ext_offset = activity_plot.max() + 50
-        frames = np.arange(min(n_frames, external_input.shape[0]))
-        plt.plot(frames, external_input_mean[:len(frames)] * ext_scale + ext_offset,
-                 color='yellow', linewidth=2, linestyle='--')
-        plt.text(-100, ext_offset, 'ext_in', fontsize=16, va='center', ha='right', color='yellow')
-        plt.ylim([activity_plot.min() - 50, ext_offset + 50])
-
     ax = plt.gca()
     ax.set_xlabel('time', fontsize=24)
+    ax.set_ylabel('neuron index', fontsize=24)
     ax.tick_params(labelsize=16)
-    ax.spines['left'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    ax.set_yticks([])
-    ax.yaxis.set_visible(False)  # Hide entire y-axis including ticks
     plt.xlim([0, min(n_frames, 10000)])
     plt.tight_layout()
     plt.savefig(f"graphs_data/{dataset_name}/activity.png", dpi=100)

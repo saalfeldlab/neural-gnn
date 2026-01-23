@@ -78,11 +78,11 @@ graphs_dir = f'./graphs_data/{config_file}'
 # %% [markdown]
 # ## Step 1: Generate Data
 # Generate synthetic neural activity data using the PDE_N2 model.
-# This creates the training dataset with 1000 neurons and 100,000 time points.
+# This creates the training dataset with 1000 neurons over 100,000 time points.
 #
 # **Outputs:**
 #
-# - Sample of 10 time series
+# - Sample of 100 time series
 # - True connectivity matrix $W_{ij}$
 
 # %%
@@ -129,7 +129,7 @@ else:
     )
 
 # %%
-#| fig-cap: "Sample of 10 time series taken from the activity data."
+#| fig-cap: "Sample of 100 time series taken from the activity data."
 
 load_and_display(f"./graphs_data/signal/signal_fig_supp_3/activity.png")
 
@@ -220,7 +220,7 @@ load_and_display("./log/signal/signal_fig_supp_3/results/connectivity_learned.pn
 load_and_display("./log/signal/signal_fig_supp_3/results/weights_comparison_corrected.png")
 
 # %%
-#| fig-cap: "Learned update functions $\\phi^*(x)$."
+#| fig-cap: "Learned update functions $\\phi^*(x)$. True function is overlaid in light gray."
 load_and_display("./log/signal/signal_fig_supp_3/results/MLP0.png")
 
 # %%
@@ -267,9 +267,9 @@ data_test(
 # - Right panel: scatter plot of true vs learned $x_i$ with $R^2$ and slope
 
 # %%
-#| fig-cap: "Rollout comparison at time-point 400."
+#| fig-cap: "Rollout comparison up to time-point 400."
 load_and_display(f"{log_dir}/results/Fig_0_000039.png")
 
 # %%
-#| fig-cap: "Rollout comparison at time-point 800."
+#| fig-cap: "Rollout comparison up to time-point 800."
 load_and_display(f"{log_dir}/results/Fig_0_000079.png")

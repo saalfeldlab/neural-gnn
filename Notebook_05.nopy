@@ -80,12 +80,12 @@ graphs_dir = f'./graphs_data/{config_file}'
 # %% [markdown]
 # ## Step 1: Generate Data
 # Generate synthetic neural activity data with Gaussian noise using the PDE_N2 model.
-# This creates the training dataset with 1000 neurons of 4 different types and 100,000 time points.
+# This creates the training dataset with 1000 neurons of 4 different types over 100,000 time points.
 #
 # **Outputs:**
 #
 # - Panel (a): Activity time series used for GNN training
-# - Panel (b): Sample of 10 time series
+# - Panel (b): Sample of 100 time series
 # - Panel (c): True connectivity matrix $W_{ij}$
 
 # %%

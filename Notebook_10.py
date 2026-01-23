@@ -1,6 +1,6 @@
 # %% [raw]
 # ---
-# title: "Figure 3: External Inputs - 2048 neurons with Omega(t)"
+# title: "Figure 3: External Inputs - 2048 neurons with external inputs"
 # author: Cédric Allier, Michael Innerberger, Stephan Saalfeld
 # categories:
 #   - Neural Activity
@@ -12,8 +12,9 @@
 # ---
 
 # %% [markdown]
-# This script reproduces **Figure 3** from the paper:
-# *"Graph neural networks uncover structure and function underlying the activity of neural assemblies"*
+# This script reproduces paper's **Figure 3**.
+# We tested whether we could recover both network structure and dynamics,
+# as well as unknown external inputs
 #
 # **Simulation parameters:**
 #
@@ -89,7 +90,7 @@ graphs_dir = f'./graphs_data/{config_file}'
 #
 # - Figure 3a: External inputs Omega_i(t) - time-dependent scalar field
 # - Figure 3b: Activity time series
-# - Figure 3c: Sample of 10 time series
+# - Figure 3c: Sample of 100 time series
 
 # %%
 #| echo: true
@@ -140,7 +141,7 @@ else:
 load_and_display(f"{graphs_dir}/Fig/Fig_0_000000.png")
 
 # %%
-#| fig-cap: "Fig 3c: Sample activity time series for 100 neurons over 10,000 time steps. Yellow dashed line shows the mean external input."
+#| fig-cap: "Fig 3c: Sample activity time series for 100 neurons over 10,000 time steps. Y-axis shows neuron index."
 load_and_display(f"{graphs_dir}/activity.png")
 
 # %% [markdown]
@@ -384,3 +385,19 @@ if true_field_files:
 learned_field_files = sorted(glob.glob(f"{log_dir}/results/field/reconstructed_field_LR*_40000.png"))
 if learned_field_files:
     load_and_display(learned_field_files[-1])
+
+# %% [markdown]
+# ## Figure 3: Learned Functions
+# Learned latent embeddings and functions from Figure 3 training.
+
+# %%
+#| fig-cap: "Fig 3: Learned latent vectors $a_i$."
+load_and_display(f"{log_dir}/results/embedding.png")
+
+# %%
+#| fig-cap: "Fig 3: Learned update functions $\\phi^*(a, x)$. Colors indicate true neuron types. True functions are overlaid in light gray."
+load_and_display(f"{log_dir}/results/MLP0.png")
+
+# %%
+#| fig-cap: "Fig 3: Learned transfer function $\\psi^*(x)$, normalized to a maximum value of 1. True function is overlaid in light gray."
+load_and_display(f"{log_dir}/results/MLP1_corrected.png")

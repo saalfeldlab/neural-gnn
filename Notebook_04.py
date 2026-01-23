@@ -13,54 +13,54 @@
 
 # %% [markdown]
 # This script reproduces the panels of paper's **Supplementary Figure 8**.
-# We tested GNN performance for connectivity matrices with varying sparsity levels:
-# **5%**, **10%**, **20%**, **50%**, and **100%** non-zero connections.
+# Performance of GNN for connectivity matrices with varying sparsity levels.
+# This notebook displays connectivity matrix comparison and $\phi^*$ plots for each sparsity level.
 #
-# **Simulation parameters:**
+# **Simulation parameters (constant across all experiments):**
 #
 # - N_neurons: 1000
 # - N_types: 4 parameterized by $\tau_i$={0.5,1}, $s_i$={1,2} and $g_i$=10
 # - N_frames: 100,000
-# - Connectivity: sparse (5% to 100%)
 # - Connectivity weights: random, Cauchy distribution
-# - Noise: none
-# - External inputs: none
 #
-# The simulation follows Equation 2 from the paper:
+# **Variable: Connectivity sparsity**
 #
-# $$\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \cdot \tanh(x_i) + g_i \cdot \sum_j W_{ij} \cdot \psi(x_j)$$
+# | Config | Sparsity |
+# |--------|----------|
+# | signal_fig_supp_8 | 5% |
+# | signal_fig_supp_8_3 | 10% |
+# | signal_fig_supp_8_2 | 20% |
+# | signal_fig_supp_8_1 | 50% |
+# | signal_fig_2 | 100% |
 
 # %%
 #| output: false
 import os
 import warnings
 
-import matplotlib.pyplot as plt
-from PIL import Image
-
 from neural_gnn.config import NeuralGraphConfig
 from neural_gnn.generators.graph_data_generator import data_generate
-from neural_gnn.models.graph_trainer import data_train, data_test
+from neural_gnn.models.graph_trainer import data_train
 from neural_gnn.utils import set_device, add_pre_folder, load_and_display
-from GNN_PlotFigure import data_plot, create_training_montage
+from GNN_PlotFigure import data_plot
 
 warnings.filterwarnings("ignore", message="pkg_resources is deprecated as an API")
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 # %% [markdown]
-# ## Configuration and Setup
+# ## Configuration
 
 # %%
 #| echo: true
 #| output: false
 print()
 print("=" * 80)
-print("Supplementary Figure 8: 1000 neurons, 4 types, sparse connectivity 5%")
+print("Supplementary Figure 8: Effect of Connectivity Sparsity")
 print("=" * 80)
 
 device = []
 best_model = ''
-config_file_ = 'signal_fig_supp_8'
+config_file_ = 'signal_fig_supp_8'  # 5% sparsity
 
 print()
 config_root = "./config"
@@ -79,13 +79,7 @@ graphs_dir = f'./graphs_data/{config_file}'
 
 # %% [markdown]
 # ## Step 1: Generate Data
-# Generate synthetic neural activity data using the PDE_N2 model ('src/neural-gnn/generators').
-# This creates the training dataset with 1000 neurons of 4 different types and 100,000 time points.
-#
-# **Outputs:**
-#
-# - Figure 2b: Sample of 100 time series
-# - Figure 2c: True connectivity matrix W_ij
+# Generate synthetic neural activity data.
 
 # %%
 #| echo: true
@@ -93,31 +87,16 @@ graphs_dir = f'./graphs_data/{config_file}'
 # STEP 1: GENERATE
 print()
 print("-" * 80)
-print("STEP 1: GENERATE - Simulating neural activity (Fig 2a-c)")
+print("STEP 1: GENERATE - Simulating neural activity")
 print("-" * 80)
 
-# Check if data already exists
 data_file = f'{graphs_dir}/x_list_0.npy'
 if os.path.exists(data_file):
     print(f"data already exists at {graphs_dir}/")
-    print("skipping simulation, regenerating figures...")
-    data_generate(
-        config,
-        device=device,
-        visualize=False,
-        run_vizualized=0,
-        style="color",
-        alpha=1,
-        erase=False,
-        bSave=True,
-        step=2,
-        regenerate_plots_only=True,
-    )
+    print("skipping simulation...")
 else:
-    print(f"simulating {config.simulation.n_neurons} neurons, {config.simulation.n_neuron_types} types")
-    print(f"generating {config.simulation.n_frames} time frames")
+    print(f"simulating {config.simulation.n_neurons} neurons, {config.simulation.n_frames} frames")
     print(f"output: {graphs_dir}/")
-    print()
     data_generate(
         config,
         device=device,
@@ -129,27 +108,10 @@ else:
         bSave=True,
         step=2,
     )
-
-# %%
-#| fig-cap: "Supp. Fig 8b: Sample of 100 time series taken from the activity data."
-load_and_display(f"./graphs_data/signal/signal_fig_supp_8/activity.png")
-
-# %%
-#| fig-cap: "Supp. Fig 8b: True connectivity W_ij. The inset shows 20×20 weights."
-load_and_display("./graphs_data/signal/signal_fig_supp_8/connectivity_matrix.png")
 
 # %% [markdown]
 # ## Step 2: Train GNN
-# Train the GNN to learn connectivity W, latent embeddings a_i, and functions $\phi^*, \psi^*$ with the SignalPropagation model  ('src/neural-gnn/models').
-# The GNN learns to predict $dx_i/dt$ from the observed activity $x_i$.
-#
-# The GNN optimizes the update rule (Equation 3 from the paper):
-#
-# $$\hat{\dot{x}}_i = \phi^*(\mathbf{a}_i, x_i) + \sum_j W_{ij} \psi^*(x_j)$$
-#
-# where $\phi^*$ and $\psi^*$ are MLPs (ReLU, hidden dim=64, 3 layers).
-# $\mathbf{a}_i$ is a learnable 2D latent vector per neuron, and $W$ is the learnable connectivity matrix.
-#
+# Train the GNN.
 
 # %%
 #| echo: true
@@ -157,22 +119,19 @@ load_and_display("./graphs_data/signal/signal_fig_supp_8/connectivity_matrix.png
 # STEP 2: TRAIN
 print()
 print("-" * 80)
-print("STEP 2: TRAIN - Training GNN to learn W, embeddings, phi, psi")
+print("STEP 2: TRAIN - Training GNN")
 print("-" * 80)
 
 # Check if trained model already exists (any .pt file in models folder)
 import glob
 model_files = glob.glob(f'{log_dir}/models/*.pt')
+
 if model_files:
     print(f"trained model already exists at {log_dir}/models/")
-    print("skipping training (delete models folder to retrain)")
+    print("skipping training...")
 else:
-    print(f"training for {config.training.n_epochs} epochs, {config.training.n_runs} run(s)")
-    print(f"learning: connectivity W, latent vectors a_i, functions phi* and psi*")
-    print(f"models: {log_dir}/models/")
-    print(f"training plots: {log_dir}/tmp_training")
-    print(f"tensorboard: tensorboard --logdir {log_dir}/")
-    print()
+    print(f"training for {config.training.n_epochs} epochs")
+    print(f"sparsity: 5%")
     data_train(
         config=config,
         erase=False,
@@ -182,181 +141,129 @@ else:
     )
 
 # %% [markdown]
-# ## Step 3: GNN Evaluation
-# Figures matching Figure 2, and supplementary Fig 1, 2, 5, and 6 from the paper.
-#
-# **Figure panels:**
-#
-# - Fig 2d: Learned connectivity matrix
-# - Fig 2e: Comparison of learned vs true connectivity 
-# - Fig 2f: Learned latent vectors a_i 
-# - Fig 2g: Learned update functions phi*(a_i, x) 
-# - Fig 2h: Learned transfer function psi*(x) 
+# ## Step 3: Generate Plots
+# Generate evaluation plots.
 
 # %%
 #| echo: true
 #| output: false
-# STEP 3: GNN EVALUATION
+# STEP 3: PLOT
 print()
 print("-" * 80)
-print("STEP 3: GNN EVALUATION - Generating Figure 2 panels (d-h)")
+print("STEP 3: PLOT - Generating figures")
 print("-" * 80)
-print(f"Fig 2d: Learned connectivity matrix")
-print(f"Fig 2e: W learned vs true (R^2, slope)")
-print(f"Fig 2f: Latent vectors a_i (4 clusters)")
-print(f"Fig 2g: Update functions phi*(a_i, x)")
-print(f"Fig 2h: Transfer function psi*(x)")
-print(f"output: {log_dir}/results/")
-print()
-folder_name = './log/' + pre_folder + '/tmp_results/'
+
+folder_name = f'{log_dir}/tmp_results/'
 os.makedirs(folder_name, exist_ok=True)
-data_plot(config=config, config_file=config_file, epoch_list=['best'], style='color', extended='plots', device=device, apply_weight_correction=True)
 
-# %% [markdown]
-# ### Figures 2d-2h: GNN Evaluation Results
-
-# %%
-#| fig-cap: "Supp. Fig 8c: Learned connectivity."
-load_and_display(f"{log_dir}/results/connectivity_learned.png")
-
-# %%
-#| fig-cap: "Supp. Fig 8d: Comparison of learned and true connectivity (given g_i=10)."
-load_and_display(f"{log_dir}/results/weights_comparison_corrected.png")
-
-# %%
-#| fig-cap: "Supp. Fig 8e: Learned latent vectors a_i of all neurons."
-load_and_display(f"{log_dir}/results/embedding.png")
-
-# %%
-#| fig-cap: "Supp. Fig 8f: Learned update functions φ*(a_i, x). The plot shows 1000 overlaid curves, one for each vector a_i. Colors indicate true neuron types. True functions are overlaid in light gray."
-load_and_display(f"{log_dir}/results/MLP0.png")
-
-# %%
-#| fig-cap: "Supp. Fig 8g: Learned transfer function ψ*(x), normalized to a maximum value of 1. True function is overlaid in light gray."
-load_and_display(f"{log_dir}/results/MLP1_corrected.png")
-
-# %% [markdown]
-# ## Step 4: GNN Training Visualization
-# Generate training progression figures showing how the GNN learns across epochs.
-#
-# **Visualizations:**
-#
-# - Row a: Latent embeddings a_i evolution 
-# - Row b: Update functions phi*(a_i, x) 
-# - Row c: Transfer function psi*(x)
-# - Row d: Connectivity matrix W 
-# - Row e: W learned vs true scatter plot
-
-# %%
-#| echo: true
-#| output: false
-# STEP 4: GNN TRAINING VISUALIZATION
-print()
-print("-" * 80)
-print("STEP 4: GNN TRAINING - Generating training progression figures")
-print("-" * 80)
-print(f"generating plots for all training epochs")
-print(f"output: {log_dir}/results/all/")
-print()
-data_plot(config=config, config_file=config_file, epoch_list=['all'], style='color', extended='plots', device=device, apply_weight_correction=True)
-
-# Create montage from individual epoch plots
-print()
-print("creating training montage (8 columns x 5 rows)...")
-create_training_montage(config=config, n_cols=8)
-
-# %%
-#| fig-cap: "Results plotted over 20 epochs. (a) Learned latent vectors a_i. (b) Learned update functions φ*(a,x). (c) Learned transfer function ψ*(x), normalized to max=1. (d) Learned connectivity W_ij. (e) Comparison of learned and true connectivity. Colors indicate true neuron types."
-
-load_and_display(f"{log_dir}/results/training_montage.png")
-
-# %% [markdown]
-# ## Step 5: Test Model
-# Test the trained GNN model. Evaluates prediction accuracy and performs rollout inference.
-
-# %%
-#| echo: true
-#| output: false
-# STEP 5: TEST
-print()
-print("-" * 80)
-print("STEP 5: TEST - Evaluating trained model")
-print("-" * 80)
-print(f"testing prediction accuracy and rollout inference")
-print(f"output: {log_dir}/results/")
-print()
-config.simulation.noise_model_level = 0.0
-
-data_test(
+data_plot(
     config=config,
-    visualize=True,
-    style="color name continuous_slice",
-    verbose=False,
-    best_model='best',
-    run=0,
-    test_mode="",
-    sample_embedding=False,
-    step=10,
-    n_rollout_frames=1000,
+    config_file=config_file,
+    epoch_list=['best'],
+    style='color',
+    extended='plots',
     device=device,
-    particle_of_interest=0,
-    new_params=None,
+    apply_weight_correction=True
 )
 
 # %% [markdown]
-# ### Rollout Results
-# Display the rollout comparison figure showing:
-# - Left panels: activity traces (ground truth gray, learned colored)
-# - Top right: scatter plot of true vs learned $x_i$ with $R^2$ and slope
-# - Bottom right: $R^2$ over time
+# ## Activity Time Series
+#
+# Sample of 100 time series for each sparsity level.
 
 # %%
-# Display rollout comparison figure (last frame from rollout)
-dataset_name_ = config.dataset.split('/')[-1]
-rollout_fig_path = f"{log_dir}/results/{dataset_name_}.png"
-load_and_display(rollout_fig_path)
+#| fig-cap: "Sample of 100 time series (5% sparsity)"
+load_and_display("./graphs_data/signal/signal_fig_supp_8/activity.png")
+
+# %%
+#| fig-cap: "Sample of 100 time series (10% sparsity)"
+load_and_display("./graphs_data/signal/signal_fig_supp_8_3/activity.png")
+
+# %%
+#| fig-cap: "Sample of 100 time series (20% sparsity)"
+load_and_display("./graphs_data/signal/signal_fig_supp_8_2/activity.png")
+
+# %%
+#| fig-cap: "Sample of 100 time series (50% sparsity)"
+load_and_display("./graphs_data/signal/signal_fig_supp_8_1/activity.png")
+
+# %%
+#| fig-cap: "Sample of 100 time series (100% connectivity)"
+load_and_display("./graphs_data/signal/signal_fig_2/activity.png")
 
 # %% [markdown]
-# ## Sparsity Comparison
-# Comparison of GNN performance across different connectivity sparsity levels (5%, 10%, 20%, 50%, 100%).
-# Each row shows the W learned vs true scatter plot (left) and learned update functions $\phi^*(a_i, x)$ (right).
+# ## True Connectivity Matrix $W_{ij}$
+#
+# True connectivity matrix for each sparsity level.
 
 # %%
-#| fig-cap: "Sparsity comparison: W learned vs true (left) and φ*(a_i, x) (right) for 5%, 10%, 20%, 50%, and 100% connectivity."
+#| fig-cap: "True connectivity $W_{ij}$ (5% sparsity)"
+load_and_display("./graphs_data/signal/signal_fig_supp_8/connectivity_matrix.png")
 
-# Define sparsity configs: (config_name, sparsity_label, log_dir_path)
-sparsity_configs = [
-    ('signal_fig_supp_8', '5%', './log/signal/signal_fig_supp_8/results'),
-    ('signal_fig_supp_8_3', '10%', './log/signal/signal_fig_supp_8_3/results'),
-    ('signal_fig_supp_8_2', '20%', './log/signal/signal_fig_supp_8_2/results'),
-    ('signal_fig_supp_8_1', '50%', './log/signal/signal_fig_supp_8_1/results'),
-    ('signal_fig_2', '100%', './log/signal/signal_fig_2/results'),
-]
+# %%
+#| fig-cap: "True connectivity $W_{ij}$ (10% sparsity)"
+load_and_display("./graphs_data/signal/signal_fig_supp_8_3/connectivity_matrix.png")
 
-# Create 5x2 montage: each row = [W scatter, MLP0]
-fig, axes = plt.subplots(5, 2, figsize=(12, 25))
+# %%
+#| fig-cap: "True connectivity $W_{ij}$ (20% sparsity)"
+load_and_display("./graphs_data/signal/signal_fig_supp_8_2/connectivity_matrix.png")
 
-for row_idx, (config_name, sparsity_label, results_path) in enumerate(sparsity_configs):
-    # W scatter plot
-    w_path = f"{results_path}/weights_comparison_corrected.png"
-    if os.path.exists(w_path):
-        img = Image.open(w_path)
-        axes[row_idx, 0].imshow(img)
-        axes[row_idx, 0].set_title(f"Sparsity {sparsity_label}: W learned vs true", fontsize=12)
-    else:
-        axes[row_idx, 0].text(0.5, 0.5, f"Not found:\n{w_path}", ha='center', va='center', fontsize=10)
-    axes[row_idx, 0].axis('off')
+# %%
+#| fig-cap: "True connectivity $W_{ij}$ (50% sparsity)"
+load_and_display("./graphs_data/signal/signal_fig_supp_8_1/connectivity_matrix.png")
 
-    # MLP0 plot
-    mlp0_path = f"{results_path}/MLP0.png"
-    if os.path.exists(mlp0_path):
-        img = Image.open(mlp0_path)
-        axes[row_idx, 1].imshow(img)
-        axes[row_idx, 1].set_title(f"Sparsity {sparsity_label}: φ*(a_i, x)", fontsize=12)
-    else:
-        axes[row_idx, 1].text(0.5, 0.5, f"Not found:\n{mlp0_path}", ha='center', va='center', fontsize=10)
-    axes[row_idx, 1].axis('off')
+# %%
+#| fig-cap: "True connectivity $W_{ij}$ (100% connectivity)"
+load_and_display("./graphs_data/signal/signal_fig_2/connectivity_matrix.png")
 
-plt.tight_layout()
-plt.savefig(f"{log_dir}/results/sparsity_comparison.png", dpi=150, bbox_inches='tight')
-plt.show()
+# %% [markdown]
+# ## Connectivity Matrix Comparison
+#
+# Learned vs true connectivity matrix $W_{ij}$ after training.
+# The scatter plot shows $R^2$ and slope metrics.
+
+# %%
+#| fig-cap: "Connectivity comparison (5% sparsity)"
+load_and_display("./log/signal/signal_fig_supp_8/results/weights_comparison_corrected.png")
+
+# %%
+#| fig-cap: "Connectivity comparison (10% sparsity)"
+load_and_display("./log/signal/signal_fig_supp_8_3/results/weights_comparison_corrected.png")
+
+# %%
+#| fig-cap: "Connectivity comparison (20% sparsity)"
+load_and_display("./log/signal/signal_fig_supp_8_2/results/weights_comparison_corrected.png")
+
+# %%
+#| fig-cap: "Connectivity comparison (50% sparsity)"
+load_and_display("./log/signal/signal_fig_supp_8_1/results/weights_comparison_corrected.png")
+
+# %%
+#| fig-cap: "Connectivity comparison (100% connectivity)"
+load_and_display("./log/signal/signal_fig_2/results/weights_comparison_corrected.png")
+
+# %% [markdown]
+# ## Update Function $\phi^*(\mathbf{a}_i, x)$ (MLP0)
+#
+# Learned update functions after training. Each curve represents one neuron.
+# Colors indicate true neuron types. True functions overlaid in gray.
+
+# %%
+#| fig-cap: "Update functions $\\phi^*(a_i, x)$ (5% sparsity). True functions are overlaid in light gray."
+load_and_display("./log/signal/signal_fig_supp_8/results/MLP0.png")
+
+# %%
+#| fig-cap: "Update functions $\\phi^*(a_i, x)$ (10% sparsity). True functions are overlaid in light gray."
+load_and_display("./log/signal/signal_fig_supp_8_3/results/MLP0.png")
+
+# %%
+#| fig-cap: "Update functions $\\phi^*(a_i, x)$ (20% sparsity). True functions are overlaid in light gray."
+load_and_display("./log/signal/signal_fig_supp_8_2/results/MLP0.png")
+
+# %%
+#| fig-cap: "Update functions $\\phi^*(a_i, x)$ (50% sparsity). True functions are overlaid in light gray."
+load_and_display("./log/signal/signal_fig_supp_8_1/results/MLP0.png")
+
+# %%
+#| fig-cap: "Update functions $\\phi^*(a_i, x)$ (100% connectivity). True functions are overlaid in light gray."
+load_and_display("./log/signal/signal_fig_2/results/MLP0.png")

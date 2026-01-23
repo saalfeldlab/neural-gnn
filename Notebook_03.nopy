@@ -14,9 +14,7 @@
 # %% [markdown]
 # This script reproduce the panels of paper's **Supplementary Figure 7**. 
 # Performance scales with the length of the training series.
-#
-# **Supplementary Figure 7** shows R² vs epochs for different training dataset sizes.
-# This notebook displays connectivity matrix comparison and MLP0 plots for each dataset size.
+# This notebook displays connectivity matrix comparison and $\phi^*$ plots for each dataset size.
 #
 # **Simulation parameters (constant across all experiments):**
 #
@@ -169,21 +167,61 @@ data_plot(
 )
 
 # %% [markdown]
-# ## Connectivity Matrix Comparison (Final)
+# ## Connectivity Matrix Comparison
 #
 # Learned vs true connectivity matrix $W_{ij}$ after training.
 # The scatter plot shows $R^2$ and slope metrics.
 
 # %%
-#| fig-cap: "Connectivity comparison"
-load_and_display(f"{log_dir}/results/weights_comparison_corrected.png")
+#| fig-cap: "Connectivity comparison (n_frames=100,000)"
+load_and_display("./log/signal/signal_fig_2/results/weights_comparison_corrected.png")
+
+# %%
+#| fig-cap: "Connectivity comparison (n_frames=50,000)"
+load_and_display("./log/signal/signal_fig_supp_7_1/results/weights_comparison_corrected.png")
+
+# %%
+#| fig-cap: "Connectivity comparison (n_frames=40,000)"
+load_and_display("./log/signal/signal_fig_supp_7_2/results/weights_comparison_corrected.png")
+
+# %%
+#| fig-cap: "Connectivity comparison (n_frames=30,000)"
+load_and_display("./log/signal/signal_fig_supp_7_3/results/weights_comparison_corrected.png")
+
+# %%
+#| fig-cap: "Connectivity comparison (n_frames=20,000)"
+load_and_display("./log/signal/signal_fig_supp_7_4/results/weights_comparison_corrected.png")
+
+# %%
+#| fig-cap: "Connectivity comparison (n_frames=10,000)"
+load_and_display("./log/signal/signal_fig_supp_7_5/results/weights_comparison_corrected.png")
 
 # %% [markdown]
-# ## Update Function $\phi^*(\mathbf{a}_i, x)$ (MLP0) - Final
+# ## Update Function $\phi^*(\mathbf{a}_i, x)$ (MLP0)
 #
 # Learned update functions after training. Each curve represents one neuron.
 # Colors indicate true neuron types. True functions overlaid in gray.
 
 # %%
-#| fig-cap: "Update functions $\\phi^*(a_i, x)$"
-load_and_display(f"{log_dir}/results/MLP0.png")
+#| fig-cap: "Update functions $\\phi^*(a_i, x)$ (n_frames=100,000). True functions are overlaid in light gray."
+load_and_display("./log/signal/signal_fig_2/results/MLP0.png")
+
+# %%
+#| fig-cap: "Update functions $\\phi^*(a_i, x)$ (n_frames=50,000). True functions are overlaid in light gray."
+load_and_display("./log/signal/signal_fig_supp_7_1/results/MLP0.png")
+
+# %%
+#| fig-cap: "Update functions $\\phi^*(a_i, x)$ (n_frames=40,000). True functions are overlaid in light gray."
+load_and_display("./log/signal/signal_fig_supp_7_2/results/MLP0.png")
+
+# %%
+#| fig-cap: "Update functions $\\phi^*(a_i, x)$ (n_frames=30,000). True functions are overlaid in light gray."
+load_and_display("./log/signal/signal_fig_supp_7_3/results/MLP0.png")
+
+# %%
+#| fig-cap: "Update functions $\\phi^*(a_i, x)$ (n_frames=20,000). True functions are overlaid in light gray."
+load_and_display("./log/signal/signal_fig_supp_7_4/results/MLP0.png")
+
+# %%
+#| fig-cap: "Update functions $\\phi^*(a_i, x)$ (n_frames=10,000). True functions are overlaid in light gray."
+load_and_display("./log/signal/signal_fig_supp_7_5/results/MLP0.png")

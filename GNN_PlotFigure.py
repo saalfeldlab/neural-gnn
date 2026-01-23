@@ -2071,9 +2071,34 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
             # PDE_N5: Generate 2x2 montage for neuron-neuron dependent MLP1
             if model_config.signal_model_name == 'PDE_N5' and n_neuron_types == 4:
                 print('  PDE_N5: plotting 2x2 neuron-neuron dependent MLP1 montage ...')
+                mlp1_xlim = config.plotting.mlp1_xlim
+                rr_montage = torch.linspace(mlp1_xlim[0], mlp1_xlim[1], 1000).to(device)
+
+                # Compute per-panel correction from blue curves (type 0 source) plateau region
+                # Each panel (target type k) gets its own correction based on k→0 interactions
+                print('  Computing per-panel correction from blue curve plateaus ...')
+                panel_corrections = []
+                for k in range(n_neuron_types):
+                    func_samples = []
+                    pos_target = to_numpy(torch.argwhere(type_list == k).squeeze())
+                    pos_source = to_numpy(torch.argwhere(type_list == 0).squeeze())  # blue = type 0
+                    for _ in range(250):
+                        n0 = pos_target[np.random.randint(len(pos_target)), 0]
+                        n1 = pos_source[np.random.randint(len(pos_source)), 0]
+                        embedding0 = model.a[n0, :] * torch.ones((1000, config.graph_model.embedding_dim), device=device)
+                        embedding1 = model.a[n1, :] * torch.ones((1000, config.graph_model.embedding_dim), device=device)
+                        in_features = torch.cat((rr_montage[:, None], embedding0, embedding1), dim=1)
+                        with torch.no_grad():
+                            func = model.lin_edge(in_features.float())
+                        func_samples.append(func)
+                    func_samples = torch.stack(func_samples)
+                    # Correction: 1 / mean of plateau values (last 100 points)
+                    panel_corr = 1.0 / torch.mean(func_samples[:, 900:1000]).item()
+                    panel_corrections.append(panel_corr)
+                    print(f'    Panel {k} (target type {k}): correction = {panel_corr:.4f}')
+
                 fig = plt.figure(figsize=(16, 16))
                 plt.axis('off')
-                rr_montage = torch.linspace(-xnorm.squeeze(), xnorm.squeeze(), 1000).to(device)
 
                 for k in range(n_neuron_types):  # target neuron type
                     ax = fig.add_subplot(2, 2, k + 1)
@@ -2101,7 +2126,7 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                             func_true = func_true - rr_montage[:, None] * l_source / 50
                             plt.plot(to_numpy(rr_montage), to_numpy(func_true), color='lightgray', linewidth=8, alpha=0.7)
 
-                    # Plot learned curves
+                    # Plot learned curves with per-panel correction
                     for n in range(n_neuron_types):  # source neuron type
                         for m in range(250):
                             pos0 = to_numpy(torch.argwhere(type_list == k).squeeze())
@@ -2115,12 +2140,12 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                             in_features = torch.cat((rr_montage[:, None], embedding0, embedding1), dim=1)
                             with torch.no_grad():
                                 func = model.lin_edge(in_features.float())
-                            if apply_weight_correction:
-                                func = func * correction[n0]
+                            # Apply per-panel correction (based on target neuron type k)
+                            func = func * panel_corrections[k]
                             plt.plot(to_numpy(rr_montage), to_numpy(func), color=cmap.color(n), linewidth=2, alpha=0.25)
 
-                    plt.ylim([-1.1, 1.1])
-                    plt.xlim([-5, 5])
+                    plt.ylim(config.plotting.mlp1_ylim)
+                    plt.xlim([-5,5])
                     if k >= 2:  # bottom row
                         plt.xlabel(r'$x_j$', fontsize=32)
                     plt.xticks(fontsize=20)
@@ -2605,7 +2630,6 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                     pred_first = torch.reshape(pred_first, (n_input_neurons_per_axis, n_input_neurons_per_axis))
                     pred_first = to_numpy(torch.sqrt(pred_first))
                     scale_factor = im_first.max() / (pred_first.max() + 1e-8)
-                    print(f'[DEBUG field] scale_factor={scale_factor:.4f} mc={mc} n_input_neurons_per_axis={n_input_neurons_per_axis}')
 
                     for frame in trange(0, n_frames, n_frames // 100, ncols=90):
 
@@ -2616,7 +2640,7 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                             im_ = im[int(frame / n_frames * 256)].squeeze()
                         im_ = np.sqrt(im_)
                         # im_ = np.rot90(im_, k=1)
-                        plt.imshow(im_, cmap='gray')
+                        plt.imshow(im_, cmap='gray', vmin=0.7, vmax=1.2)
                         plt.xticks([])
                         plt.yticks([])
                         plt.tight_layout()
@@ -2627,11 +2651,9 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                         pred = model_f(time=frame / n_frames, enlarge=False) ** 2
                         pred = torch.reshape(pred, (n_input_neurons_per_axis, n_input_neurons_per_axis))
                         pred = to_numpy(torch.sqrt(pred)) * scale_factor
-                        if frame == 0:
-                            print(f'[DEBUG LR] pred min={pred.min():.4f} max={pred.max():.4f} im_ min={im_.min():.4f} max={im_.max():.4f}')
                         pred = np.rot90(pred, k=1)
                         fig, ax = fig_init()
-                        plt.imshow(pred, cmap='gray')
+                        plt.imshow(pred, cmap='gray', vmin=0.7, vmax=1.2)
                         plt.xticks([])
                         plt.yticks([])
                         plt.tight_layout()
@@ -2648,11 +2670,6 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                         # print(f'R^2$: {r_squared:0.4f}  slope: {np.round(lin_fit[0], 4)}')
                         slope_list.append(lin_fit[0])
 
-                        if frame == 0:
-                            print(f'[DEBUG scatter] im_ shape={im_.shape} min={im_.min():.4f} max={im_.max():.4f}')
-                            print(f'[DEBUG scatter] pred shape={pred.shape} min={pred.min():.4f} max={pred.max():.4f}')
-                            print(f'[DEBUG scatter] x_data range=[{x_data.min():.4f}, {x_data.max():.4f}] y_data range=[{y_data.min():.4f}, {y_data.max():.4f}]')
-                            print(f'[DEBUG scatter] R^2={r_squared:.4f} slope={lin_fit[0]:.4f}')
                         fig, ax = fig_init()
                         plt.scatter(im_, pred, s=10, c=mc)
                         plt.xlabel(r'true neuromodulation', fontsize=48)
@@ -2669,11 +2686,9 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                         pred = model_f(time=frame / n_frames, enlarge=True) ** 2
                         pred = torch.reshape(pred, (640, 640))
                         pred = to_numpy(torch.sqrt(pred)) * scale_factor
-                        if frame == 0:
-                            print(f'[DEBUG HR] pred min={pred.min():.4f} max={pred.max():.4f}')
                         pred = np.rot90(pred, k=1)
                         fig, ax = fig_init()
-                        plt.imshow(pred, cmap='gray')
+                        plt.imshow(pred, cmap='gray', vmin=0.7, vmax=1.2)
                         plt.xticks([])
                         plt.yticks([])
                         plt.tight_layout()
@@ -2708,8 +2723,8 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
 
                     fig, ax = fig_init()
                     plt.scatter(im_list, pred_list, s=1, c=mc, alpha=0.1)
-                    plt.xlim([0.3, 1.6])
-                    plt.ylim([0.3, 1.6])
+                    plt.xlim([0.65, 1.25])
+                    plt.ylim([0.65, 1.25])
                     plt.xlabel(r'true $\Omega_i$', fontsize=68)
                     plt.ylabel(r'learned $\Omega_i$', fontsize=68)
                     plt.tight_layout()

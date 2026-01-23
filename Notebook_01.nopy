@@ -12,7 +12,7 @@
 # ---
 
 # %% [markdown]
-# This script reproduces the panels of paper's **Figure 2** and other related supplementary panels (1, 2, 5 and 6).
+# This script reproduces the panels of paper's **Figure 2** and other related supplementary panels (Supp. 1, 2, 5 and 6).
 #
 # **Simulation parameters:**
 #
@@ -75,8 +75,8 @@ graphs_dir = f'./graphs_data/{config_file}'
 
 # %% [markdown]
 # ## Step 1: Generate Data
-# Generate synthetic neural activity data using the PDE_N2 model ('src/neural-gnn/generators').
-# This creates the training dataset with 1000 neurons of 4 different types and 100,000 time points.
+# Generate synthetic neural activity data using the PDE_N2 model (src/neural-gnn/generators).
+# This creates the training dataset with 1000 neurons of 4 different types over 100,000 time points.
 #
 # **Outputs:**
 #
@@ -305,18 +305,16 @@ data_test(
 # - Right panel: scatter plot of true vs learned $x_i$ with $R^2$ and slope
 
 # %%
-#| fig-cap: "Rollout comparison at time-point 400."
+#| fig-cap: "Rollout comparison up to time-point 400."
 load_and_display(f"{log_dir}/results/Fig_0_000039.png")
 
 # %%
-#| fig-cap: "Rollout comparison at time-point 800."
+#| fig-cap: "Rollout comparison up to time-point 800."
 load_and_display(f"{log_dir}/results/Fig_0_000079.png")
 
 # %% [markdown]
 # ## Step 6: Supplementary Figure 5 - Generalization Test
-# Test the trained GNN with modified network structure:
-# - Modified neuron type proportions (10%, 20%, 30%, 40% instead of 25% each)
-# - Modified sparse connectivity (~25% sparsity, 243,831 weights instead of 10^6)
+# Test the trained GNN with modified network structure. Modified neuron type proportions (10%, 20%, 30%, 40% instead of 25% each) and modified sparse connectivity (~25% sparsity, 243,831 weights instead of 10^6).
 #
 # **Outputs:**
 #
@@ -368,18 +366,16 @@ load_and_display(f"{log_dir}/results/new_neuron_type_histogram.png")
 load_and_display(f"{log_dir}/results/new connectivity.png")
 
 # %%
-#| fig-cap: "Panels e,f: Rollout at 400 time-points."
+#| fig-cap: "Panels e,f: Rollout up to 400 time-points."
 load_and_display(f"{log_dir}/results/Fig_0_000039.png")
 
 # %%
-#| fig-cap: "Panels g,h: Rollout at 800 time-points."
+#| fig-cap: "Panels g,h: Rollout up to 800 time-points."
 load_and_display(f"{log_dir}/results/Fig_0_000079.png")
 
 # %% [markdown]
 # ## Supplementary Figure 6 - Generalization Test
-# Test the trained GNN with network modifications:
-# - Modified neuron type proportions: 60%, 40%, 0%, 0% (types 2 and 3 eliminated)
-# - Modified sparse connectivity: ~50% sparsity (487,401 weights instead of 10^6)
+# Test the trained GNN with network modifications. Modified neuron type proportions: 60%, 40%, 0%, 0% (types 2 and 3 eliminated) and modified sparse connectivity: ~50% sparsity (487,401 weights instead of 10^6).
 #
 # **Outputs:**
 #
@@ -432,9 +428,9 @@ load_and_display(f"{log_dir}/results/new_neuron_type_histogram.png")
 load_and_display(f"{log_dir}/results/new connectivity.png")
 
 # %%
-#| fig-cap: "Panels e,f: Rollout at 400 time-points."
+#| fig-cap: "Panels e,f: Rollout up to 400 time-points."
 load_and_display(f"{log_dir}/results/Fig_0_000039.png")
 
 # %%
-#| fig-cap: "Panels g,h: Rollout at 800 time-points."
+#| fig-cap: "Panels g,h: Rollout up to 800 time-points."
 load_and_display(f"{log_dir}/results/Fig_0_000079.png")

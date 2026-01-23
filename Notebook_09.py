@@ -15,7 +15,7 @@
 # %% [markdown]
 # This script reproduces the panels of paper's **Supplementary Figure 14**.
 # Training with neuron-neuron dependent transfer functions (transmitters & receptors)
-# of the form $\psi(\mathbf{a}_i, \mathbf{a}_j, x_j)$.
+# of the form $\psi(a_i, a_j, x_j)$.
 #
 # **Simulation parameters:**
 #
@@ -37,10 +37,10 @@
 #
 # $$\psi_{ij}(x_j) = \tanh\left(\frac{x_j}{\gamma_i}\right) - \theta_j \cdot x_j$$
 #
-# The GNN jointly optimizes the shared MLP $\psi^*$ and latent vectors $\mathbf{a}_i$ to
+# The GNN jointly optimizes the shared MLP $\psi^*$ and latent vectors $a_i$ to
 # accurately identify the neuron-neuron dependent transfer functions:
 #
-# $$\hat{\dot{x}}_i = \phi^*(\mathbf{a}_i, x_i) + \sum_j W_{ij} \cdot \psi^*(\mathbf{a}_i, \mathbf{a}_j, x_j)$$
+# $$\hat{\dot{x}}_i = \phi^*(a_i, x_i) + \sum_j W_{ij} \cdot \psi^*(a_i, a_j, x_j)$$
 
 # %%
 #| output: false
@@ -91,7 +91,7 @@ graphs_dir = f'./graphs_data/{config_file}'
 # ## Step 1: Generate Data
 # Generate synthetic neural activity data using the PDE_N5 model with neuron-dependent
 # transfer functions. Each pair of neuron types has different transfer function characteristics
-# depending on both source ($\mathbf{a}_j$) and target ($\mathbf{a}_i$) embeddings.
+# depending on both source ($a_j$) and target ($a_i$) embeddings.
 #
 # **Outputs:**
 #
@@ -196,9 +196,9 @@ else:
 # - (c) True connectivity $W_{ij}$
 # - (d) Learned connectivity
 # - (e) Comparison between learned and true connectivity
-# - (f) Learned latent vectors $\mathbf{a}_i$
+# - (f) Learned latent vectors $a_i$
 # - (g) Learned update functions $\phi^*(\mathbf{a}, x)$
-# - (h) Learned transfer functions $\psi^*(\mathbf{a}_i, \mathbf{a}_j, x)$ (colors indicate true neuron types, true functions overlaid in light gray)
+# - (h) Learned transfer functions $\psi^*(a_i, a_j, x)$ (colors indicate true neuron types, true functions overlaid in light gray)
 
 # %%
 #| echo: true
