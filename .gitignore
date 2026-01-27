@@ -5,16 +5,24 @@
 *.backup
 paper/
 
-# Log folder - include models/*.pt, exclude everything else
+# Log folder - include models/*.pt and backup .pt files, exclude everything else
 log/**/*
 !log/signal/
 !log/signal/*/
 !log/signal/**/models/
 !log/signal/**/models/*.pt
+!log/signal/*/connectivity.pt
+!log/signal/*/edge_index.pt
+!log/signal/*/mask.pt
 
 # Exclude signal_fig_supp_11 large files (>100MB exceed GitHub limit)
 log/signal/signal_fig_supp_11/models/
+log/signal/signal_fig_supp_11/connectivity.pt
+log/signal/signal_fig_supp_11/edge_index.pt
+log/signal/signal_fig_supp_11/mask.pt
 graphs_data/signal/signal_fig_supp_11/connectivity.pt
+graphs_data/signal/signal_fig_supp_11/edge_index.pt
+graphs_data/signal/signal_fig_supp_11/mask.pt
 
 # graphs_data: include .pt (connectivity), exclude .npy, .backup, .png, and generated files
 graphs_data/**/*.npy
@@ -24,8 +32,10 @@ graphs_data/**/analysis.log
 graphs_data/**/X1.pt
 graphs_data/**/X_msg.pt
 
-# Explicitly track connectivity.pt and video_bisons_32.tif
+# Explicitly track connectivity.pt, edge_index.pt, mask.pt and video_bisons_32.tif
 !graphs_data/signal/*/connectivity.pt
+!graphs_data/signal/*/edge_index.pt
+!graphs_data/signal/*/mask.pt
 !graphs_data/video_bisons_32.tif
 
 # Python

@@ -1,6 +1,7 @@
 import os
 import time
 import glob
+import shutil
 import warnings
 import logging
 
@@ -171,6 +172,16 @@ def data_train_signal(config, erase, best_model, style, device, log_file=None):
         np.random.seed(config.training.seed)
 
     log_dir, logger = create_log_dir(config, erase)
+
+    # Backup critical .pt files to log folder for safety
+    data_folder = f'graphs_data/{dataset_name}'
+    for pt_file in ['connectivity.pt', 'edge_index.pt', 'mask.pt']:
+        src_path = os.path.join(data_folder, pt_file)
+        if os.path.exists(src_path):
+            dst_path = os.path.join(log_dir, pt_file)
+            shutil.copy(src_path, dst_path)
+            print(f'backed up {pt_file} to {log_dir}')
+
     print('loading data...')
 
     x_list = []

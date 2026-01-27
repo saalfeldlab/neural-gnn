@@ -225,6 +225,7 @@ def data_generate_synaptic(
 
     torch.random.fork_rng(devices=device)
     torch.random.manual_seed(simulation_config.seed)
+    np.random.seed(simulation_config.seed)  # Ensure numpy random state is also seeded for reproducibility
 
     n_neuron_types = simulation_config.n_neuron_types
     n_neurons = simulation_config.n_neurons
