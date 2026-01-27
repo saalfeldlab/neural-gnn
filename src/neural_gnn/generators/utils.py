@@ -305,7 +305,7 @@ def init_mesh(config, device):
 
 def init_connectivity(connectivity_file, connectivity_type, connectivity_filling_factor, T1, n_neurons, n_neuron_types, dataset_name, device, connectivity_rank=1, Dale_law=False, Dale_law_factor=0.5):
 
-    if 'adjacency.pt' in connectivity_file:
+    if 'pt' in connectivity_file:
         connectivity = torch.load(connectivity_file, map_location=device)
     elif 'mat' in connectivity_file:
         mat = scipy.io.loadmat(connectivity_file)

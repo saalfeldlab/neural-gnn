@@ -14,7 +14,7 @@ website:
   page-footer: "Copyright 2025, Cédric Allier, Michael Innerberger, Stephan Saalfeld"
 
 execute:
-  enabled: false
+  enabled: true
 
 format:
   html:

@@ -12,8 +12,9 @@ log/**/*
 !log/signal/**/models/
 !log/signal/**/models/*.pt
 
-# Exclude signal_fig_supp_11/models (files >100MB exceed GitHub limit)
+# Exclude signal_fig_supp_11 large files (>100MB exceed GitHub limit)
 log/signal/signal_fig_supp_11/models/
+graphs_data/signal/signal_fig_supp_11/connectivity.pt
 
 # graphs_data: include .pt (connectivity), exclude .npy, .backup, .png, and generated files
 graphs_data/**/*.npy
@@ -22,6 +23,10 @@ graphs_data/**/*.png
 graphs_data/**/analysis.log
 graphs_data/**/X1.pt
 graphs_data/**/X_msg.pt
+
+# Explicitly track connectivity.pt and video_bisons_32.tif
+!graphs_data/signal/*/connectivity.pt
+!graphs_data/video_bisons_32.tif
 
 # Python
 __pycache__/

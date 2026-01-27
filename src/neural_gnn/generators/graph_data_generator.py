@@ -64,9 +64,8 @@ def data_generate(
     if (os.path.isfile(f"./graphs_data/{dataset_name}/x_list_0.npy")) | (
         os.path.isfile(f"./graphs_data/{dataset_name}/x_list_0.pt")
     ):
-        if not regenerate_plots_only:
-            print("watch out: data already generated")
-        # return
+        print("data already generated, aborted ...")
+        return
 
     if config.data_folder_name != "none":
         generate_from_data(config=config, device=device, visualize=visualize, style=style, step=step)
@@ -91,8 +90,7 @@ def data_generate(
             step=step,
             device=device,
             bSave=bSave,
-            log_file=log_file,
-            regenerate_plots_only=regenerate_plots_only,
+            log_file=log_file
         )
 
     plt.style.use("default")
@@ -220,7 +218,6 @@ def data_generate_synaptic(
     device=None,
     bSave=True,
     log_file=None,
-    regenerate_plots_only=False,
 ):
     simulation_config = config.simulation
     training_config = config.training
@@ -263,42 +260,7 @@ def data_generate_synaptic(
         )
         return
 
-    # If regenerate_plots_only, load existing data and regenerate plots
-    if regenerate_plots_only:
-        x_list_file = f"{folder}/x_list_0.npy"
-        connectivity_file = f"{folder}/connectivity.pt"
-        if os.path.exists(x_list_file) and os.path.exists(connectivity_file):
-            x_list = np.load(x_list_file)
-            connectivity = torch.load(connectivity_file, map_location='cpu', weights_only=True)
-            plot_synaptic_activity_traces(x_list, n_neurons, n_frames, dataset_name)
-            plot_connectivity_matrix(connectivity.t(), f"./graphs_data/{dataset_name}/connectivity_matrix.png",
-                                     vmin_vmax_method='percentile', show_title=False)
-            # Plot external input field at key frames (Fig 3a)
-            frame_indices = [0, n_frames//4, n_frames//2, 3*n_frames//4]
-            plot_external_input_field(x_list, n_neurons, dataset_name,
-                                      frame_indices=frame_indices,
-                                      n_input_neurons=n_input_neurons)
-            # Plot activity sample (Fig 3c)
-            plot_activity_sample(x_list, n_neurons, n_frames, dataset_name, n_traces=10)
-
-            # Generate Fig 3a/3b style frames if external input exists
-            external_input = x_list[:, :, 4] if x_list.shape[2] > 4 else None
-            has_visual_input = external_input is not None and np.abs(external_input).max() > 1e-6
-            if has_visual_input:
-                # Create Fig directory if needed
-                fig_dir = f"./graphs_data/{dataset_name}/Fig"
-                os.makedirs(fig_dir, exist_ok=True)
-                # Generate frame at t=0 for Fig 3a/3b
-                x = x_list[0]
-                X1 = x[:, 1:3]  # positions
-                A1 = x[:, 4:5]  # external input (Omega)
-                H1 = x[:, 3:4]  # activity
-                plot_synaptic_frame_visual(X1, A1, H1, dataset_name, 0, "000000")
-            return
-        else:
-            print(f"data files not found in {folder}, running full generation...")
-    else:
-        print("generating data ...")
+    print("generating data ...")
 
     if erase:
         files = glob.glob(f"{folder}/*")
@@ -427,6 +389,12 @@ def data_generate_synaptic(
                 T1 = first_T1.clone().detach()
 
         if run == 0:
+
+            connectivity_file = f"{folder}/connectivity.pt"
+            if os.path.exists(connectivity_file):
+                print('load existing connectivity file...')
+                simulation_config.connectivity_file = connectivity_file
+
             edge_index, connectivity, mask = init_connectivity(
                 simulation_config.connectivity_file,
                 simulation_config.connectivity_type,
