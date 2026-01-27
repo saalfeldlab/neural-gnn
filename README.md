@@ -1,12 +1,16 @@
 # NeuralGraph
 
+<p align="justify">
 Graph neural networks trained to predict observable dynamics can be used to decompose the temporal activity of complex heterogeneous systems into simple, interpretable representations. Here we apply this framework to simulated neural assemblies with thousands of neurons and demonstrate that it can jointly reveal the connectivity matrix, the neuron types, the signaling functions, and in some cases hidden external stimuli. In contrast to existing machine learning approaches such as recurrent neural networks and transformers, which emphasize predictive accuracy but offer limited interpretability, our method provides both reliable forecasts of neural activity and interpretable decomposition of the mechanisms governing large neural assemblies.
+</p>
 
 ---
 
 ### **[Interactive Documentation](https://allierc.github.io/neural-gnn/)**
 
-> **Explore the paper's figures and results** - The documentation site provides an interactive walkthrough of all figures from the paper, with detailed explanations of the methodology, training procedures, and learned representations.
+<p align="justify">
+<strong>Explore the paper's figures and results</strong> - The documentation site provides an interactive walkthrough of all figures from the paper, with detailed explanations of the methodology, training procedures, and learned representations.
+</p>
 
 ---
 
