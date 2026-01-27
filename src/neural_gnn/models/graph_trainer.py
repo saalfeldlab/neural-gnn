@@ -173,14 +173,13 @@ def data_train_signal(config, erase, best_model, style, device, log_file=None):
 
     log_dir, logger = create_log_dir(config, erase)
 
-    # Backup critical .pt files to log folder for safety
+    # Backup connectivity.pt to log folder for safety
     data_folder = f'graphs_data/{dataset_name}'
-    for pt_file in ['connectivity.pt', 'edge_index.pt', 'mask.pt']:
-        src_path = os.path.join(data_folder, pt_file)
-        if os.path.exists(src_path):
-            dst_path = os.path.join(log_dir, pt_file)
-            shutil.copy(src_path, dst_path)
-            print(f'backed up {pt_file} to {log_dir}')
+    src_path = os.path.join(data_folder, 'connectivity.pt')
+    if os.path.exists(src_path):
+        dst_path = os.path.join(log_dir, 'connectivity.pt')
+        shutil.copy(src_path, dst_path)
+        print(f'backed up connectivity.pt to {log_dir}')
 
     print('loading data...')
 
@@ -1478,7 +1477,11 @@ def data_test_signal(config=None, config_file=None, visualize=False, style='colo
         adj_t = adj_t.t()
         edge_index = adj_t.nonzero().t().contiguous()
     else:
-        edge_index = torch.load(f'./graphs_data/{dataset_name}/edge_index.pt', map_location=device)
+        # Create fully connected edges (all pairs except self-loops)
+        i_indices = torch.arange(n_neurons, device=device).repeat_interleave(n_neurons)
+        j_indices = torch.arange(n_neurons, device=device).repeat(n_neurons)
+        mask_edges = i_indices != j_indices
+        edge_index = torch.stack([i_indices[mask_edges], j_indices[mask_edges]], dim=0)
 
     edge_index_generated = edge_index.clone().detach()
 

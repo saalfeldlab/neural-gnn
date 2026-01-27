@@ -61,9 +61,10 @@ def data_generate(
 
     print(f"\033[94mdataset_name: {dataset_name}\033[0m")
 
-    if (os.path.isfile(f"./graphs_data/{dataset_name}/x_list_0.npy")) | (
+    data_exists = (os.path.isfile(f"./graphs_data/{dataset_name}/x_list_0.npy")) | (
         os.path.isfile(f"./graphs_data/{dataset_name}/x_list_0.pt")
-    ):
+    )
+    if data_exists and not regenerate_plots_only:
         print("data already generated, aborted ...")
         return
 
@@ -90,7 +91,8 @@ def data_generate(
             step=step,
             device=device,
             bSave=bSave,
-            log_file=log_file
+            log_file=log_file,
+            regenerate_plots_only=regenerate_plots_only,
         )
 
     plt.style.use("default")
@@ -218,6 +220,7 @@ def data_generate_synaptic(
     device=None,
     bSave=True,
     log_file=None,
+    regenerate_plots_only=False,
 ):
     simulation_config = config.simulation
     training_config = config.training
@@ -259,6 +262,34 @@ def data_generate_synaptic(
         generate_from_data(
             config=config, device=device, visualize=visualize, step=step
         )
+        return
+
+    # Handle regenerate_plots_only mode: load existing data and generate plots only
+    if regenerate_plots_only:
+        print("regenerating plots only ...")
+
+        # Load existing data
+        x_list = np.load(f"{folder}/x_list_0.npy")
+        connectivity = torch.load(f"{folder}/connectivity.pt", map_location=device)
+        model_p = torch.load(f"{folder}/model_p_0.pt", map_location=device)
+
+        # Initialize model for plotting
+        model, bc_pos, bc_dpos = choose_model(config=config, W=connectivity, device=device)
+        model.p = model_p
+
+        # Generate plots
+        plot_connectivity_matrix(connectivity, f"{folder}/connectivity_matrix.png",
+                                 vmin_vmax_method='percentile', show_title=False)
+        plot_synaptic_activity_traces(x_list, n_neurons, n_frames, dataset_name, model=model)
+        plot_synaptic_mlp_functions(model, x_list, n_neurons, dataset_name, config.plotting.colormap, device,
+                                    signal_model_name=config.graph_model.signal_model_name)
+        frame_indices = [0, n_frames//4, n_frames//2, 3*n_frames//4]
+        plot_external_input_field(x_list, n_neurons, dataset_name,
+                                  frame_indices=frame_indices,
+                                  n_input_neurons=n_input_neurons)
+        plot_activity_sample(x_list, n_neurons, n_frames, dataset_name, n_traces=10)
+
+        print("plots regenerated.")
         return
 
     print("generating data ...")
@@ -409,8 +440,6 @@ def data_generate_synaptic(
                 Dale_law=simulation_config.Dale_law,
                 Dale_law_factor=simulation_config.Dale_law_factor,
             )
-            torch.save(edge_index, f"./graphs_data/{dataset_name}/edge_index.pt")
-            torch.save(mask, f"./graphs_data/{dataset_name}/mask.pt")
             torch.save(connectivity, f"./graphs_data/{dataset_name}/connectivity.pt")
 
             # Plot eigenvalue spectrum and connectivity matrix
