@@ -12,6 +12,9 @@ log/**/*
 !log/signal/**/models/
 !log/signal/**/models/*.pt
 
+# Exclude signal_fig_supp_11/models (files >100MB exceed GitHub limit)
+log/signal/signal_fig_supp_11/models/
+
 # graphs_data: include .pt (connectivity), exclude .npy, .backup, .png, and generated files
 graphs_data/**/*.npy
 graphs_data/**/*.backup
