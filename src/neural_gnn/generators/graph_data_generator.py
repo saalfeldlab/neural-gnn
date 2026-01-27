@@ -271,11 +271,9 @@ def data_generate_synaptic(
         # Load existing data
         x_list = np.load(f"{folder}/x_list_0.npy")
         connectivity = torch.load(f"{folder}/connectivity.pt", map_location=device)
-        model_p = torch.load(f"{folder}/model_p_0.pt", map_location=device)
 
-        # Initialize model for plotting
+        # Initialize model for plotting (model.p comes from config.simulation.params)
         model, bc_pos, bc_dpos = choose_model(config=config, W=connectivity, device=device)
-        model.p = model_p
 
         # Generate plots
         plot_connectivity_matrix(connectivity, f"{folder}/connectivity_matrix.png",

@@ -53,108 +53,15 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 # %%
 #| echo: true
 #| output: false
+import glob
+
 print()
 print("=" * 80)
 print("Supplementary Figure 8: Effect of Connectivity Sparsity")
 print("=" * 80)
 
-device = []
-best_model = ''
-config_file_ = 'signal_fig_supp_8'  # 5% sparsity
-
-print()
-config_root = "./config"
-config_file, pre_folder = add_pre_folder(config_file_)
-
-# load config
-config = NeuralGraphConfig.from_yaml(f"{config_root}/{config_file}.yaml")
-config.config_file = config_file
-config.dataset = config_file
-
-if device == []:
-    device = set_device(config.training.device)
-
-log_dir = f'./log/{config_file}'
-graphs_dir = f'./graphs_data/{config_file}'
-
-# %% [markdown]
-# ## Step 1: Generate Data
-# Generate synthetic neural activity data.
-
-# %%
-#| echo: true
-#| output: false
-# STEP 1: GENERATE
-print()
-print("-" * 80)
-print("STEP 1: GENERATE - Simulating neural activity")
-print("-" * 80)
-
-data_file = f'{graphs_dir}/x_list_0.npy'
-if os.path.exists(data_file):
-    print(f"data already exists at {graphs_dir}/")
-    print("skipping simulation...")
-else:
-    print(f"simulating {config.simulation.n_neurons} neurons, {config.simulation.n_frames} frames")
-    print(f"output: {graphs_dir}/")
-    data_generate(
-        config,
-        device=device,
-        visualize=False,
-        run_vizualized=0,
-        style="color",
-        alpha=1,
-        erase=False,
-        bSave=True,
-        step=2,
-    )
-
-# %% [markdown]
-# ## Step 2: Train GNN
-# Train the GNN.
-
-# %%
-#| echo: true
-#| output: false
-# STEP 2: TRAIN
-print()
-print("-" * 80)
-print("STEP 2: TRAIN - Training GNN")
-print("-" * 80)
-
-# Check if trained model already exists (any .pt file in models folder)
-import glob
-model_files = glob.glob(f'{log_dir}/models/*.pt')
-
-if model_files:
-    print(f"trained model already exists at {log_dir}/models/")
-    print("skipping training...")
-else:
-    print(f"training for {config.training.n_epochs} epochs")
-    print(f"sparsity: 5%")
-    data_train(
-        config=config,
-        erase=False,
-        best_model=best_model,
-        style='color',
-        device=device
-    )
-
-# %% [markdown]
-# ## Step 3: Generate Plots
-# Generate evaluation plots for all sparsity levels.
-
-# %%
-#| echo: true
-#| output: false
-# STEP 3: PLOT - Generate figures for all sparsity levels
-print()
-print("-" * 80)
-print("STEP 3: PLOT - Generating figures for all sparsity levels")
-print("-" * 80)
-
-# All configurations to process
-sparsity_configs = [
+# All configs to process (config_name, sparsity)
+config_list = [
     ('signal_fig_supp_8', '5%'),
     ('signal_fig_supp_8_3', '10%'),
     ('signal_fig_supp_8_2', '20%'),
@@ -162,33 +69,114 @@ sparsity_configs = [
     ('signal_fig_2', '100%'),
 ]
 
-for config_name, sparsity in sparsity_configs:
-    config_file_i, _ = add_pre_folder(config_name)
-    log_dir_i = f'./log/{config_file_i}'
-    model_files_i = glob.glob(f'{log_dir_i}/models/*.pt')
+device = []
+best_model = ''
+config_root = "./config"
 
-    if model_files_i:
-        print(f"\n--- {config_name} ({sparsity} sparsity) ---")
-        config_i = NeuralGraphConfig.from_yaml(f"{config_root}/{config_file_i}.yaml")
-        config_i.config_file = config_file_i
-        config_i.dataset = config_file_i
+# %% [markdown]
+# ## Steps 1-3: Generate, Train, and Plot for all configs
+# Loop over all sparsity levels: generate data, train GNN, and generate plots.
+# Skips steps if data/models already exist.
 
-        folder_name_i = f'{log_dir_i}/tmp_results/'
-        os.makedirs(folder_name_i, exist_ok=True)
+# %%
+#| echo: true
+#| output: false
+for config_file_, sparsity in config_list:
+    print()
+    print("=" * 80)
+    print(f"Processing: {config_file_} ({sparsity} sparsity)")
+    print("=" * 80)
 
-        data_plot(
-            config=config_i,
-            config_file=config_file_i,
-            epoch_list=['best'],
-            style='color',
-            extended='plots',
+    config_file, pre_folder = add_pre_folder(config_file_)
+
+    # Load config
+    config = NeuralGraphConfig.from_yaml(f"{config_root}/{config_file}.yaml")
+    config.config_file = config_file
+    config.dataset = config_file
+
+    if device == []:
+        device = set_device(config.training.device)
+
+    log_dir = f'./log/{config_file}'
+    graphs_dir = f'./graphs_data/{config_file}'
+
+    # STEP 1: GENERATE
+    print()
+    print("-" * 80)
+    print("STEP 1: GENERATE - Simulating neural activity")
+    print("-" * 80)
+
+    data_file = f'{graphs_dir}/x_list_0.npy'
+    if os.path.exists(data_file):
+        print(f"data already exists at {graphs_dir}/")
+        print("skipping simulation, regenerating figures...")
+        data_generate(
+            config,
             device=device,
-            apply_weight_correction=True
+            visualize=False,
+            run_vizualized=0,
+            style="color",
+            alpha=1,
+            erase=False,
+            bSave=True,
+            step=2,
+            regenerate_plots_only=True,
         )
     else:
-        print(f"\n--- {config_name} ({sparsity} sparsity) ---")
-        print(f"  No trained model found at {log_dir_i}/models/")
-        print(f"  Skipping plot generation...")
+        print(f"simulating {config.simulation.n_neurons} neurons, {config.simulation.n_frames} frames")
+        print(f"output: {graphs_dir}/")
+        data_generate(
+            config,
+            device=device,
+            visualize=False,
+            run_vizualized=0,
+            style="color",
+            alpha=1,
+            erase=False,
+            bSave=True,
+            step=2,
+        )
+
+    # STEP 2: TRAIN
+    print()
+    print("-" * 80)
+    print("STEP 2: TRAIN - Training GNN")
+    print("-" * 80)
+
+    model_files = glob.glob(f'{log_dir}/models/*.pt')
+    if model_files:
+        print(f"trained model already exists at {log_dir}/models/")
+        print("skipping training (delete models folder to retrain)")
+    else:
+        print(f"training for {config.training.n_epochs} epochs")
+        print(f"sparsity: {sparsity}")
+        data_train(
+            config=config,
+            erase=False,
+            best_model=best_model,
+            style='color',
+            device=device
+        )
+
+    # STEP 3: PLOT
+    print()
+    print("-" * 80)
+    print("STEP 3: PLOT - Generating figures")
+    print("-" * 80)
+
+    folder_name = f'{log_dir}/tmp_results/'
+    os.makedirs(folder_name, exist_ok=True)
+
+    data_plot(
+        config=config,
+        config_file=config_file,
+        epoch_list=['best'],
+        style='color',
+        extended='plots',
+        device=device,
+        apply_weight_correction=True,
+        plot_eigen_analysis=False
+    )
 
 # %% [markdown]
 # ## Activity Time Series

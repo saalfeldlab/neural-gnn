@@ -126,19 +126,24 @@ def get_training_files(log_dir, n_runs):
     files_with_0 = [file for file in files if int(file.split('_')[-2]) == 0]
     files_without_0 = [file for file in files if int(file.split('_')[-2]) != 0]
 
-    # Generate 50 evenly spaced indices for each list
+    # Use all files when ≤50, otherwise sample 50 evenly spaced
+    max_samples = 50
 
-    # indices_with_0 = np.linspace(0, len(files_with_0) - 1, dtype=int)
-    indices_with_0 = np.arange(0, len(files_with_0) - 1, dtype=int)
-    indices_without_0 = np.linspace(0, len(files_without_0) - 1, 50, dtype=int)
-
-    # Select the files using the generated indices
-    selected_files_with_0 = [files_with_0[i] for i in indices_with_0]
-    if len(files_without_0) > 0:
-        selected_files_without_0 = [files_without_0[i] for i in indices_without_0]
-        selected_files = selected_files_with_0 + selected_files_without_0
+    if len(files_with_0) <= max_samples:
+        selected_files_with_0 = files_with_0
     else:
-        selected_files = selected_files_with_0
+        indices_with_0 = np.linspace(0, len(files_with_0) - 1, max_samples, dtype=int)
+        selected_files_with_0 = [files_with_0[i] for i in indices_with_0]
+
+    if len(files_without_0) == 0:
+        selected_files_without_0 = []
+    elif len(files_without_0) <= max_samples:
+        selected_files_without_0 = files_without_0
+    else:
+        indices_without_0 = np.linspace(0, len(files_without_0) - 1, max_samples, dtype=int)
+        selected_files_without_0 = [files_without_0[i] for i in indices_without_0]
+
+    selected_files = selected_files_with_0 + selected_files_without_0
 
     return selected_files, np.arange(0, len(selected_files), 1)
 
@@ -1008,7 +1013,7 @@ def create_signal_movies(config, log_dir, n_runs, device, n_neurons, n_neuron_ty
 
 
 
-def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device, apply_weight_correction=False, log_file=None):
+def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device, apply_weight_correction=False, log_file=None, plot_eigen_analysis=False):
 
     dataset_name = config.dataset
     model_config = config.graph_model
@@ -2373,112 +2378,113 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
             plot_connectivity_matrix(connectivity_corrected, f'./{log_dir}/results/connectivity_learned.png',
                                      vmin_vmax_method='percentile', show_title=False)
 
-            # eigenvalue and eigenvector analysis
-            print('plot eigenvalue spectrum and eigenvector comparison ...')
+            # eigenvalue and eigenvector analysis (optional, can be slow for large matrices)
+            if plot_eigen_analysis:
+                print('plot eigenvalue spectrum and eigenvector comparison ...')
 
-            # compute eigenvalues and eigenvectors
-            eig_true, V_true = np.linalg.eig(gt_weight)
-            eig_learned, V_learned = np.linalg.eig(pred_weight_corrected / lin_fit[0])
+                # compute eigenvalues and eigenvectors
+                eig_true, V_true = np.linalg.eig(gt_weight)
+                eig_learned, V_learned = np.linalg.eig(pred_weight_corrected / lin_fit[0])
 
-            # sort by eigenvalue magnitude
-            idx_true = np.argsort(-np.abs(eig_true))
-            idx_learned = np.argsort(-np.abs(eig_learned))
-            eig_true_sorted = eig_true[idx_true]
-            eig_learned_sorted = eig_learned[idx_learned]
-            V_true = V_true[:, idx_true]
-            V_learned = V_learned[:, idx_learned]
+                # sort by eigenvalue magnitude
+                idx_true = np.argsort(-np.abs(eig_true))
+                idx_learned = np.argsort(-np.abs(eig_learned))
+                eig_true_sorted = eig_true[idx_true]
+                eig_learned_sorted = eig_learned[idx_learned]
+                V_true = V_true[:, idx_true]
+                V_learned = V_learned[:, idx_learned]
 
-            # left eigenvectors (right eigenvectors of transpose)
-            _, L_true = np.linalg.eig(gt_weight.T)
-            _, L_learned = np.linalg.eig((pred_weight_corrected / lin_fit[0]).T)
-            L_true = L_true[:, idx_true]
-            L_learned = L_learned[:, idx_learned]
+                # left eigenvectors (right eigenvectors of transpose)
+                _, L_true = np.linalg.eig(gt_weight.T)
+                _, L_learned = np.linalg.eig((pred_weight_corrected / lin_fit[0]).T)
+                L_true = L_true[:, idx_true]
+                L_learned = L_learned[:, idx_learned]
 
-            # compute alignment matrices
-            alignment_R = np.abs(V_true.conj().T @ V_learned)
-            alignment_L = np.abs(L_true.conj().T @ L_learned)
+                # compute alignment matrices
+                alignment_R = np.abs(V_true.conj().T @ V_learned)
+                alignment_L = np.abs(L_true.conj().T @ L_learned)
 
-            # best alignment score for each true eigenvector
-            best_alignment_R = np.max(alignment_R, axis=1)
-            best_alignment_L = np.max(alignment_L, axis=1)
+                # best alignment score for each true eigenvector
+                best_alignment_R = np.max(alignment_R, axis=1)
+                best_alignment_L = np.max(alignment_L, axis=1)
 
-            # create 2x3 figure
-            fig, axes = plt.subplots(2, 3, figsize=(30, 20))
+                # create 2x3 figure
+                fig, axes = plt.subplots(2, 3, figsize=(30, 20))
 
-            # Row 1: Eigenvalues
-            # (0,0) complex plane scatter
-            axes[0, 0].scatter(eig_true.real, eig_true.imag, s=100, c='green', alpha=0.7, label='true')
-            axes[0, 0].scatter(eig_learned.real, eig_learned.imag, s=100, c=mc, alpha=0.7, label='learned')
-            axes[0, 0].axhline(y=0, color='gray', linestyle='--', linewidth=0.5)
-            axes[0, 0].axvline(x=0, color='gray', linestyle='--', linewidth=0.5)
-            axes[0, 0].set_xlabel('real', fontsize=32)
-            axes[0, 0].set_ylabel('imag', fontsize=32)
-            axes[0, 0].legend(fontsize=20)
-            axes[0, 0].tick_params(labelsize=20)
-            axes[0, 0].set_title('eigenvalues in complex plane', fontsize=28)
+                # Row 1: Eigenvalues
+                # (0,0) complex plane scatter
+                axes[0, 0].scatter(eig_true.real, eig_true.imag, s=100, c='green', alpha=0.7, label='true')
+                axes[0, 0].scatter(eig_learned.real, eig_learned.imag, s=100, c=mc, alpha=0.7, label='learned')
+                axes[0, 0].axhline(y=0, color='gray', linestyle='--', linewidth=0.5)
+                axes[0, 0].axvline(x=0, color='gray', linestyle='--', linewidth=0.5)
+                axes[0, 0].set_xlabel('real', fontsize=32)
+                axes[0, 0].set_ylabel('imag', fontsize=32)
+                axes[0, 0].legend(fontsize=20)
+                axes[0, 0].tick_params(labelsize=20)
+                axes[0, 0].set_title('eigenvalues in complex plane', fontsize=28)
 
-            # (0,1) eigenvalue magnitude comparison (sorted)
-            axes[0, 1].scatter(np.abs(eig_true_sorted), np.abs(eig_learned_sorted), s=20, c=mc, alpha=0.7)
-            max_val = max(np.abs(eig_true_sorted).max(), np.abs(eig_learned_sorted).max())
-            axes[0, 1].plot([0, max_val], [0, max_val], 'g--', linewidth=2)
-            axes[0, 1].set_xlabel('true |eigenvalue|', fontsize=32)
-            axes[0, 1].set_ylabel('learned |eigenvalue|', fontsize=32)
-            axes[0, 1].tick_params(labelsize=20)
-            axes[0, 1].set_title('eigenvalue magnitude comparison', fontsize=28)
+                # (0,1) eigenvalue magnitude comparison (sorted)
+                axes[0, 1].scatter(np.abs(eig_true_sorted), np.abs(eig_learned_sorted), s=20, c=mc, alpha=0.7)
+                max_val = max(np.abs(eig_true_sorted).max(), np.abs(eig_learned_sorted).max())
+                axes[0, 1].plot([0, max_val], [0, max_val], 'g--', linewidth=2)
+                axes[0, 1].set_xlabel('true |eigenvalue|', fontsize=32)
+                axes[0, 1].set_ylabel('learned |eigenvalue|', fontsize=32)
+                axes[0, 1].tick_params(labelsize=20)
+                axes[0, 1].set_title('eigenvalue magnitude comparison', fontsize=28)
 
-            # (0,2) singular value spectrum (log scale)
-            axes[0, 2].plot(np.abs(eig_true_sorted), color='green', linewidth=2, label='true')
-            axes[0, 2].plot(np.abs(eig_learned_sorted), color=mc, linewidth=2, label='learned')
-            axes[0, 2].set_xlabel('index', fontsize=32)
-            axes[0, 2].set_ylabel('|eigenvalue|', fontsize=32)
-            axes[0, 2].set_yscale('log')
-            axes[0, 2].legend(fontsize=20)
-            axes[0, 2].tick_params(labelsize=20)
-            axes[0, 2].set_title('eigenvalue spectrum (log scale)', fontsize=28)
+                # (0,2) singular value spectrum (log scale)
+                axes[0, 2].plot(np.abs(eig_true_sorted), color='green', linewidth=2, label='true')
+                axes[0, 2].plot(np.abs(eig_learned_sorted), color=mc, linewidth=2, label='learned')
+                axes[0, 2].set_xlabel('index', fontsize=32)
+                axes[0, 2].set_ylabel('|eigenvalue|', fontsize=32)
+                axes[0, 2].set_yscale('log')
+                axes[0, 2].legend(fontsize=20)
+                axes[0, 2].tick_params(labelsize=20)
+                axes[0, 2].set_title('eigenvalue spectrum (log scale)', fontsize=28)
 
-            # Row 2: Eigenvectors
-            # (1,0) right eigenvector alignment matrix
-            im = axes[1, 0].imshow(alignment_R, cmap='hot', vmin=0, vmax=1)
-            axes[1, 0].set_xlabel('learned eigenvector index', fontsize=28)
-            axes[1, 0].set_ylabel('true eigenvector index', fontsize=28)
-            axes[1, 0].set_title('right eigenvector alignment', fontsize=28)
-            axes[1, 0].tick_params(labelsize=16)
-            plt.colorbar(im, ax=axes[1, 0], fraction=0.046)
+                # Row 2: Eigenvectors
+                # (1,0) right eigenvector alignment matrix
+                im = axes[1, 0].imshow(alignment_R, cmap='hot', vmin=0, vmax=1)
+                axes[1, 0].set_xlabel('learned eigenvector index', fontsize=28)
+                axes[1, 0].set_ylabel('true eigenvector index', fontsize=28)
+                axes[1, 0].set_title('right eigenvector alignment', fontsize=28)
+                axes[1, 0].tick_params(labelsize=16)
+                plt.colorbar(im, ax=axes[1, 0], fraction=0.046)
 
-            # (1,1) left eigenvector alignment matrix
-            im_L = axes[1, 1].imshow(alignment_L, cmap='hot', vmin=0, vmax=1)
-            axes[1, 1].set_xlabel('learned eigenvector index', fontsize=28)
-            axes[1, 1].set_ylabel('true eigenvector index', fontsize=28)
-            axes[1, 1].set_title('left eigenvector alignment', fontsize=28)
-            axes[1, 1].tick_params(labelsize=16)
-            plt.colorbar(im_L, ax=axes[1, 1], fraction=0.046)
+                # (1,1) left eigenvector alignment matrix
+                im_L = axes[1, 1].imshow(alignment_L, cmap='hot', vmin=0, vmax=1)
+                axes[1, 1].set_xlabel('learned eigenvector index', fontsize=28)
+                axes[1, 1].set_ylabel('true eigenvector index', fontsize=28)
+                axes[1, 1].set_title('left eigenvector alignment', fontsize=28)
+                axes[1, 1].tick_params(labelsize=16)
+                plt.colorbar(im_L, ax=axes[1, 1], fraction=0.046)
 
-            # (1,2) best alignment scores
-            axes[1, 2].scatter(range(len(best_alignment_R)), best_alignment_R, s=50, c='b', alpha=0.7, label=f'right (mean={np.mean(best_alignment_R):.2f})')
-            axes[1, 2].scatter(range(len(best_alignment_L)), best_alignment_L, s=50, c='r', alpha=0.7, label=f'left (mean={np.mean(best_alignment_L):.2f})')
-            axes[1, 2].axhline(y=1/np.sqrt(n_plot), color='gray', linestyle='--', linewidth=2, label=f'random ({1/np.sqrt(n_plot):.2f})')
-            axes[1, 2].set_xlabel('eigenvector index (sorted by |eigenvalue|)', fontsize=28)
-            axes[1, 2].set_ylabel('best alignment score', fontsize=28)
-            axes[1, 2].set_title('best alignment per eigenvector', fontsize=28)
-            axes[1, 2].set_ylim([0, 1.05])
-            axes[1, 2].legend(fontsize=20)
-            axes[1, 2].tick_params(labelsize=16)
+                # (1,2) best alignment scores
+                axes[1, 2].scatter(range(len(best_alignment_R)), best_alignment_R, s=50, c='b', alpha=0.7, label=f'right (mean={np.mean(best_alignment_R):.2f})')
+                axes[1, 2].scatter(range(len(best_alignment_L)), best_alignment_L, s=50, c='r', alpha=0.7, label=f'left (mean={np.mean(best_alignment_L):.2f})')
+                axes[1, 2].axhline(y=1/np.sqrt(n_plot), color='gray', linestyle='--', linewidth=2, label=f'random ({1/np.sqrt(n_plot):.2f})')
+                axes[1, 2].set_xlabel('eigenvector index (sorted by |eigenvalue|)', fontsize=28)
+                axes[1, 2].set_ylabel('best alignment score', fontsize=28)
+                axes[1, 2].set_title('best alignment per eigenvector', fontsize=28)
+                axes[1, 2].set_ylim([0, 1.05])
+                axes[1, 2].legend(fontsize=20)
+                axes[1, 2].tick_params(labelsize=16)
 
-            plt.tight_layout()
-            plt.savefig(f"./{log_dir}/results/eigen_comparison.pdf", dpi=87)
-            plt.close()
+                plt.tight_layout()
+                plt.savefig(f"./{log_dir}/results/eigen_comparison.pdf", dpi=87)
+                plt.close()
 
-            # spectral radius comparison
-            true_spectral_radius = np.max(np.abs(eig_true))
-            learned_spectral_radius = np.max(np.abs(eig_learned))
-            print(f'spectral radius - true: {true_spectral_radius:.3f}  learned: {learned_spectral_radius:.3f}')
-            logger.info(f'spectral radius - true: {true_spectral_radius:.3f}  learned: {learned_spectral_radius:.3f}')
+                # spectral radius comparison
+                true_spectral_radius = np.max(np.abs(eig_true))
+                learned_spectral_radius = np.max(np.abs(eig_learned))
+                print(f'spectral radius - true: {true_spectral_radius:.3f}  learned: {learned_spectral_radius:.3f}')
+                logger.info(f'spectral radius - true: {true_spectral_radius:.3f}  learned: {learned_spectral_radius:.3f}')
 
-            # summary statistics
-            mean_align_R = np.mean(best_alignment_R)
-            mean_align_L = np.mean(best_alignment_L)
-            print(f'eigenvector alignment - right: {mean_align_R:.3f}  left: {mean_align_L:.3f}')
-            logger.info(f'eigenvector alignment - right: {mean_align_R:.3f}  left: {mean_align_L:.3f}')
+                # summary statistics
+                mean_align_R = np.mean(best_alignment_R)
+                mean_align_L = np.mean(best_alignment_L)
+                print(f'eigenvector alignment - right: {mean_align_R:.3f}  left: {mean_align_L:.3f}')
+                logger.info(f'eigenvector alignment - right: {mean_align_R:.3f}  left: {mean_align_L:.3f}')
 
             if has_external_input:
 
@@ -3526,7 +3532,7 @@ def create_training_montage(config, log_dir=None, n_cols=8, output_path=None):
     return output_path
 
 
-def data_plot(config, config_file, epoch_list, style, extended, device, apply_weight_correction=False, log_file=None):
+def data_plot(config, config_file, epoch_list, style, extended, device, apply_weight_correction=False, log_file=None, plot_eigen_analysis=False):
 
     # plt.rcParams['text.usetex'] = False  # LaTeX disabled
     # rc('font', **{'family': 'serif', 'serif': ['Times New Roman', 'Liberation Serif', 'DejaVu Serif', 'serif']})
@@ -3578,7 +3584,7 @@ def data_plot(config, config_file, epoch_list, style, extended, device, apply_we
     if ('PDE_N3' in config.graph_model.signal_model_name):
         plot_synaptic3(config, epoch_list, log_dir, logger, 'viridis', style, extended, device)
     else:
-        plot_signal(config, epoch_list, log_dir, logger, 'viridis', style, extended, device, apply_weight_correction, log_file)
+        plot_signal(config, epoch_list, log_dir, logger, 'viridis', style, extended, device, apply_weight_correction, log_file, plot_eigen_analysis)
 
     for handler in logger.handlers[:]:
         handler.close()
