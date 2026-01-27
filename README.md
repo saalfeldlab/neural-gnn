@@ -2,6 +2,8 @@
 
 Graph network modeling neural activities
 
+**[Documentation](https://saalfeldlab.github.io/neural-gnn/)** - Algorithm details and implementation notes
+
 <p align="center">
   <img src="./assets/Fig1.png" alt="NeuralGraph Overview" width="500">
 </p>

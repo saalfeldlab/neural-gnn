@@ -1,12 +1,24 @@
-# Data files
+# Data files (large simulation data)
 *.npy
 *.npz
-*.pt
 *.pth
+*.backup
 paper/
-# Generated data
-graphs_data/
-log/
+
+# Log folder - include models/*.pt, exclude everything else
+log/**/*
+!log/signal/
+!log/signal/*/
+!log/signal/**/models/
+!log/signal/**/models/*.pt
+
+# graphs_data: include .pt (connectivity), exclude .npy, .backup, .png, and generated files
+graphs_data/**/*.npy
+graphs_data/**/*.backup
+graphs_data/**/*.png
+graphs_data/**/analysis.log
+graphs_data/**/X1.pt
+graphs_data/**/X_msg.pt
 
 # Python
 __pycache__/

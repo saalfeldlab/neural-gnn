@@ -1,5 +1,9 @@
 project:
   type: website
+  output-dir: docs
+  render:
+    - "*.qmd"
+    - "Notebook_*.py"
 
 website:
   title: "Neural-GNN"
@@ -8,6 +12,9 @@ website:
       - icon: github
         href: https://github.com/saalfeldlab/neural-gnn
   page-footer: "Copyright 2025, Cédric Allier, Michael Innerberger, Stephan Saalfeld"
+
+execute:
+  enabled: false
 
 format:
   html:
