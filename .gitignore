@@ -61,6 +61,7 @@ Thumbs.db
 _site/
 *.quarto_ipynb
 *_files/
+!docs/**/*_files/
 *.ipynb
 
 **/*.quarto_ipynb
