@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.27">
+<meta name="generator" content="quarto-1.8.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -73,9 +73,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-b758ccaa5987ceb1b75504551e579abf.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap-ffa9a6279353761231ec249df0a7fdd3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
@@ -417,7 +417,7 @@ window.Quarto = {
 </table>
 <section id="configuration" class="level2">
 <h2 class="anchored" data-anchor-id="configuration">Configuration</h2>
-<div id="6189bba7" class="cell" data-execution_count="2">
+<div id="72dc0c57" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
@@ -443,7 +443,7 @@ window.Quarto = {
 <section id="steps-1-3-generate-train-and-plot-for-all-configs" class="level2">
 <h2 class="anchored" data-anchor-id="steps-1-3-generate-train-and-plot-for-all-configs">Steps 1-3: Generate, Train, and Plot for all configs</h2>
 <p>Loop over all dataset sizes: generate data, train GNN, and generate plots. Skips steps if data/models already exist.</p>
-<div id="43f16a28" class="cell" data-execution_count="3">
+<div id="e323b7f2" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> config_file_, n_frames <span class="kw">in</span> config_list:</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>()</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"="</span> <span class="op">*</span> <span class="dv">80</span>)</span>
@@ -545,7 +545,7 @@ window.Quarto = {
 <section id="connectivity-matrix-comparison" class="level2">
 <h2 class="anchored" data-anchor-id="connectivity-matrix-comparison">Connectivity Matrix Comparison</h2>
 <p>Learned vs true connectivity matrix <span class="math inline">\(W_{ij}\)</span> after training. The scatter plot shows <span class="math inline">\(R^2\)</span> and slope metrics.</p>
-<div id="240f9f1a" class="cell" data-execution_count="4">
+<div id="477ce15e" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -555,7 +555,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="524e8665" class="cell" data-execution_count="5">
+<div id="81892398" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -565,7 +565,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="f33d4bd5" class="cell" data-execution_count="6">
+<div id="4c333266" class="cell" data-execution_count="6">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -575,7 +575,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="54b08f78" class="cell" data-execution_count="7">
+<div id="a996f8e3" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -585,7 +585,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="5abd295a" class="cell" data-execution_count="8">
+<div id="4b160335" class="cell" data-execution_count="8">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -595,7 +595,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="86bab503" class="cell" data-execution_count="9">
+<div id="51b1a514" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -609,7 +609,7 @@ window.Quarto = {
 <section id="update-function-phimathbfa_i-x-mlp0" class="level2">
 <h2 class="anchored" data-anchor-id="update-function-phimathbfa_i-x-mlp0">Update Function <span class="math inline">\(\phi^*(\mathbf{a}_i, x)\)</span> (MLP0)</h2>
 <p>Learned update functions after training. Each curve represents one neuron. Colors indicate true neuron types. True functions overlaid in gray.</p>
-<div id="94978272" class="cell" data-execution_count="10">
+<div id="dd71a2b9" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -619,7 +619,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="db20776d" class="cell" data-execution_count="11">
+<div id="6bb0cd73" class="cell" data-execution_count="11">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -629,7 +629,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="19ddf723" class="cell" data-execution_count="12">
+<div id="c2ad9b0a" class="cell" data-execution_count="12">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -639,7 +639,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="17ecb2e5" class="cell" data-execution_count="13">
+<div id="4009e200" class="cell" data-execution_count="13">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -649,7 +649,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="1d8786f8" class="cell" data-execution_count="14">
+<div id="a36b781d" class="cell" data-execution_count="14">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -659,7 +659,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="54c2de08" class="cell" data-execution_count="15">
+<div id="84827ae6" class="cell" data-execution_count="15">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">

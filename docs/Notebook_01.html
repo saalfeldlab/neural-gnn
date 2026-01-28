@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.27">
+<meta name="generator" content="quarto-1.8.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -73,9 +73,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-b758ccaa5987ceb1b75504551e579abf.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap-ffa9a6279353761231ec249df0a7fdd3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
@@ -404,7 +404,7 @@ window.Quarto = {
 <p><span class="math display">\[\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \cdot \tanh(x_i) + g_i \cdot \sum_j W_{ij} \cdot \psi(x_j)\]</span></p>
 <section id="configuration-and-setup" class="level2">
 <h2 class="anchored" data-anchor-id="configuration-and-setup">Configuration and Setup</h2>
-<div id="dea4c3be" class="cell" data-execution_count="2">
+<div id="5872c78e" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"="</span> <span class="op">*</span> <span class="dv">80</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Figure 2: 1000 neurons, 4 types, dense connectivity"</span>)</span>
@@ -438,7 +438,7 @@ window.Quarto = {
 <li>Figure 2b: Sample of 100 time series</li>
 <li>Figure 2c: True connectivity matrix <span class="math inline">\(W_{ij}\)</span></li>
 </ul>
-<div id="2f03b3f1" class="cell" data-execution_count="3">
+<div id="56c4c0c5" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># STEP 1: GENERATE</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
@@ -479,7 +479,7 @@ window.Quarto = {
 <span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>        step<span class="op">=</span><span class="dv">2</span>,</span>
 <span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="3ab843a5" class="cell" data-execution_count="4">
+<div id="e6fc2d57" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -489,7 +489,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="1da77c20" class="cell" data-execution_count="5">
+<div id="38353d48" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -506,7 +506,7 @@ window.Quarto = {
 <p>The GNN optimizes the update rule (Equation 3 from the paper):</p>
 <p><span class="math display">\[\hat{\dot{x}}_i = \phi^*(\mathbf{a}_i, x_i) + \sum_j W_{ij} \psi^*(x_j)\]</span></p>
 <p>where <span class="math inline">\(\phi^*\)</span> and <span class="math inline">\(\psi^*\)</span> are MLPs (ReLU, hidden dim=64, 3 layers). <span class="math inline">\(\mathbf{a}_i\)</span> is a learnable 2D latent vector per neuron, and <span class="math inline">\(W\)</span> is the learnable connectivity matrix.</p>
-<div id="43b83378" class="cell" data-execution_count="6">
+<div id="2405a348" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># STEP 2: TRAIN</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
@@ -546,7 +546,7 @@ window.Quarto = {
 <li>Fig 2g: Learned update functions <span class="math inline">\(\phi^*(\mathbf{a}_i, x)\)</span></li>
 <li>Fig 2h: Learned transfer function <span class="math inline">\(\psi^*(x)\)</span></li>
 </ul>
-<div id="0b5369f2" class="cell" data-execution_count="7">
+<div id="abfd3446" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># STEP 3: GNN EVALUATION</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
@@ -565,7 +565,7 @@ window.Quarto = {
 </div>
 <section id="figures-2d-2h-gnn-evaluation-results" class="level3">
 <h3 class="anchored" data-anchor-id="figures-2d-2h-gnn-evaluation-results">Figures 2d-2h: GNN Evaluation Results</h3>
-<div id="eb39dea5" class="cell" data-execution_count="8">
+<div id="8885361d" class="cell" data-execution_count="8">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -575,7 +575,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="db4a2960" class="cell" data-execution_count="9">
+<div id="dbb78d99" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -585,7 +585,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="aa3ac62c" class="cell" data-execution_count="10">
+<div id="de6ac6b3" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -595,7 +595,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="6d9c3e2b" class="cell" data-execution_count="11">
+<div id="805737c7" class="cell" data-execution_count="11">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -605,7 +605,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="f8e41f69" class="cell" data-execution_count="12">
+<div id="2eb4b92d" class="cell" data-execution_count="12">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -628,7 +628,7 @@ window.Quarto = {
 <li>Row d: Connectivity matrix <span class="math inline">\(W\)</span></li>
 <li>Row e: <span class="math inline">\(W\)</span> learned vs true scatter plot</li>
 </ul>
-<div id="b9d78caa" class="cell" data-execution_count="13">
+<div id="e537975f" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># STEP 4: GNN TRAINING VISUALIZATION</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
@@ -644,7 +644,7 @@ window.Quarto = {
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"creating training montage (8 columns x 5 rows)..."</span>)</span>
 <span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>create_training_montage(config<span class="op">=</span>config, n_cols<span class="op">=</span><span class="dv">8</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="80e8dc31" class="cell" data-execution_count="14">
+<div id="6422a805" class="cell" data-execution_count="14">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -658,7 +658,7 @@ window.Quarto = {
 <section id="step-5-test-model" class="level2">
 <h2 class="anchored" data-anchor-id="step-5-test-model">Step 5: Test Model</h2>
 <p>Test the trained GNN model. Evaluates prediction accuracy and performs rollout inference.</p>
-<div id="9cef20b0" class="cell" data-execution_count="15">
+<div id="bcd50130" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># STEP 5: </span><span class="al">TEST</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
@@ -691,7 +691,7 @@ window.Quarto = {
 <li>Left panel: activity traces (ground truth gray, learned colored)</li>
 <li>Right panel: scatter plot of true vs learned <span class="math inline">\(x_i\)</span> with <span class="math inline">\(R^2\)</span> and slope</li>
 </ul>
-<div id="45304348" class="cell" data-execution_count="16">
+<div id="dd97cf30" class="cell" data-execution_count="16">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -701,7 +701,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="aac66048" class="cell" data-execution_count="17">
+<div id="319d6299" class="cell" data-execution_count="17">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -723,7 +723,7 @@ window.Quarto = {
 <li>Panels e,f: Rollout at 400 time-points</li>
 <li>Panels g,h: Rollout at 800 time-points</li>
 </ul>
-<div id="3ca0d3a4" class="cell" data-execution_count="18">
+<div id="e043dcbd" class="cell" data-execution_count="18">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># STEP 6: SUPPLEMENTARY FIGURE 5 - GENERALIZATION </span><span class="al">TEST</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
@@ -754,7 +754,7 @@ window.Quarto = {
 </div>
 <section id="supplementary-figure-5-panels" class="level3">
 <h3 class="anchored" data-anchor-id="supplementary-figure-5-panels">Supplementary Figure 5 Panels</h3>
-<div id="4381e791" class="cell" data-execution_count="19">
+<div id="0f0b1a5b" class="cell" data-execution_count="19">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -764,7 +764,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="f1168fe6" class="cell" data-execution_count="20">
+<div id="dc5b3af2" class="cell" data-execution_count="20">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -774,7 +774,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="8e65858b" class="cell" data-execution_count="21">
+<div id="dd618c07" class="cell" data-execution_count="21">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -784,7 +784,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="4048533b" class="cell" data-execution_count="22">
+<div id="4b3cb4f4" class="cell" data-execution_count="22">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -806,7 +806,7 @@ window.Quarto = {
 <li>Panels e,f: Rollout at 400 time-points</li>
 <li>Panels g,h: Rollout at 800 time-points</li>
 </ul>
-<div id="e15ee9cb" class="cell" data-execution_count="23">
+<div id="0737ee7e" class="cell" data-execution_count="23">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SUPPLEMENTARY FIGURE 6 - GENERALIZATION </span><span class="al">TEST</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
@@ -838,7 +838,7 @@ window.Quarto = {
 </div>
 <section id="supplementary-figure-6-panels" class="level3">
 <h3 class="anchored" data-anchor-id="supplementary-figure-6-panels">Supplementary Figure 6 Panels</h3>
-<div id="071d1cc3" class="cell" data-execution_count="24">
+<div id="b2239458" class="cell" data-execution_count="24">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -848,7 +848,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="a63f39b6" class="cell" data-execution_count="25">
+<div id="ec8e1b7e" class="cell" data-execution_count="25">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -858,7 +858,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="1d11a25b" class="cell" data-execution_count="26">
+<div id="58964ff3" class="cell" data-execution_count="26">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -868,7 +868,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="416041d3" class="cell" data-execution_count="27">
+<div id="54c0daf0" class="cell" data-execution_count="27">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">

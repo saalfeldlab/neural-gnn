@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.27">
+<meta name="generator" content="quarto-1.8.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -73,9 +73,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-b758ccaa5987ceb1b75504551e579abf.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap-ffa9a6279353761231ec249df0a7fdd3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
@@ -396,7 +396,7 @@ window.Quarto = {
 <p>The external input <span class="math inline">\(\Omega_i(t)\)</span> is a spatially-defined scalar field that modulates the connectivity for the first 1024 neurons. The remaining 1024 neurons have <span class="math inline">\(\Omega_i = 1\)</span>.</p>
 <section id="configuration-and-setup" class="level2">
 <h2 class="anchored" data-anchor-id="configuration-and-setup">Configuration and Setup</h2>
-<div id="58765734" class="cell" data-execution_count="2">
+<div id="653019d6" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"="</span> <span class="op">*</span> <span class="dv">80</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Figure 3: 2048 neurons, 4 types, with external inputs Omega(t)"</span>)</span>
@@ -431,7 +431,7 @@ window.Quarto = {
 <li>Figure 3b: Activity time series</li>
 <li>Figure 3c: Sample of 100 time series</li>
 </ul>
-<div id="38f7d444" class="cell" data-execution_count="3">
+<div id="2fa8617f" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># STEP 1: GENERATE</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
@@ -473,7 +473,7 @@ window.Quarto = {
 <span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>        step<span class="op">=</span><span class="dv">2</span>,</span>
 <span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="076c7175" class="cell" data-execution_count="4">
+<div id="bb7bda82" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -483,7 +483,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="8c0a1201" class="cell" data-execution_count="5">
+<div id="3825e418" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -505,7 +505,7 @@ window.Quarto = {
 <li>Transfer function <span class="math inline">\(\psi^*(x)\)</span></li>
 <li>External input field <span class="math inline">\(\Omega^*(x, y, t)\)</span> via SIREN network</li>
 </ul>
-<div id="ba50a735" class="cell" data-execution_count="6">
+<div id="baf8f9db" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># STEP 2: TRAIN</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
@@ -545,7 +545,7 @@ window.Quarto = {
 <li>Fig 3f: True field Omega_i(t) at different time-points</li>
 <li>Fig 3g: Learned field Omega*(t) at different time-points</li>
 </ul>
-<div id="136adc43" class="cell" data-execution_count="7">
+<div id="303cc72e" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># STEP 3: PLOT</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
@@ -565,7 +565,7 @@ window.Quarto = {
 <section id="output-files" class="level2">
 <h2 class="anchored" data-anchor-id="output-files">Output Files</h2>
 <p>Rename output files to match Figure 3 panels.</p>
-<div id="77afa1ad" class="cell" data-execution_count="8">
+<div id="68d4fe68" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Rename output files to match Figure 3 panels</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
@@ -652,7 +652,7 @@ window.Quarto = {
 </section>
 <section id="figure-3-panels" class="level2">
 <h2 class="anchored" data-anchor-id="figure-3-panels">Figure 3 Panels</h2>
-<div id="cee719b7" class="cell" data-execution_count="9">
+<div id="34f171ba" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -662,7 +662,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="0c71e2e1" class="cell" data-execution_count="10">
+<div id="fc0aad5f" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -675,7 +675,7 @@ window.Quarto = {
 <section id="fig-3f-g-true-and-learned-external-input-fields" class="level3">
 <h3 class="anchored" data-anchor-id="fig-3f-g-true-and-learned-external-input-fields">Fig 3f-g: True and Learned External Input Fields</h3>
 <p>Showing <span class="math inline">\(\Omega_i(t)\)</span> at frames 0, 10000, 20000, 30000, 40000.</p>
-<div id="3ea6fd51" class="cell" data-execution_count="11">
+<div id="6f7823c3" class="cell" data-execution_count="11">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -685,7 +685,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="09b2bb6a" class="cell" data-execution_count="12">
+<div id="d2f4b8be" class="cell" data-execution_count="12">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -695,7 +695,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="fd295c85" class="cell" data-execution_count="13">
+<div id="1be7f7af" class="cell" data-execution_count="13">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -705,7 +705,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="cc35b98a" class="cell" data-execution_count="14">
+<div id="34f6762a" class="cell" data-execution_count="14">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -715,7 +715,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="98958966" class="cell" data-execution_count="15">
+<div id="63dd9b07" class="cell" data-execution_count="15">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -725,7 +725,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="1ee691c2" class="cell" data-execution_count="16">
+<div id="c01b1069" class="cell" data-execution_count="16">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -735,7 +735,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="d9661f39" class="cell" data-execution_count="17">
+<div id="bb311b1d" class="cell" data-execution_count="17">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -745,7 +745,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="e13fb082" class="cell" data-execution_count="18">
+<div id="9a4943b2" class="cell" data-execution_count="18">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -755,7 +755,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="65be1bd3" class="cell" data-execution_count="19">
+<div id="5047d557" class="cell" data-execution_count="19">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -765,7 +765,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="500d6a34" class="cell" data-execution_count="20">
+<div id="00ea6305" class="cell" data-execution_count="20">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -780,7 +780,7 @@ window.Quarto = {
 <section id="figure-3-learned-functions" class="level2">
 <h2 class="anchored" data-anchor-id="figure-3-learned-functions">Figure 3: Learned Functions</h2>
 <p>Learned latent embeddings and functions from Figure 3 training.</p>
-<div id="2906941a" class="cell" data-execution_count="21">
+<div id="46377045" class="cell" data-execution_count="21">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -790,7 +790,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="468c054e" class="cell" data-execution_count="22">
+<div id="8d0c0b86" class="cell" data-execution_count="22">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -800,7 +800,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="27f07cae" class="cell" data-execution_count="23">
+<div id="f0d6db5c" class="cell" data-execution_count="23">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">

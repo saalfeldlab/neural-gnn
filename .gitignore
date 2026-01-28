@@ -34,6 +34,10 @@ graphs_data/**/X_msg.pt
 !graphs_data/signal/*/connectivity.pt
 !graphs_data/video_bisons_32.tif
 
+# Exclude signal_fig_supp_11 data folders (files >100MB exceed GitHub limit)
+graphs_data/signal/signal_fig_supp_11/
+log/signal/signal_fig_supp_11/
+
 # Python
 __pycache__/
 *.py[cod]
