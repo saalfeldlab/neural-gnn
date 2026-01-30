@@ -6,7 +6,7 @@ Graph neural networks trained to predict observable dynamics can be used to deco
 
 ---
 
-### **[Interactive Documentation]([https://saalfeldlab.github.io/neural-gnn/])**
+### **[Interactive Documentation](https://saalfeldlab.github.io/neural-gnn/)**
 
 <p align="justify">
 <strong>Explore the paper's figures and results</strong> - The documentation site provides an interactive walkthrough of all figures from the paper, with detailed explanations of the methodology, training procedures, and learned representations.
