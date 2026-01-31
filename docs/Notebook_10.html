@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Cédric Allier, Michael Innerberger, Stephan Saalfeld">
+<meta name="author" content="Cédric Allier, Stephan Saalfeld">
 
 <title>Figure 3: External Inputs - 2048 neurons with external inputs – Neural-GNN</title>
 <style>
@@ -78,9 +78,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-ffa9a6279353761231ec249df0a7fdd3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-24772959a0e306aba8d7698078628ce7.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="site_libs/bootstrap/bootstrap-ffa9a6279353761231ec249df0a7fdd3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-ad315e24270f67b08a0f8459c6f8e008.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-8c78c9ad8850e3c17dde644b4d7d0b0a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-ad315e24270f67b08a0f8459c6f8e008.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -341,7 +341,7 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#fig-3f-g-true-and-learned-external-input-fields" id="toc-fig-3f-g-true-and-learned-external-input-fields" class="nav-link" data-scroll-target="#fig-3f-g-true-and-learned-external-input-fields">Fig 3f-g: True and Learned External Input Fields</a></li>
   </ul></li>
-  <li><a href="#figure-3-learned-functions" id="toc-figure-3-learned-functions" class="nav-link" data-scroll-target="#figure-3-learned-functions">Figure 3: Learned Functions</a></li>
+  <li><a href="#supplementary-figure-15-learned-functions" id="toc-supplementary-figure-15-learned-functions" class="nav-link" data-scroll-target="#supplementary-figure-15-learned-functions">Supplementary Figure 15: Learned Functions</a></li>
   </ul>
 </nav>
     </div>
@@ -351,7 +351,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Figure 3: External Inputs - 2048 neurons with external inputs</h1>
+<div class="quarto-title-block"><div><h1 class="title">Figure 3: External Inputs - 2048 neurons with external inputs</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button" data-quarto-source-url="https://github.com/saalfeldlab/neural-gnn/blob/main/Notebook_10.py">View Source</a></li></ul></div></div>
   <div class="quarto-categories">
     <div class="quarto-category">Neural Activity</div>
     <div class="quarto-category">External Inputs</div>
@@ -366,7 +366,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Cédric Allier, Michael Innerberger, Stephan Saalfeld </p>
+             <p>Cédric Allier, Stephan Saalfeld </p>
           </div>
   </div>
     
@@ -386,17 +386,19 @@ window.Quarto = {
 <li>N_types: 4 (parameterized by <span class="math inline">\(\tau_i\)</span>={0.5,1}, <span class="math inline">\(s_i\)</span>={1,2}, <span class="math inline">\(\gamma_j\)</span>={1,2,4,8})</li>
 <li>N_frames: 50,000</li>
 <li>Connectivity: 100% (dense)</li>
-<li>Noise: yes (sigma^2=1)</li>
-<li>External inputs: yes - time-dependent scalar field <span class="math inline">\(\Omega_i(t)\)</span></li>
+<li>Noise <span class="math inline">\(\eta_i(t)\)</span>: Gaussian, variance <span class="math inline">\(\sigma^2=7.2\)</span></li>
+<li>External inputs: <span class="math inline">\(\Omega_i(t)\)</span> - time-dependent scalar field <span class="math inline">\(\Omega_i(t)\)</span></li>
 </ul>
 <p>The simulation follows:</p>
-<p><span class="math display">\[\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \tanh(x_i) + g_i \Omega_i(t) \sum_j W_{ij} \left(\tanh\left(\frac{x_j}{\gamma_j}\right) - \theta_j x_j\right) + \eta_i(t)\]</span></p>
+<p><span class="math display">\[\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \tanh(x_i) + g_i \Omega_i(t) \sum_j W_{ij} \tanh\left(\frac{x_j}{\gamma_j}\right) + \eta_i(t)\]</span></p>
 <p>The GNN learns:</p>
-<p><span class="math display">\[\hat{\dot{x}}_i = \phi^*(\mathbf{a}_i, x_i) + \Omega_i^*(t) \sum_j W_{ij} \psi^*(\mathbf{a}_i, \mathbf{a}_j, x_j)\]</span></p>
-<p>The external input <span class="math inline">\(\Omega_i(t)\)</span> is a spatially-defined scalar field that modulates the connectivity for the first 1024 neurons. The remaining 1024 neurons have <span class="math inline">\(\Omega_i = 1\)</span>.</p>
+<p><span class="math display">\[\hat{\dot{x}}_i = \phi^*(\mathbf{a}_i, x_i) + \Omega_i^*(t) \sum_j W_{ij} \psi^*(\mathbf{a}_j, x_j)\]</span></p>
+<p>The external input <span class="math inline">\(\Omega_i(t)\)</span> is scalar field that modulates the connectivity for the first 1024 neurons. The neuron index <span class="math inline">\(i\)</span> corresponds to a known spatial coordinate <span class="math inline">\(x_i\)</span>. The remaining 1024 neurons have <span class="math inline">\(\Omega_i = 1\)</span>.</p>
 <section id="configuration-and-setup" class="level2">
 <h2 class="anchored" data-anchor-id="configuration-and-setup">Configuration and Setup</h2>
-<div id="653019d6" class="cell" data-execution_count="2">
+<div id="b799dd79" class="cell" data-execution_count="2">
+<details open="" class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"="</span> <span class="op">*</span> <span class="dv">80</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Figure 3: 2048 neurons, 4 types, with external inputs Omega(t)"</span>)</span>
@@ -420,6 +422,7 @@ window.Quarto = {
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>log_dir <span class="op">=</span> <span class="ss">f'./log/</span><span class="sc">{</span>config_file<span class="sc">}</span><span class="ss">'</span></span>
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>graphs_dir <span class="op">=</span> <span class="ss">f'./graphs_data/</span><span class="sc">{</span>config_file<span class="sc">}</span><span class="ss">'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
 </section>
 <section id="step-1-generate-data" class="level2">
@@ -431,7 +434,9 @@ window.Quarto = {
 <li>Figure 3b: Activity time series</li>
 <li>Figure 3c: Sample of 100 time series</li>
 </ul>
-<div id="2fa8617f" class="cell" data-execution_count="3">
+<div id="161c15b7" class="cell" data-execution_count="3">
+<details open="" class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># STEP 1: GENERATE</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
@@ -472,8 +477,9 @@ window.Quarto = {
 <span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>        bSave<span class="op">=</span><span class="va">True</span>,</span>
 <span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>        step<span class="op">=</span><span class="dv">2</span>,</span>
 <span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
-<div id="bb7bda82" class="cell" data-execution_count="4">
+<div id="fa6d7900" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -483,7 +489,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="3825e418" class="cell" data-execution_count="5">
+<div id="fa0f2994" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -505,7 +511,9 @@ window.Quarto = {
 <li>Transfer function <span class="math inline">\(\psi^*(x)\)</span></li>
 <li>External input field <span class="math inline">\(\Omega^*(x, y, t)\)</span> via SIREN network</li>
 </ul>
-<div id="baf8f9db" class="cell" data-execution_count="6">
+<div id="a984105d" class="cell" data-execution_count="6">
+<details open="" class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># STEP 2: TRAIN</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
@@ -533,6 +541,7 @@ window.Quarto = {
 <span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>        style<span class="op">=</span><span class="st">'color'</span>,</span>
 <span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>        device<span class="op">=</span>device</span>
 <span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
 </section>
 <section id="step-3-generate-publication-figures" class="level2">
@@ -545,7 +554,9 @@ window.Quarto = {
 <li>Fig 3f: True field Omega_i(t) at different time-points</li>
 <li>Fig 3g: Learned field Omega*(t) at different time-points</li>
 </ul>
-<div id="303cc72e" class="cell" data-execution_count="7">
+<div id="4b8620a0" class="cell" data-execution_count="7">
+<details open="" class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># STEP 3: PLOT</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
@@ -560,12 +571,15 @@ window.Quarto = {
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>folder_name <span class="op">=</span> <span class="st">'./log/'</span> <span class="op">+</span> pre_folder <span class="op">+</span> <span class="st">'/tmp_results/'</span></span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>os.makedirs(folder_name, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>data_plot(config<span class="op">=</span>config, config_file<span class="op">=</span>config_file, epoch_list<span class="op">=</span>[<span class="st">'best'</span>], style<span class="op">=</span><span class="st">'color'</span>, extended<span class="op">=</span><span class="st">'plots'</span>, device<span class="op">=</span>device, apply_weight_correction<span class="op">=</span><span class="va">True</span>, plot_eigen_analysis<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
 </section>
 <section id="output-files" class="level2">
 <h2 class="anchored" data-anchor-id="output-files">Output Files</h2>
 <p>Rename output files to match Figure 3 panels.</p>
-<div id="68d4fe68" class="cell" data-execution_count="8">
+<div id="bfbd2738" class="cell" data-execution_count="8">
+<details open="" class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Rename output files to match Figure 3 panels</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
@@ -648,11 +662,12 @@ window.Quarto = {
 <span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Figure 3 complete!"</span>)</span>
 <span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"results saved to: </span><span class="sc">{</span>log_dir<span class="sc">}</span><span class="ss">/results/"</span>)</span>
 <span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"="</span> <span class="op">*</span> <span class="dv">80</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
 </section>
 <section id="figure-3-panels" class="level2">
 <h2 class="anchored" data-anchor-id="figure-3-panels">Figure 3 Panels</h2>
-<div id="34f171ba" class="cell" data-execution_count="9">
+<div id="7771871c" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -662,7 +677,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="fc0aad5f" class="cell" data-execution_count="10">
+<div id="e88aad83" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -675,7 +690,7 @@ window.Quarto = {
 <section id="fig-3f-g-true-and-learned-external-input-fields" class="level3">
 <h3 class="anchored" data-anchor-id="fig-3f-g-true-and-learned-external-input-fields">Fig 3f-g: True and Learned External Input Fields</h3>
 <p>Showing <span class="math inline">\(\Omega_i(t)\)</span> at frames 0, 10000, 20000, 30000, 40000.</p>
-<div id="6f7823c3" class="cell" data-execution_count="11">
+<div id="b272cb93" class="cell" data-execution_count="11">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -685,7 +700,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="d2f4b8be" class="cell" data-execution_count="12">
+<div id="24274e99" class="cell" data-execution_count="12">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -695,7 +710,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="1be7f7af" class="cell" data-execution_count="13">
+<div id="d82212ff" class="cell" data-execution_count="13">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -705,7 +720,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="34f6762a" class="cell" data-execution_count="14">
+<div id="94d85db9" class="cell" data-execution_count="14">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -715,7 +730,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="63dd9b07" class="cell" data-execution_count="15">
+<div id="759d5035" class="cell" data-execution_count="15">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -725,7 +740,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="c01b1069" class="cell" data-execution_count="16">
+<div id="8e524ffc" class="cell" data-execution_count="16">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -735,7 +750,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="bb311b1d" class="cell" data-execution_count="17">
+<div id="d8b4f75e" class="cell" data-execution_count="17">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -745,7 +760,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="9a4943b2" class="cell" data-execution_count="18">
+<div id="46933128" class="cell" data-execution_count="18">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -755,7 +770,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="5047d557" class="cell" data-execution_count="19">
+<div id="d19566c5" class="cell" data-execution_count="19">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -765,7 +780,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="00ea6305" class="cell" data-execution_count="20">
+<div id="4c91c2c1" class="cell" data-execution_count="20">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -777,35 +792,35 @@ window.Quarto = {
 </div>
 </section>
 </section>
-<section id="figure-3-learned-functions" class="level2">
-<h2 class="anchored" data-anchor-id="figure-3-learned-functions">Figure 3: Learned Functions</h2>
+<section id="supplementary-figure-15-learned-functions" class="level2">
+<h2 class="anchored" data-anchor-id="supplementary-figure-15-learned-functions">Supplementary Figure 15: Learned Functions</h2>
 <p>Learned latent embeddings and functions from Figure 3 training.</p>
-<div id="46377045" class="cell" data-execution_count="21">
+<div id="16dd2370" class="cell" data-execution_count="21">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="Notebook_10_files/figure-html/cell-22-output-1.png" width="450" height="450" class="figure-img"></p>
-<figcaption>Fig 3: Learned latent vectors <span class="math inline">\(a_i\)</span>.</figcaption>
+<figcaption>Supp. Fig 15f: Learned latent vectors <span class="math inline">\(a_i\)</span>.</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<div id="8d0c0b86" class="cell" data-execution_count="22">
+<div id="ed2e6221" class="cell" data-execution_count="22">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="Notebook_10_files/figure-html/cell-23-output-1.png" width="450" height="450" class="figure-img"></p>
-<figcaption>Fig 3: Learned update functions <span class="math inline">\(\phi^*(a, x)\)</span>. Colors indicate true neuron types. True functions are overlaid in light gray.</figcaption>
+<figcaption>Supp. Fig 15g: Learned update functions <span class="math inline">\(\phi^*(a, x)\)</span>. Colors indicate true neuron types. True functions are overlaid in light gray.</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<div id="f0d6db5c" class="cell" data-execution_count="23">
+<div id="e1ded068" class="cell" data-execution_count="23">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="Notebook_10_files/figure-html/cell-24-output-1.png" width="450" height="450" class="figure-img"></p>
-<figcaption>Fig 3: Learned transfer function <span class="math inline">\(\psi^*(x)\)</span>, normalized to a maximum value of 1. True functions are overlaid in light gray.</figcaption>
+<figcaption>Supp. Fig 15h: : Learned transfer function <span class="math inline">\(\psi^*(x)\)</span>, normalized to a maximum value of 1. True functions are overlaid in light gray.</figcaption>
 </figure>
 </div>
 </div>
@@ -899,9 +914,60 @@ window.Quarto = {
       });
       clipboardModal.on('success', onCopySuccess);
     }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/saalfeldlab\.github\.io\/neural-gnn\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -1235,7 +1301,7 @@ window.Quarto = {
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Copyright 2025, Cédric Allier, Michael Innerberger, Stephan Saalfeld</p>
+<p>Copyright 2026, Cédric Allier, Larissa Heinrich, Magdalena Schneider and Stephan Saalfeld</p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

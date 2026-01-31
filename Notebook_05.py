@@ -1,7 +1,7 @@
 # %% [raw]
 # ---
 # title: "Supplementary Figure 10: effect of Gaussian noise"
-# author: Cédric Allier, Michael Innerberger, Stephan Saalfeld
+# author: Cédric Allier, Stephan Saalfeld
 # categories:
 #   - Neural Activity
 #   - Simulation
@@ -23,14 +23,13 @@
 # - N_frames: 100,000
 # - Connectivity: 100% (dense)
 # - Connectivity weights: random, Lorentz distribution
-# - Noise: Gaussian (~10 dB SNR)
-# - External inputs: none
+# - Noise $\eta_i(t)$: Gaussian, variance $\sigma^2=7.2$ 
 #
 # The simulation follows Equation 2 from the paper:
 #
-# $$\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \cdot \tanh(x_i) + g_i \cdot \sum_j W_{ij} \cdot \psi(x_j) + \eta_i(t)$$
+# $$\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \cdot \tanh(x_i) + g_i \cdot \sum_j W_{ij} \cdot \tanh(x_j) + \eta_i(t)$$
 #
-# where $\eta_i(t)$ is Gaussian noise.
+
 
 # %%
 #| output: false
@@ -84,9 +83,8 @@ graphs_dir = f'./graphs_data/{config_file}'
 #
 # **Outputs:**
 #
-# - Panel (a): Activity time series used for GNN training
-# - Panel (b): Sample of 100 time series
-# - Panel (c): True connectivity matrix $W_{ij}$
+# - Supp. Fig 10b: Activity time series used for GNN training
+# - Supp. Fig 10c: True connectivity matrix $W_{ij}$
 
 # %%
 #| echo: true
@@ -132,11 +130,11 @@ else:
     )
 
 # %%
-#| fig-cap: "Panel (b): Sample of 10 time series taken from the activity data with Gaussian noise (~10 dB SNR)."
+#| fig-cap: "Supp. Fig 10b: Sample of 100 time series taken from the activity data with Gaussian noise (~10 dB SNR)."
 load_and_display(f"./graphs_data/signal/signal_fig_supp_10/activity.png")
 
 # %%
-#| fig-cap: "Panel (c): True connectivity $W_{ij}$. The inset shows 20×20 weights."
+#| fig-cap: "Supp. Fig 10c: True connectivity $W_{ij}$. The inset shows 20×20 weights."
 load_and_display("./graphs_data/signal/signal_fig_supp_10/connectivity_matrix.png")
 
 # %% [markdown]
@@ -188,11 +186,11 @@ else:
 #
 # **Figure panels:**
 #
-# - Panel (d): Learned connectivity matrix
-# - Panel (e): Comparison of learned vs true connectivity
-# - Panel (f): Learned latent vectors $\mathbf{a}_i$
-# - Panel (g): Learned update functions $\phi^*(\mathbf{a}_i, x)$
-# - Panel (h): Learned transfer function $\psi^*(x)$
+# - Supp. Fig 10d: Learned connectivity matrix
+# - Supp. Fig 10e: Comparison of learned vs true connectivity
+# - Supp. Fig 10f: Learned latent vectors $\mathbf{a}_i$
+# - Supp. Fig 10g: Learned update functions $\phi^*(\mathbf{a}_i, x)$
+# - Supp. Fig 10h: Learned transfer function $\psi^*(x)$
 
 # %%
 #| echo: true
@@ -217,21 +215,21 @@ data_plot(config=config, config_file=config_file, epoch_list=['best'], style='co
 # ### Supplementary Figure 10: GNN Evaluation Results
 
 # %%
-#| fig-cap: "Panel (d): Learned connectivity."
+#| fig-cap: "Supp. Fig 10d: Learned connectivity."
 load_and_display("./log/signal/signal_fig_supp_10/results/connectivity_learned.png")
 
 # %%
-#| fig-cap: "Panel (e): Comparison of learned and true connectivity (given $g_i$=10)."
+#| fig-cap: "Supp. Fig 10e: Comparison of learned and true connectivity (given $g_i$=10)."
 load_and_display("./log/signal/signal_fig_supp_10/results/weights_comparison_corrected.png")
 
 # %%
-#| fig-cap: "Panel (f): Learned latent vectors $a_i$ of all neurons."
+#| fig-cap: "Supp. Fig 10f: Learned latent vectors $a_i$ of all neurons."
 load_and_display("./log/signal/signal_fig_supp_10/results/embedding.png")
 
 # %%
-#| fig-cap: "Panel (g): Learned update functions $\\phi^*(a_i, x)$. The plot shows 1000 overlaid curves, one for each vector $a_i$. Colors indicate true neuron types. True functions are overlaid in light gray."
+#| fig-cap: "Supp. Fig 10g: Learned update functions $\\phi^*(a_i, x)$. The plot shows 1000 overlaid curves, one for each vector $a_i$. Colors indicate true neuron types. True functions are overlaid in light gray."
 load_and_display("./log/signal/signal_fig_supp_10/results/MLP0.png")
 
 # %%
-#| fig-cap: "Panel (h): Learned transfer function $\\psi^*(x)$, normalized to a maximum value of 1. True function is overlaid in light gray."
+#| fig-cap: "Supp. Fig 10h: Learned transfer function $\\psi^*(x)$, normalized to a maximum value of 1. True function is overlaid in light gray."
 load_and_display("./log/signal/signal_fig_supp_10/results/MLP1_corrected.png")

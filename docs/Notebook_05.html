@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Cédric Allier, Michael Innerberger, Stephan Saalfeld">
+<meta name="author" content="Cédric Allier, Stephan Saalfeld">
 
 <title>Supplementary Figure 10: effect of Gaussian noise – Neural-GNN</title>
 <style>
@@ -78,9 +78,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-ffa9a6279353761231ec249df0a7fdd3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-24772959a0e306aba8d7698078628ce7.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="site_libs/bootstrap/bootstrap-ffa9a6279353761231ec249df0a7fdd3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-ad315e24270f67b08a0f8459c6f8e008.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-8c78c9ad8850e3c17dde644b4d7d0b0a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-ad315e24270f67b08a0f8459c6f8e008.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -348,7 +348,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Supplementary Figure 10: effect of Gaussian noise</h1>
+<div class="quarto-title-block"><div><h1 class="title">Supplementary Figure 10: effect of Gaussian noise</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button" data-quarto-source-url="https://github.com/saalfeldlab/neural-gnn/blob/main/Notebook_05.py">View Source</a></li></ul></div></div>
   <div class="quarto-categories">
     <div class="quarto-category">Neural Activity</div>
     <div class="quarto-category">Simulation</div>
@@ -364,7 +364,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Cédric Allier, Michael Innerberger, Stephan Saalfeld </p>
+             <p>Cédric Allier, Stephan Saalfeld </p>
           </div>
   </div>
     
@@ -385,15 +385,15 @@ window.Quarto = {
 <li>N_frames: 100,000</li>
 <li>Connectivity: 100% (dense)</li>
 <li>Connectivity weights: random, Lorentz distribution</li>
-<li>Noise: Gaussian (~10 dB SNR)</li>
-<li>External inputs: none</li>
+<li>Noise <span class="math inline">\(\eta_i(t)\)</span>: Gaussian, variance <span class="math inline">\(\sigma^2=7.2\)</span></li>
 </ul>
 <p>The simulation follows Equation 2 from the paper:</p>
-<p><span class="math display">\[\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \cdot \tanh(x_i) + g_i \cdot \sum_j W_{ij} \cdot \psi(x_j) + \eta_i(t)\]</span></p>
-<p>where <span class="math inline">\(\eta_i(t)\)</span> is Gaussian noise.</p>
+<p><span class="math display">\[\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \cdot \tanh(x_i) + g_i \cdot \sum_j W_{ij} \cdot \tanh(x_j) + \eta_i(t)\]</span></p>
 <section id="configuration-and-setup" class="level2">
 <h2 class="anchored" data-anchor-id="configuration-and-setup">Configuration and Setup</h2>
-<div id="d0150174" class="cell" data-execution_count="2">
+<div id="fb8d1c32" class="cell" data-execution_count="2">
+<details open="" class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"="</span> <span class="op">*</span> <span class="dv">80</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Supplementary Figure 10: 1000 neurons, 4 types, dense connectivity, Gaussian noise"</span>)</span>
@@ -417,6 +417,7 @@ window.Quarto = {
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>log_dir <span class="op">=</span> <span class="ss">f'./log/</span><span class="sc">{</span>config_file<span class="sc">}</span><span class="ss">'</span></span>
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>graphs_dir <span class="op">=</span> <span class="ss">f'./graphs_data/</span><span class="sc">{</span>config_file<span class="sc">}</span><span class="ss">'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
 </section>
 <section id="step-1-generate-data" class="level2">
@@ -424,11 +425,12 @@ window.Quarto = {
 <p>Generate synthetic neural activity data with Gaussian noise using the PDE_N2 model. This creates the training dataset with 1000 neurons of 4 different types over 100,000 time points.</p>
 <p><strong>Outputs:</strong></p>
 <ul>
-<li>Panel (a): Activity time series used for GNN training</li>
-<li>Panel (b): Sample of 100 time series</li>
-<li>Panel (c): True connectivity matrix <span class="math inline">\(W_{ij}\)</span></li>
+<li>Supp. Fig 10b: Activity time series used for GNN training</li>
+<li>Supp. Fig 10c: True connectivity matrix <span class="math inline">\(W_{ij}\)</span></li>
 </ul>
-<div id="baec6d1e" class="cell" data-execution_count="3">
+<div id="f5c43c98" class="cell" data-execution_count="3">
+<details open="" class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># STEP 1: GENERATE</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
@@ -468,23 +470,24 @@ window.Quarto = {
 <span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>        bSave<span class="op">=</span><span class="va">True</span>,</span>
 <span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>        step<span class="op">=</span><span class="dv">2</span>,</span>
 <span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
-<div id="cfc8ab22" class="cell" data-execution_count="4">
+<div id="9ef1362e" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="Notebook_05_files/figure-html/cell-5-output-1.png" width="469" height="470" class="figure-img"></p>
-<figcaption>Panel (b): Sample of 10 time series taken from the activity data with Gaussian noise (~10 dB SNR).</figcaption>
+<figcaption>Supp. Fig 10b: Sample of 100 time series taken from the activity data with Gaussian noise (~10 dB SNR).</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<div id="83afc814" class="cell" data-execution_count="5">
+<div id="83224995" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="Notebook_05_files/figure-html/cell-6-output-1.png" width="469" height="470" class="figure-img"></p>
-<figcaption>Panel (c): True connectivity <span class="math inline">\(W_{ij}\)</span>. The inset shows 20×20 weights.</figcaption>
+<figcaption>Supp. Fig 10c: True connectivity <span class="math inline">\(W_{ij}\)</span>. The inset shows 20×20 weights.</figcaption>
 </figure>
 </div>
 </div>
@@ -496,7 +499,9 @@ window.Quarto = {
 <p>The GNN optimizes the update rule (Equation 3 from the paper):</p>
 <p><span class="math display">\[\hat{\dot{x}}_i = \phi^*(\mathbf{a}_i, x_i) + \sum_j W_{ij} \psi^*(x_j)\]</span></p>
 <p>where <span class="math inline">\(\phi^*\)</span> and <span class="math inline">\(\psi^*\)</span> are MLPs (ReLU, hidden dim=64, 3 layers). <span class="math inline">\(\mathbf{a}_i\)</span> is a learnable 2D latent vector per neuron, and <span class="math inline">\(W\)</span> is the learnable connectivity matrix.</p>
-<div id="c541a4ae" class="cell" data-execution_count="6">
+<div id="3dea2bff" class="cell" data-execution_count="6">
+<details open="" class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># STEP 2: TRAIN</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
@@ -523,6 +528,7 @@ window.Quarto = {
 <span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>        style<span class="op">=</span><span class="st">'color'</span>,</span>
 <span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>        device<span class="op">=</span>device</span>
 <span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
 </section>
 <section id="step-3-gnn-evaluation" class="level2">
@@ -530,13 +536,15 @@ window.Quarto = {
 <p>Figures matching Supplementary Figure 10 from the paper.</p>
 <p><strong>Figure panels:</strong></p>
 <ul>
-<li>Panel (d): Learned connectivity matrix</li>
-<li>Panel (e): Comparison of learned vs true connectivity</li>
-<li>Panel (f): Learned latent vectors <span class="math inline">\(\mathbf{a}_i\)</span></li>
-<li>Panel (g): Learned update functions <span class="math inline">\(\phi^*(\mathbf{a}_i, x)\)</span></li>
-<li>Panel (h): Learned transfer function <span class="math inline">\(\psi^*(x)\)</span></li>
+<li>Supp. Fig 10d: Learned connectivity matrix</li>
+<li>Supp. Fig 10e: Comparison of learned vs true connectivity</li>
+<li>Supp. Fig 10f: Learned latent vectors <span class="math inline">\(\mathbf{a}_i\)</span></li>
+<li>Supp. Fig 10g: Learned update functions <span class="math inline">\(\phi^*(\mathbf{a}_i, x)\)</span></li>
+<li>Supp. Fig 10h: Learned transfer function <span class="math inline">\(\psi^*(x)\)</span></li>
 </ul>
-<div id="9423bae1" class="cell" data-execution_count="7">
+<div id="68b51168" class="cell" data-execution_count="7">
+<details open="" class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># STEP 3: GNN EVALUATION</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
@@ -552,55 +560,56 @@ window.Quarto = {
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>folder_name <span class="op">=</span> <span class="st">'./log/'</span> <span class="op">+</span> pre_folder <span class="op">+</span> <span class="st">'/tmp_results/'</span></span>
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>os.makedirs(folder_name, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>data_plot(config<span class="op">=</span>config, config_file<span class="op">=</span>config_file, epoch_list<span class="op">=</span>[<span class="st">'best'</span>], style<span class="op">=</span><span class="st">'color'</span>, extended<span class="op">=</span><span class="st">'plots'</span>, device<span class="op">=</span>device, apply_weight_correction<span class="op">=</span><span class="va">True</span>, plot_eigen_analysis<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
 <section id="supplementary-figure-10-gnn-evaluation-results" class="level3">
 <h3 class="anchored" data-anchor-id="supplementary-figure-10-gnn-evaluation-results">Supplementary Figure 10: GNN Evaluation Results</h3>
-<div id="787561d1" class="cell" data-execution_count="8">
+<div id="04100339" class="cell" data-execution_count="8">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="Notebook_05_files/figure-html/cell-9-output-1.png" width="450" height="450" class="figure-img"></p>
-<figcaption>Panel (d): Learned connectivity.</figcaption>
+<figcaption>Supp. Fig 10d: Learned connectivity.</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<div id="be7d3cc5" class="cell" data-execution_count="9">
+<div id="9130a96f" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="Notebook_05_files/figure-html/cell-10-output-1.png" width="450" height="450" class="figure-img"></p>
-<figcaption>Panel (e): Comparison of learned and true connectivity (given <span class="math inline">\(g_i\)</span>=10).</figcaption>
+<figcaption>Supp. Fig 10e: Comparison of learned and true connectivity (given <span class="math inline">\(g_i\)</span>=10).</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<div id="f8736b93" class="cell" data-execution_count="10">
+<div id="8f938254" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="Notebook_05_files/figure-html/cell-11-output-1.png" width="450" height="450" class="figure-img"></p>
-<figcaption>Panel (f): Learned latent vectors <span class="math inline">\(a_i\)</span> of all neurons.</figcaption>
+<figcaption>Supp. Fig 10f: Learned latent vectors <span class="math inline">\(a_i\)</span> of all neurons.</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<div id="4be203ba" class="cell" data-execution_count="11">
+<div id="0829e551" class="cell" data-execution_count="11">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="Notebook_05_files/figure-html/cell-12-output-1.png" width="450" height="450" class="figure-img"></p>
-<figcaption>Panel (g): Learned update functions <span class="math inline">\(\phi^*(a_i, x)\)</span>. The plot shows 1000 overlaid curves, one for each vector <span class="math inline">\(a_i\)</span>. Colors indicate true neuron types. True functions are overlaid in light gray.</figcaption>
+<figcaption>Supp. Fig 10g: Learned update functions <span class="math inline">\(\phi^*(a_i, x)\)</span>. The plot shows 1000 overlaid curves, one for each vector <span class="math inline">\(a_i\)</span>. Colors indicate true neuron types. True functions are overlaid in light gray.</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<div id="7104af9d" class="cell" data-execution_count="12">
+<div id="232afb42" class="cell" data-execution_count="12">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="Notebook_05_files/figure-html/cell-13-output-1.png" width="450" height="450" class="figure-img"></p>
-<figcaption>Panel (h): Learned transfer function <span class="math inline">\(\psi^*(x)\)</span>, normalized to a maximum value of 1. True function is overlaid in light gray.</figcaption>
+<figcaption>Supp. Fig 10h: Learned transfer function <span class="math inline">\(\psi^*(x)\)</span>, normalized to a maximum value of 1. True function is overlaid in light gray.</figcaption>
 </figure>
 </div>
 </div>
@@ -695,9 +704,60 @@ window.Quarto = {
       });
       clipboardModal.on('success', onCopySuccess);
     }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/saalfeldlab\.github\.io\/neural-gnn\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -1031,7 +1091,7 @@ window.Quarto = {
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Copyright 2025, Cédric Allier, Michael Innerberger, Stephan Saalfeld</p>
+<p>Copyright 2026, Cédric Allier, Larissa Heinrich, Magdalena Schneider and Stephan Saalfeld</p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

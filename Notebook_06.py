@@ -1,7 +1,7 @@
 # %% [raw]
 # ---
 # title: "Supplementary Figure 11: large scale - 8000 neurons"
-# author: Cédric Allier, Michael Innerberger, Stephan Saalfeld
+# author: Cédric Allier, Stephan Saalfeld
 # categories:
 #   - Neural Activity
 #   - Simulation
@@ -23,12 +23,11 @@
 # - N_frames: 100,000
 # - Connectivity: 100% (dense) = 64 million weights
 # - Connectivity weights: random, Lorentz distribution
-# - Noise: low (~16 dB SNR)
-# - External inputs: none
+# - Noise $\eta_i(t)$: Gaussian, variance $\sigma^2=1$ 
 #
 # The simulation follows Equation 2 from the paper:
 #
-# $$\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \cdot \tanh(x_i) + g_i \cdot \sum_j W_{ij} \cdot \psi(x_j) + \eta_i(t)$$
+# $$\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \cdot \tanh(x_i) + g_i \cdot \sum_j W_{ij} \cdot \tanh(x_j) + \eta_i(t)$$
 
 # %%
 #| output: false
@@ -130,11 +129,11 @@ else:
     )
 
 # %%
-#| fig-cap: "Sample time series taken from the activity data (8000 neurons)."
+#| fig-cap: "Supp. Fig 11b: Sample time series taken from the activity data (8000 neurons)."
 load_and_display(f"./graphs_data/signal/signal_fig_supp_11/activity.png")
 
 # %%
-#| fig-cap: "True connectivity $W_{ij}$ (8000×8000 = 64 million weights). The inset shows 20×20 weights."
+#| fig-cap: "Supp. Fig 11c: True connectivity $W_{ij}$ (8000×8000 = 64 million weights). The inset shows 20×20 weights."
 load_and_display("./graphs_data/signal/signal_fig_supp_11/connectivity_matrix.png")
 
 # %% [markdown]
@@ -181,11 +180,11 @@ else:
 #
 # **Figure panels:**
 #
-# - Learned connectivity matrix (64M weights)
-# - Comparison of learned vs true connectivity
-# - Learned latent vectors $\mathbf{a}_i$
-# - Learned update functions $\phi^*(\mathbf{a}_i, x)$
-# - Learned transfer function $\psi^*(x)$
+# - Supp. Fig 11d: Learned connectivity matrix (64M weights)
+# - Supp. Fig 11e: Comparison of learned vs true connectivity
+# - Supp. Fig 11f: Learned latent vectors $\mathbf{a}_i$
+# - Supp. Fig 11g: Learned update functions $\phi^*(\mathbf{a}_i, x)$
+# - Supp. Fig 11h: Learned transfer function $\psi^*(x)$
 
 # %%
 #| echo: true
@@ -210,21 +209,21 @@ data_plot(config=config, config_file=config_file, epoch_list=['best'], style='co
 # ### Supplementary Figure 11: GNN Evaluation Results
 
 # %%
-#| fig-cap: "Learned connectivity (8000×8000 = 64 million weights)."
+#| fig-cap: "Supp. Fig 11d: Learned connectivity (8000×8000 = 64 million weights)."
 load_and_display("./log/signal/signal_fig_supp_11/results/connectivity_learned.png")
 
 # %%
-#| fig-cap: "Comparison of learned and true connectivity (given $g_i$=10). Expected: $R^2$=1.00, slope=1.00."
+#| fig-cap: "Supp. Fig 11e: Comparison of learned and true connectivity (given $g_i$=10). Expected: $R^2$=1.00, slope=1.00."
 load_and_display("./log/signal/signal_fig_supp_11/results/weights_comparison_corrected.png")
 
 # %%
-#| fig-cap: "Learned latent vectors $a_i$ of all 8000 neurons."
+#| fig-cap: "Supp. Fig 11f: Learned latent vectors $a_i$ of all 8000 neurons."
 load_and_display("./log/signal/signal_fig_supp_11/results/embedding.png")
 
 # %%
-#| fig-cap: "Learned update functions $\\phi^*(a_i, x)$. The plot shows 8000 overlaid curves. Colors indicate true neuron types. True functions are overlaid in light gray."
+#| fig-cap: "Supp. Fig 11g: Learned update functions $\\phi^*(a_i, x)$. The plot shows 8000 overlaid curves. Colors indicate true neuron types. True functions are overlaid in light gray."
 load_and_display("./log/signal/signal_fig_supp_11/results/MLP0.png")
 
 # %%
-#| fig-cap: "Learned transfer function $\\psi^*(x)$, normalized to a maximum value of 1. True function is overlaid in light gray."
+#| fig-cap: "Supp. Fig 11h: Learned transfer function $\\psi^*(x)$, normalized to a maximum value of 1. True function is overlaid in light gray."
 load_and_display("./log/signal/signal_fig_supp_11/results/MLP1_corrected.png")

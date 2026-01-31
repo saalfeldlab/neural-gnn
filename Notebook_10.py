@@ -1,7 +1,7 @@
 # %% [raw]
 # ---
 # title: "Figure 3: External Inputs - 2048 neurons with external inputs"
-# author: Cédric Allier, Michael Innerberger, Stephan Saalfeld
+# author: Cédric Allier, Stephan Saalfeld
 # categories:
 #   - Neural Activity
 #   - External Inputs
@@ -22,19 +22,20 @@
 # - N_types: 4 (parameterized by $\tau_i$={0.5,1}, $s_i$={1,2}, $\gamma_j$={1,2,4,8})
 # - N_frames: 50,000
 # - Connectivity: 100% (dense)
-# - Noise: yes (sigma^2=1)
-# - External inputs: yes - time-dependent scalar field $\Omega_i(t)$
+# - Noise $\eta_i(t)$: Gaussian, variance $\sigma^2=7.2$ 
+# - External inputs: $\Omega_i(t)$ - time-dependent scalar field $\Omega_i(t)$
 #
 # The simulation follows:
 #
-# $$\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \tanh(x_i) + g_i \Omega_i(t) \sum_j W_{ij} \left(\tanh\left(\frac{x_j}{\gamma_j}\right) - \theta_j x_j\right) + \eta_i(t)$$
+# $$\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \tanh(x_i) + g_i \Omega_i(t) \sum_j W_{ij} \tanh\left(\frac{x_j}{\gamma_j}\right) + \eta_i(t)$$
 #
 # The GNN learns:
 #
-# $$\hat{\dot{x}}_i = \phi^*(\mathbf{a}_i, x_i) + \Omega_i^*(t) \sum_j W_{ij} \psi^*(\mathbf{a}_i, \mathbf{a}_j, x_j)$$
+# $$\hat{\dot{x}}_i = \phi^*(\mathbf{a}_i, x_i) + \Omega_i^*(t) \sum_j W_{ij} \psi^*(\mathbf{a}_j, x_j)$$
 #
-# The external input $\Omega_i(t)$ is a spatially-defined scalar field that modulates
-# the connectivity for the first 1024 neurons. The remaining 1024 neurons have $\Omega_i = 1$.
+# The external input $\Omega_i(t)$ is scalar field that modulates
+# the connectivity for the first 1024 neurons. The neuron index $i$ corresponds to a known spatial coordinate $x_i$.
+# The remaining 1024 neurons have $\Omega_i = 1$.
 
 # %%
 #| output: false
@@ -387,17 +388,17 @@ if learned_field_files:
     load_and_display(learned_field_files[-1])
 
 # %% [markdown]
-# ## Figure 3: Learned Functions
+# ## Supplementary Figure 15: Learned Functions
 # Learned latent embeddings and functions from Figure 3 training.
 
 # %%
-#| fig-cap: "Fig 3: Learned latent vectors $a_i$."
+#| fig-cap: "Supp. Fig 15f: Learned latent vectors $a_i$."
 load_and_display(f"{log_dir}/results/embedding.png")
 
 # %%
-#| fig-cap: "Fig 3: Learned update functions $\\phi^*(a, x)$. Colors indicate true neuron types. True functions are overlaid in light gray."
+#| fig-cap: "Supp. Fig 15g: Learned update functions $\\phi^*(a, x)$. Colors indicate true neuron types. True functions are overlaid in light gray."
 load_and_display(f"{log_dir}/results/MLP0.png")
 
 # %%
-#| fig-cap: "Fig 3: Learned transfer function $\\psi^*(x)$, normalized to a maximum value of 1. True functions are overlaid in light gray."
+#| fig-cap: "Supp. Fig 15h: : Learned transfer function $\\psi^*(x)$, normalized to a maximum value of 1. True functions are overlaid in light gray."
 load_and_display(f"{log_dir}/results/MLP1_corrected.png")

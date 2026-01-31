@@ -107,6 +107,10 @@ def get_model_W(model):
 
 def get_training_files(log_dir, n_runs):
     files = glob.glob(f"{log_dir}/models/best_model_with_{n_runs - 1}_graphs_*.pt")
+    # Fallback: check all_models/ if models/ has very few files
+    all_models_files = glob.glob(f"{log_dir}/all_models/best_model_with_{n_runs - 1}_graphs_*.pt")
+    if len(all_models_files) > len(files):
+        files = all_models_files
     if len(files) == 0:
         return [], np.array([])
     files.sort(key=sort_key)
@@ -1197,14 +1201,14 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
                 file_id = file_id_list[file_id_]
                 epoch = files[file_id].split('graphs')[1][1:-3]
                 epoch_mapping[num] = epoch  # Save mapping
-                net = f"{log_dir}/models/best_model_with_{n_runs-1}_graphs_{epoch}.pt"
+                net = files[file_id]
 
                 state_dict = torch.load(net, map_location=device)
                 model.load_state_dict(state_dict['model_state_dict'])
                 model.eval()
 
                 if has_external_input:
-                    net = f'{log_dir}/models/best_model_f_with_{n_runs-1}_graphs_{epoch}.pt'
+                    net = files[file_id].replace('best_model_with_', 'best_model_f_with_')
                     state_dict = torch.load(net, map_location=device)
                     model_f.load_state_dict(state_dict['model_state_dict'])
 
@@ -1709,6 +1713,35 @@ def plot_signal(config, epoch_list, log_dir, logger, cc, style, extended, device
         import json
         with open(f"./{log_dir}/results/all/epoch_mapping.json", 'w') as f:
             json.dump(epoch_mapping, f)
+
+        # Save R² over iterations for comparison plots
+        iters_per_epoch = 0
+        for epoch_step in epoch_mapping.values():
+            parts = epoch_step.split('_')
+            if len(parts) >= 2:
+                step = int(parts[1])
+                if step > iters_per_epoch:
+                    iters_per_epoch = step
+        iters_per_epoch = iters_per_epoch + 1 if iters_per_epoch > 0 else 1
+
+        iterations_list = []
+        for epoch_step in epoch_mapping.values():
+            parts = epoch_step.split('_')
+            if len(parts) >= 2:
+                total_iter = int(parts[0]) * iters_per_epoch + int(parts[1])
+            else:
+                total_iter = int(parts[0]) * iters_per_epoch
+            iterations_list.append(total_iter)
+
+        r2_data = {
+            'iterations': iterations_list,
+            'r2': r_squared_list,
+            'slope': slope_list,
+            'iters_per_epoch': iters_per_epoch,
+        }
+        with open(f"./{log_dir}/results/all/r2_over_iterations.json", 'w') as f:
+            json.dump(r2_data, f)
+        print(f"R² over iterations saved to {log_dir}/results/all/r2_over_iterations.json")
 
     else:
 
@@ -3459,10 +3492,11 @@ def create_training_montage(config, log_dir=None, n_cols=8, output_path=None):
     sample_img = Image.open(embedding_files[0])
     img_width, img_height = sample_img.size
 
-    # Create montage with header space for column labels
+    # Create montage with header space for column labels and left margin for row labels
     n_rows = 5
     header_height = 100  # Height for column labels (increased for larger font)
-    montage_width = n_cols_actual * img_width
+    label_width = 120  # Width for bold row labels on the left
+    montage_width = label_width + n_cols_actual * img_width
     montage_height = header_height + n_rows * img_height
     montage = Image.new('RGB', (montage_width, montage_height), color='white')
 
@@ -3471,8 +3505,10 @@ def create_training_montage(config, log_dir=None, n_cols=8, output_path=None):
     try:
         # Try to load a good font - doubled fontsize from 32 to 64
         font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 64)
+        font_bold = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 80)
     except (OSError, IOError):
         font = ImageFont.load_default()
+        font_bold = font
 
     # Load epoch mapping if available
     import json
@@ -3482,25 +3518,34 @@ def create_training_montage(config, log_dir=None, n_cols=8, output_path=None):
         with open(epoch_mapping_path, 'r') as f:
             epoch_mapping = json.load(f)
 
-    total_iters = n_available
-    for col_idx, idx in enumerate(selected_indices):
-        # Get epoch from mapping if available, otherwise use index
+    # Pre-compute iteration counts for all indices from epoch mapping
+    mapped_iters = {}
+    for idx in indices:
         if idx in epoch_mapping:
             epoch_str = epoch_mapping[idx]
-            # Parse epoch_step format (e.g., "0_7811" -> epoch=0, step=7811)
-            # Calculate total iterations: 62500 * epoch + step
             parts = epoch_str.split('_')
             if len(parts) >= 2:
                 epoch_num = int(parts[0])
                 step_num = int(parts[1])
-                total_iterations = 62500 * epoch_num + step_num
-                label = f"{total_iterations} iterations"
-            else:
-                label = f"{epoch_str}"
+                mapped_iters[int(idx)] = 62500 * epoch_num + step_num
+
+    # For unmapped indices, estimate using linear extrapolation
+    if len(mapped_iters) >= 2:
+        sorted_keys = sorted(mapped_iters.keys())
+        sorted_vals = [mapped_iters[k] for k in sorted_keys]
+        iters_per_idx = (sorted_vals[-1] - sorted_vals[0]) / (sorted_keys[-1] - sorted_keys[0])
+        for idx in indices:
+            idx_int = int(idx)
+            if idx_int not in mapped_iters:
+                mapped_iters[idx_int] = int(sorted_vals[0] + iters_per_idx * (idx_int - sorted_keys[0]))
+
+    for col_idx, idx in enumerate(selected_indices):
+        if int(idx) in mapped_iters:
+            total_iterations = mapped_iters[int(idx)]
+            label = f"{total_iterations} iterations"
         else:
-            iter_num = int(idx)
-            label = f"iter {iter_num}/{total_iters-1}"
-        x_center = col_idx * img_width + img_width // 2
+            label = f"{idx} iterations"
+        x_center = label_width + col_idx * img_width + img_width // 2
         # Get text bounding box for centering
         bbox = draw.textbbox((0, 0), label, font=font)
         text_width = bbox[2] - bbox[0]
@@ -3516,11 +3561,21 @@ def create_training_montage(config, log_dir=None, n_cols=8, output_path=None):
                 # Resize if needed to match expected dimensions
                 if img.size != (img_width, img_height):
                     img = img.resize((img_width, img_height), Image.Resampling.LANCZOS)
-                x_pos = col_idx * img_width
+                x_pos = label_width + col_idx * img_width
                 y_pos = header_height + row_idx * img_height
                 montage.paste(img, (x_pos, y_pos))
             else:
                 print(f"Warning: Missing file {img_path}")
+
+    # Draw bold row labels on the left
+    for row_idx, row_label in enumerate(row_labels):
+        y_center = header_height + row_idx * img_height + img_height // 2
+        bbox = draw.textbbox((0, 0), row_label, font=font_bold)
+        text_height = bbox[3] - bbox[1]
+        text_width = bbox[2] - bbox[0]
+        x_pos = (label_width - text_width) // 2
+        y_pos = y_center - text_height // 2
+        draw.text((x_pos, y_pos), row_label, fill='black', font=font_bold)
 
     # Save montage
     if output_path is None:
@@ -3529,6 +3584,58 @@ def create_training_montage(config, log_dir=None, n_cols=8, output_path=None):
     montage.save(output_path, dpi=(170, 170))
     print(f"Training montage saved to: {output_path}")
 
+    return output_path
+
+
+def plot_r2_over_iterations(config_list, output_path, device='cpu'):
+    """
+    Plot R² connectivity over training iterations for multiple configs.
+    Reads pre-computed R² data from r2_over_iterations.json files
+    (generated by data_plot with epoch_list=['all']).
+
+    Args:
+        config_list: List of (config_name, n_frames) tuples
+        output_path: Path to save the output figure (PNG)
+        device: Torch device (unused, kept for API consistency)
+    Returns:
+        output_path
+    """
+    import json
+
+    fig, ax = fig_init(formatx='%.0f', formaty='%.2f')
+
+    # Reverse config order so smallest n_frames is plotted first (bottom of legend)
+    for idx, (config_name, n_frames) in enumerate(reversed(config_list)):
+        config_file, _ = add_pre_folder(config_name)
+        log_dir = f'./log/{config_file}'
+
+        r2_file = f'{log_dir}/results/all/r2_over_iterations.json'
+        if not os.path.exists(r2_file):
+            print(f'Warning: {r2_file} not found, skipping {config_name}')
+            continue
+
+        with open(r2_file, 'r') as f:
+            r2_data = json.load(f)
+
+        iterations = r2_data['iterations']
+        r2_values = r2_data['r2']
+
+        # Sort by iteration
+        sorted_pairs = sorted(zip(iterations, r2_values))
+        if sorted_pairs:
+            iters, r2s = zip(*sorted_pairs)
+            ax.plot(iters, r2s, linewidth=4, label=f'{n_frames}')
+
+    ax.set_xlim(left=0)
+    ax.set_ylim(bottom=0)
+    ax.set_xlabel('iteration', fontsize=68)
+    ax.set_ylabel('$R^2$', fontsize=68)
+    ax.legend(fontsize=20)
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=170.7)
+    plt.close()
+
+    print(f'R² over iterations saved to: {output_path}')
     return output_path
 
 

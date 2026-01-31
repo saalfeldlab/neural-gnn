@@ -1,7 +1,7 @@
 # %% [raw]
 # ---
-# title: "Supplementary Figure 8: Sparse connectivity (5% to 100%)"
-# author: Cédric Allier, Michael Innerberger, Stephan Saalfeld
+# title: "Supplementary Figures 8 and 9: Sparse connectivity (5% to 100%)"
+# author: Cédric Allier, Stephan Saalfeld
 # categories:
 #   - Neural Activity
 #   - Simulation
@@ -12,9 +12,9 @@
 # ---
 
 # %% [markdown]
-# This script reproduces the panels of paper's **Supplementary Figure 8**.
+# This script reproduces the panels of paper's **Supplementary Figures 8 and 9**.
 # Performance of GNN for connectivity matrices with varying sparsity levels.
-# This notebook displays connectivity matrix comparison and $\phi^*$ plots for each sparsity level.
+# This notebook displays connectivity matrix comparison, $\phi^*$ plots, $\psi^*$ plots, and learned embedding for each sparsity level.
 #
 # **Simulation parameters (constant across all experiments):**
 #
@@ -22,6 +22,10 @@
 # - N_types: 4 parameterized by $\tau_i$={0.5,1}, $s_i$={1,2} and $g_i$=10
 # - N_frames: 100,000
 # - Connectivity weights: random, Cauchy distribution
+#
+# The simulation follows Equation 2 from the paper:
+#
+# $$\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \cdot \tanh(x_i) + g_i \cdot \sum_j W_{ij} \cdot \tanh(x_j)$$
 #
 # **Variable: Connectivity sparsity**
 #
@@ -42,7 +46,7 @@ from neural_gnn.config import NeuralGraphConfig
 from neural_gnn.generators.graph_data_generator import data_generate
 from neural_gnn.models.graph_trainer import data_train
 from neural_gnn.utils import set_device, add_pre_folder, load_and_display
-from GNN_PlotFigure import data_plot
+from GNN_PlotFigure import data_plot, plot_r2_over_iterations
 
 warnings.filterwarnings("ignore", message="pkg_resources is deprecated as an API")
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -178,13 +182,35 @@ for config_file_, sparsity in config_list:
         plot_eigen_analysis=False
     )
 
+    # STEP 4: TRAINING PROGRESSION (R² over iterations)
+    print()
+    print("-" * 80)
+    print("STEP 4: TRAINING PROGRESSION - Computing R² over iterations")
+    print("-" * 80)
+
+    r2_file = f'{log_dir}/results/all/r2_over_iterations.json'
+    if os.path.exists(r2_file):
+        print(f"R² data already exists at {r2_file}")
+        print("skipping (delete results/all/ folder to recompute)")
+    else:
+        data_plot(
+            config=config,
+            config_file=config_file,
+            epoch_list=['all'],
+            style='color',
+            extended='plots',
+            device=device,
+            apply_weight_correction=True,
+            plot_eigen_analysis=False,
+        )
+
 # %% [markdown]
 # ## Activity Time Series
 #
 # Sample of 100 time series for each sparsity level.
 
 # %%
-#| fig-cap: "Sample of 100 time series (5% sparsity)"
+#| fig-cap: "Supp. Fig 8b: Sample of 100 time series (5% sparsity)"
 load_and_display("./graphs_data/signal/signal_fig_supp_8/activity.png")
 
 # %%
@@ -209,7 +235,7 @@ load_and_display("./graphs_data/signal/signal_fig_2/activity.png")
 # True connectivity matrix for each sparsity level.
 
 # %%
-#| fig-cap: "True connectivity $W_{ij}$ (5% sparsity)"
+#| fig-cap: "Supp. Fig 8c: True connectivity $W_{ij}$ (5% sparsity)"
 load_and_display("./graphs_data/signal/signal_fig_supp_8/connectivity_matrix.png")
 
 # %%
@@ -235,7 +261,7 @@ load_and_display("./graphs_data/signal/signal_fig_2/connectivity_matrix.png")
 # The scatter plot shows $R^2$ and slope metrics.
 
 # %%
-#| fig-cap: "Connectivity comparison (5% sparsity)"
+#| fig-cap: "Supp. Fig 8e: Connectivity comparison (5% sparsity)"
 load_and_display("./log/signal/signal_fig_supp_8/results/weights_comparison_corrected.png")
 
 # %%
@@ -261,7 +287,7 @@ load_and_display("./log/signal/signal_fig_2/results/weights_comparison_corrected
 # Colors indicate true neuron types. True functions overlaid in gray.
 
 # %%
-#| fig-cap: "Update functions $\\phi^*(a_i, x)$ (5% sparsity). True functions are overlaid in light gray."
+#| fig-cap: "Supp. Fig 8g: Update functions $\\phi^*(a_i, x)$ (5% sparsity). True functions are overlaid in light gray."
 load_and_display("./log/signal/signal_fig_supp_8/results/MLP0.png")
 
 # %%
@@ -279,3 +305,78 @@ load_and_display("./log/signal/signal_fig_supp_8_1/results/MLP0.png")
 # %%
 #| fig-cap: "Update functions $\\phi^*(a_i, x)$ (100% connectivity). True functions are overlaid in light gray."
 load_and_display("./log/signal/signal_fig_2/results/MLP0.png")
+
+# %% [markdown]
+# ## Transfer Function $\psi^*(x)$ (MLP1)
+#
+# Learned transfer function after training, normalized to max=1.
+# True function overlaid in gray.
+
+# %%
+#| fig-cap: "Supp. Fig 8h: Transfer function $\\psi^*(x)$ (5% sparsity). True function overlaid in light gray."
+load_and_display("./log/signal/signal_fig_supp_8/results/MLP1_corrected.png")
+
+# %%
+#| fig-cap: "Transfer function $\\psi^*(x)$ (10% sparsity). True function overlaid in light gray."
+load_and_display("./log/signal/signal_fig_supp_8_3/results/MLP1_corrected.png")
+
+# %%
+#| fig-cap: "Transfer function $\\psi^*(x)$ (20% sparsity). True function overlaid in light gray."
+load_and_display("./log/signal/signal_fig_supp_8_2/results/MLP1_corrected.png")
+
+# %%
+#| fig-cap: "Transfer function $\\psi^*(x)$ (50% sparsity). True function overlaid in light gray."
+load_and_display("./log/signal/signal_fig_supp_8_1/results/MLP1_corrected.png")
+
+# %%
+#| fig-cap: "Transfer function $\\psi^*(x)$ (100% connectivity). True function overlaid in light gray."
+load_and_display("./log/signal/signal_fig_2/results/MLP1_corrected.png")
+
+# %% [markdown]
+# ## Latent Embeddings $\mathbf{a}_i$
+#
+# Learned latent vectors for all neurons. Colors indicate true neuron types.
+
+# %%
+#| fig-cap: "Supp. Fig 8f: Latent embeddings $a_i$ (5% sparsity)."
+load_and_display("./log/signal/signal_fig_supp_8/results/embedding.png")
+
+# %%
+#| fig-cap: "Latent embeddings $a_i$ (10% sparsity)."
+load_and_display("./log/signal/signal_fig_supp_8_3/results/embedding.png")
+
+# %%
+#| fig-cap: "Latent embeddings $a_i$ (20% sparsity)."
+load_and_display("./log/signal/signal_fig_supp_8_2/results/embedding.png")
+
+# %%
+#| fig-cap: "Latent embeddings $a_i$ (50% sparsity)."
+load_and_display("./log/signal/signal_fig_supp_8_1/results/embedding.png")
+
+# %%
+#| fig-cap: "Latent embeddings $a_i$ (100% connectivity)."
+load_and_display("./log/signal/signal_fig_2/results/embedding.png")
+
+# %% [markdown]
+# ## R² Connectivity Over Training Iterations
+# 1000 densely connected neurons with 4 neuron-dependent update functions.
+# The plot displays $R^2$ for the comparison between true and learned connectivity matrices $W_{ij}$
+# as a function of training iterations for different connectivity filling factors (colors).
+# All comparisons are made at equal numbers of gradient descent iterations.
+
+# %%
+#| echo: true
+#| output: false
+print()
+print("-" * 80)
+print("Generating R² over iterations comparison plot")
+print("-" * 80)
+output_r2 = plot_r2_over_iterations(
+    config_list=config_list,
+    output_path='./log/signal/tmp_results/r2_over_iterations_sparsity.png',
+    device=device,
+)
+
+# %%
+#| fig-cap: "1000 densely connected neurons with 4 neuron-dependent update functions. $R^2$ for the comparison between true and learned connectivity matrices $W_{ij}$ as a function of training iterations for different connectivity filling factors (colors). All comparisons are made at equal numbers of gradient descent iterations."
+load_and_display('./log/signal/tmp_results/r2_over_iterations_sparsity.png')

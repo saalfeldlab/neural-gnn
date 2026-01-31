@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Cédric Allier, Michael Innerberger, Stephan Saalfeld">
+<meta name="author" content="Cédric Allier, Stephan Saalfeld">
 
 <title>Supplementary Figure 7: Effect of training dataset size – Neural-GNN</title>
 <style>
@@ -78,9 +78,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-ffa9a6279353761231ec249df0a7fdd3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-24772959a0e306aba8d7698078628ce7.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="site_libs/bootstrap/bootstrap-ffa9a6279353761231ec249df0a7fdd3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-ad315e24270f67b08a0f8459c6f8e008.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-8c78c9ad8850e3c17dde644b4d7d0b0a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-ad315e24270f67b08a0f8459c6f8e008.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -336,6 +336,9 @@ window.Quarto = {
   <li><a href="#steps-1-3-generate-train-and-plot-for-all-configs" id="toc-steps-1-3-generate-train-and-plot-for-all-configs" class="nav-link" data-scroll-target="#steps-1-3-generate-train-and-plot-for-all-configs">Steps 1-3: Generate, Train, and Plot for all configs</a></li>
   <li><a href="#connectivity-matrix-comparison" id="toc-connectivity-matrix-comparison" class="nav-link" data-scroll-target="#connectivity-matrix-comparison">Connectivity Matrix Comparison</a></li>
   <li><a href="#update-function-phimathbfa_i-x-mlp0" id="toc-update-function-phimathbfa_i-x-mlp0" class="nav-link" data-scroll-target="#update-function-phimathbfa_i-x-mlp0">Update Function <span class="math inline">\(\phi^*(\mathbf{a}_i, x)\)</span> (MLP0)</a></li>
+  <li><a href="#transfer-function-psix-mlp1" id="toc-transfer-function-psix-mlp1" class="nav-link" data-scroll-target="#transfer-function-psix-mlp1">Transfer Function <span class="math inline">\(\psi^*(x)\)</span> (MLP1)</a></li>
+  <li><a href="#latent-embeddings-mathbfa_i" id="toc-latent-embeddings-mathbfa_i" class="nav-link" data-scroll-target="#latent-embeddings-mathbfa_i">Latent Embeddings <span class="math inline">\(\mathbf{a}_i\)</span></a></li>
+  <li><a href="#r²-connectivity-over-training-iterations" id="toc-r²-connectivity-over-training-iterations" class="nav-link" data-scroll-target="#r²-connectivity-over-training-iterations">R² Connectivity Over Training Iterations</a></li>
   </ul>
 </nav>
     </div>
@@ -345,7 +348,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Supplementary Figure 7: Effect of training dataset size</h1>
+<div class="quarto-title-block"><div><h1 class="title">Supplementary Figure 7: Effect of training dataset size</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button" data-quarto-source-url="https://github.com/saalfeldlab/neural-gnn/blob/main/Notebook_03.py">View Source</a></li></ul></div></div>
   <div class="quarto-categories">
     <div class="quarto-category">Neural Activity</div>
     <div class="quarto-category">Simulation</div>
@@ -360,7 +363,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Cédric Allier, Michael Innerberger, Stephan Saalfeld </p>
+             <p>Cédric Allier, Stephan Saalfeld </p>
           </div>
   </div>
     
@@ -373,13 +376,15 @@ window.Quarto = {
 </header>
 
 
-<p>This script reproduce the panels of paper’s <strong>Supplementary Figure 7</strong>. Performance scales with the length of the training series. This notebook displays connectivity matrix comparison and <span class="math inline">\(\phi^*\)</span> plots for each dataset size.</p>
+<p>This script reproduce the panels of paper’s <strong>Supplementary Figure 7</strong>. Performance scales with the length of the training series. This notebook displays connectivity matrix comparison, <span class="math inline">\(\phi^*\)</span> plots, <span class="math inline">\(\psi^*\)</span> plots, and learned embedding for each dataset size.</p>
 <p><strong>Simulation parameters (constant across all experiments):</strong></p>
 <ul>
 <li>N_neurons: 1000</li>
 <li>N_types: 4 parameterized by <span class="math inline">\(\tau_i\)</span>={0.5,1}, <span class="math inline">\(s_i\)</span>={1,2} and <span class="math inline">\(g_i\)</span>=10</li>
 <li>Connectivity: 100% (dense), Lorentz distribution</li>
 </ul>
+<p>The simulation follows Equation 2 from the paper:</p>
+<p><span class="math display">\[\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \cdot \tanh(x_i) + g_i \cdot \sum_j W_{ij} \cdot \tanh(x_j)\]</span></p>
 <p><strong>Variable: Training dataset size (n_frames)</strong></p>
 <table class="caption-top table">
 <thead>
@@ -417,7 +422,9 @@ window.Quarto = {
 </table>
 <section id="configuration" class="level2">
 <h2 class="anchored" data-anchor-id="configuration">Configuration</h2>
-<div id="72dc0c57" class="cell" data-execution_count="2">
+<div id="e19b7f62" class="cell" data-execution_count="2">
+<details open="" class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
@@ -438,12 +445,15 @@ window.Quarto = {
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>device <span class="op">=</span> []</span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>best_model <span class="op">=</span> <span class="st">''</span></span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>config_root <span class="op">=</span> <span class="st">"./config"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
 </section>
 <section id="steps-1-3-generate-train-and-plot-for-all-configs" class="level2">
 <h2 class="anchored" data-anchor-id="steps-1-3-generate-train-and-plot-for-all-configs">Steps 1-3: Generate, Train, and Plot for all configs</h2>
 <p>Loop over all dataset sizes: generate data, train GNN, and generate plots. Skips steps if data/models already exist.</p>
-<div id="e323b7f2" class="cell" data-execution_count="3">
+<div id="cd30d037" class="cell" data-execution_count="3">
+<details open="" class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> config_file_, n_frames <span class="kw">in</span> config_list:</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>()</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"="</span> <span class="op">*</span> <span class="dv">80</span>)</span>
@@ -539,23 +549,46 @@ window.Quarto = {
 <span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>        device<span class="op">=</span>device,</span>
 <span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>        apply_weight_correction<span class="op">=</span><span class="va">True</span>,</span>
 <span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>        plot_eigen_analysis<span class="op">=</span><span class="va">False</span></span>
-<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>    <span class="co"># STEP 4: TRAINING PROGRESSION (R² over iterations)</span></span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>()</span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"STEP 4: TRAINING PROGRESSION - Computing R² over iterations"</span>)</span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a>    r2_file <span class="op">=</span> <span class="ss">f'</span><span class="sc">{</span>log_dir<span class="sc">}</span><span class="ss">/results/all/r2_over_iterations.json'</span></span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> os.path.exists(r2_file):</span>
+<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"R² data already exists at </span><span class="sc">{</span>r2_file<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"skipping (delete results/all/ folder to recompute)"</span>)</span>
+<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb2-109"><a href="#cb2-109" aria-hidden="true" tabindex="-1"></a>        data_plot(</span>
+<span id="cb2-110"><a href="#cb2-110" aria-hidden="true" tabindex="-1"></a>            config<span class="op">=</span>config,</span>
+<span id="cb2-111"><a href="#cb2-111" aria-hidden="true" tabindex="-1"></a>            config_file<span class="op">=</span>config_file,</span>
+<span id="cb2-112"><a href="#cb2-112" aria-hidden="true" tabindex="-1"></a>            epoch_list<span class="op">=</span>[<span class="st">'all'</span>],</span>
+<span id="cb2-113"><a href="#cb2-113" aria-hidden="true" tabindex="-1"></a>            style<span class="op">=</span><span class="st">'color'</span>,</span>
+<span id="cb2-114"><a href="#cb2-114" aria-hidden="true" tabindex="-1"></a>            extended<span class="op">=</span><span class="st">'plots'</span>,</span>
+<span id="cb2-115"><a href="#cb2-115" aria-hidden="true" tabindex="-1"></a>            device<span class="op">=</span>device,</span>
+<span id="cb2-116"><a href="#cb2-116" aria-hidden="true" tabindex="-1"></a>            apply_weight_correction<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb2-117"><a href="#cb2-117" aria-hidden="true" tabindex="-1"></a>            plot_eigen_analysis<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb2-118"><a href="#cb2-118" aria-hidden="true" tabindex="-1"></a>        )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
 </section>
 <section id="connectivity-matrix-comparison" class="level2">
 <h2 class="anchored" data-anchor-id="connectivity-matrix-comparison">Connectivity Matrix Comparison</h2>
 <p>Learned vs true connectivity matrix <span class="math inline">\(W_{ij}\)</span> after training. The scatter plot shows <span class="math inline">\(R^2\)</span> and slope metrics.</p>
-<div id="477ce15e" class="cell" data-execution_count="4">
+<div id="d58b65cf" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="Notebook_03_files/figure-html/cell-5-output-1.png" width="450" height="450" class="figure-img"></p>
-<figcaption>Connectivity comparison (n_frames=100,000)</figcaption>
+<figcaption>Fig 2e: Connectivity comparison (n_frames=100,000)</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<div id="81892398" class="cell" data-execution_count="5">
+<div id="407c6903" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -565,7 +598,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="4c333266" class="cell" data-execution_count="6">
+<div id="7deb9325" class="cell" data-execution_count="6">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -575,7 +608,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="a996f8e3" class="cell" data-execution_count="7">
+<div id="26d0dd19" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -585,7 +618,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="4b160335" class="cell" data-execution_count="8">
+<div id="a48e05fa" class="cell" data-execution_count="8">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -595,7 +628,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="51b1a514" class="cell" data-execution_count="9">
+<div id="ac92c16f" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -609,17 +642,17 @@ window.Quarto = {
 <section id="update-function-phimathbfa_i-x-mlp0" class="level2">
 <h2 class="anchored" data-anchor-id="update-function-phimathbfa_i-x-mlp0">Update Function <span class="math inline">\(\phi^*(\mathbf{a}_i, x)\)</span> (MLP0)</h2>
 <p>Learned update functions after training. Each curve represents one neuron. Colors indicate true neuron types. True functions overlaid in gray.</p>
-<div id="dd71a2b9" class="cell" data-execution_count="10">
+<div id="049e36e9" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="Notebook_03_files/figure-html/cell-11-output-1.png" width="450" height="450" class="figure-img"></p>
-<figcaption>Update functions <span class="math inline">\(\phi^*(a_i, x)\)</span> (n_frames=100,000). True functions are overlaid in light gray.</figcaption>
+<figcaption>Fig 2g: Update functions <span class="math inline">\(\phi^*(a_i, x)\)</span> (n_frames=100,000). True functions are overlaid in light gray.</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<div id="6bb0cd73" class="cell" data-execution_count="11">
+<div id="49b6f8fb" class="cell" data-execution_count="11">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -629,7 +662,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="c2ad9b0a" class="cell" data-execution_count="12">
+<div id="df902938" class="cell" data-execution_count="12">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -639,7 +672,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="4009e200" class="cell" data-execution_count="13">
+<div id="da92ec71" class="cell" data-execution_count="13">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -649,7 +682,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="a36b781d" class="cell" data-execution_count="14">
+<div id="f3513ec6" class="cell" data-execution_count="14">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -659,12 +692,168 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="84827ae6" class="cell" data-execution_count="15">
+<div id="206c11a6" class="cell" data-execution_count="15">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="Notebook_03_files/figure-html/cell-16-output-1.png" width="450" height="450" class="figure-img"></p>
 <figcaption>Update functions <span class="math inline">\(\phi^*(a_i, x)\)</span> (n_frames=10,000). True functions are overlaid in light gray.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="transfer-function-psix-mlp1" class="level2">
+<h2 class="anchored" data-anchor-id="transfer-function-psix-mlp1">Transfer Function <span class="math inline">\(\psi^*(x)\)</span> (MLP1)</h2>
+<p>Learned transfer function after training, normalized to max=1. True function overlaid in gray.</p>
+<div id="011cecf6" class="cell" data-execution_count="16">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_03_files/figure-html/cell-17-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption>Fig 2h: Transfer function <span class="math inline">\(\psi^*(x)\)</span> (n_frames=100,000). True function overlaid in light gray.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="b29f4715" class="cell" data-execution_count="17">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_03_files/figure-html/cell-18-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption>Transfer function <span class="math inline">\(\psi^*(x)\)</span> (n_frames=50,000). True function overlaid in light gray.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="b8008235" class="cell" data-execution_count="18">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_03_files/figure-html/cell-19-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption>Transfer function <span class="math inline">\(\psi^*(x)\)</span> (n_frames=40,000). True function overlaid in light gray.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="6c154507" class="cell" data-execution_count="19">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_03_files/figure-html/cell-20-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption>Transfer function <span class="math inline">\(\psi^*(x)\)</span> (n_frames=30,000). True function overlaid in light gray.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="e7fd2092" class="cell" data-execution_count="20">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_03_files/figure-html/cell-21-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption>Transfer function <span class="math inline">\(\psi^*(x)\)</span> (n_frames=20,000). True function overlaid in light gray.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="bc2d2a27" class="cell" data-execution_count="21">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_03_files/figure-html/cell-22-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption>Transfer function <span class="math inline">\(\psi^*(x)\)</span> (n_frames=10,000). True function overlaid in light gray.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="latent-embeddings-mathbfa_i" class="level2">
+<h2 class="anchored" data-anchor-id="latent-embeddings-mathbfa_i">Latent Embeddings <span class="math inline">\(\mathbf{a}_i\)</span></h2>
+<p>Learned latent vectors for all neurons. Colors indicate true neuron types.</p>
+<div id="218acac4" class="cell" data-execution_count="22">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_03_files/figure-html/cell-23-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption>Fig 2f: Latent embeddings <span class="math inline">\(a_i\)</span> (n_frames=100,000).</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="aac6a5dd" class="cell" data-execution_count="23">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_03_files/figure-html/cell-24-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption>Latent embeddings <span class="math inline">\(a_i\)</span> (n_frames=50,000).</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="833b0f31" class="cell" data-execution_count="24">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_03_files/figure-html/cell-25-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption>Latent embeddings <span class="math inline">\(a_i\)</span> (n_frames=40,000).</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="55d857f1" class="cell" data-execution_count="25">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_03_files/figure-html/cell-26-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption>Latent embeddings <span class="math inline">\(a_i\)</span> (n_frames=30,000).</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="d17ba8ec" class="cell" data-execution_count="26">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_03_files/figure-html/cell-27-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption>Latent embeddings <span class="math inline">\(a_i\)</span> (n_frames=20,000).</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="b5ed7687" class="cell" data-execution_count="27">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_03_files/figure-html/cell-28-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption>Latent embeddings <span class="math inline">\(a_i\)</span> (n_frames=10,000).</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="r²-connectivity-over-training-iterations" class="level2">
+<h2 class="anchored" data-anchor-id="r²-connectivity-over-training-iterations">R² Connectivity Over Training Iterations</h2>
+<p><span class="math inline">\(R^2\)</span> between learned and true connectivity <span class="math inline">\(W_{ij}\)</span> plotted as a function of training iterations for each dataset size.</p>
+<div id="e25ba254" class="cell" data-execution_count="28">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Generating R² over iterations comparison plot"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>output_r2 <span class="op">=</span> plot_r2_over_iterations(</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    config_list<span class="op">=</span>config_list,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    output_path<span class="op">=</span><span class="st">'./log/signal/tmp_results/r2_over_iterations.png'</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    device<span class="op">=</span>device,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="2b9fe1f2" class="cell" data-execution_count="29">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_03_files/figure-html/cell-30-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption><span class="math inline">\(Supp. Fig 7: R^2\)</span> connectivity over training iterations for different dataset sizes.</figcaption>
 </figure>
 </div>
 </div>
@@ -758,9 +947,60 @@ window.Quarto = {
       });
       clipboardModal.on('success', onCopySuccess);
     }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/saalfeldlab\.github\.io\/neural-gnn\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -1094,7 +1334,7 @@ window.Quarto = {
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Copyright 2025, Cédric Allier, Michael Innerberger, Stephan Saalfeld</p>
+<p>Copyright 2026, Cédric Allier, Larissa Heinrich, Magdalena Schneider and Stephan Saalfeld</p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

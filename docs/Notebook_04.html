@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Cédric Allier, Michael Innerberger, Stephan Saalfeld">
+<meta name="author" content="Cédric Allier, Stephan Saalfeld">
 
-<title>Supplementary Figure 8: Sparse connectivity (5% to 100%) – Neural-GNN</title>
+<title>Supplementary Figures 8 and 9: Sparse connectivity (5% to 100%) – Neural-GNN</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -78,9 +78,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-ffa9a6279353761231ec249df0a7fdd3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-24772959a0e306aba8d7698078628ce7.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="site_libs/bootstrap/bootstrap-ffa9a6279353761231ec249df0a7fdd3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-ad315e24270f67b08a0f8459c6f8e008.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-8c78c9ad8850e3c17dde644b4d7d0b0a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-ad315e24270f67b08a0f8459c6f8e008.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -338,6 +338,9 @@ window.Quarto = {
   <li><a href="#true-connectivity-matrix-w_ij" id="toc-true-connectivity-matrix-w_ij" class="nav-link" data-scroll-target="#true-connectivity-matrix-w_ij">True Connectivity Matrix <span class="math inline">\(W_{ij}\)</span></a></li>
   <li><a href="#connectivity-matrix-comparison" id="toc-connectivity-matrix-comparison" class="nav-link" data-scroll-target="#connectivity-matrix-comparison">Connectivity Matrix Comparison</a></li>
   <li><a href="#update-function-phimathbfa_i-x-mlp0" id="toc-update-function-phimathbfa_i-x-mlp0" class="nav-link" data-scroll-target="#update-function-phimathbfa_i-x-mlp0">Update Function <span class="math inline">\(\phi^*(\mathbf{a}_i, x)\)</span> (MLP0)</a></li>
+  <li><a href="#transfer-function-psix-mlp1" id="toc-transfer-function-psix-mlp1" class="nav-link" data-scroll-target="#transfer-function-psix-mlp1">Transfer Function <span class="math inline">\(\psi^*(x)\)</span> (MLP1)</a></li>
+  <li><a href="#latent-embeddings-mathbfa_i" id="toc-latent-embeddings-mathbfa_i" class="nav-link" data-scroll-target="#latent-embeddings-mathbfa_i">Latent Embeddings <span class="math inline">\(\mathbf{a}_i\)</span></a></li>
+  <li><a href="#r²-connectivity-over-training-iterations" id="toc-r²-connectivity-over-training-iterations" class="nav-link" data-scroll-target="#r²-connectivity-over-training-iterations">R² Connectivity Over Training Iterations</a></li>
   </ul>
 </nav>
     </div>
@@ -347,7 +350,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Supplementary Figure 8: Sparse connectivity (5% to 100%)</h1>
+<div class="quarto-title-block"><div><h1 class="title">Supplementary Figures 8 and 9: Sparse connectivity (5% to 100%)</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button" data-quarto-source-url="https://github.com/saalfeldlab/neural-gnn/blob/main/Notebook_04.py">View Source</a></li></ul></div></div>
   <div class="quarto-categories">
     <div class="quarto-category">Neural Activity</div>
     <div class="quarto-category">Simulation</div>
@@ -362,7 +365,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Cédric Allier, Michael Innerberger, Stephan Saalfeld </p>
+             <p>Cédric Allier, Stephan Saalfeld </p>
           </div>
   </div>
     
@@ -375,7 +378,7 @@ window.Quarto = {
 </header>
 
 
-<p>This script reproduces the panels of paper’s <strong>Supplementary Figure 8</strong>. Performance of GNN for connectivity matrices with varying sparsity levels. This notebook displays connectivity matrix comparison and <span class="math inline">\(\phi^*\)</span> plots for each sparsity level.</p>
+<p>This script reproduces the panels of paper’s <strong>Supplementary Figures 8 and 9</strong>. Performance of GNN for connectivity matrices with varying sparsity levels. This notebook displays connectivity matrix comparison, <span class="math inline">\(\phi^*\)</span> plots, <span class="math inline">\(\psi^*\)</span> plots, and learned embedding for each sparsity level.</p>
 <p><strong>Simulation parameters (constant across all experiments):</strong></p>
 <ul>
 <li>N_neurons: 1000</li>
@@ -383,6 +386,8 @@ window.Quarto = {
 <li>N_frames: 100,000</li>
 <li>Connectivity weights: random, Cauchy distribution</li>
 </ul>
+<p>The simulation follows Equation 2 from the paper:</p>
+<p><span class="math display">\[\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \cdot \tanh(x_i) + g_i \cdot \sum_j W_{ij} \cdot \tanh(x_j)\]</span></p>
 <p><strong>Variable: Connectivity sparsity</strong></p>
 <table class="caption-top table">
 <thead>
@@ -416,7 +421,9 @@ window.Quarto = {
 </table>
 <section id="configuration" class="level2">
 <h2 class="anchored" data-anchor-id="configuration">Configuration</h2>
-<div id="681936ce" class="cell" data-execution_count="2">
+<div id="f7d19c62" class="cell" data-execution_count="2">
+<details open="" class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
@@ -436,12 +443,15 @@ window.Quarto = {
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>device <span class="op">=</span> []</span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>best_model <span class="op">=</span> <span class="st">''</span></span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>config_root <span class="op">=</span> <span class="st">"./config"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
 </section>
 <section id="steps-1-3-generate-train-and-plot-for-all-configs" class="level2">
 <h2 class="anchored" data-anchor-id="steps-1-3-generate-train-and-plot-for-all-configs">Steps 1-3: Generate, Train, and Plot for all configs</h2>
 <p>Loop over all sparsity levels: generate data, train GNN, and generate plots. Skips steps if data/models already exist.</p>
-<div id="80ee37ee" class="cell" data-execution_count="3">
+<div id="570d82d8" class="cell" data-execution_count="3">
+<details open="" class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> config_file_, sparsity <span class="kw">in</span> config_list:</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>()</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"="</span> <span class="op">*</span> <span class="dv">80</span>)</span>
@@ -537,23 +547,46 @@ window.Quarto = {
 <span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>        device<span class="op">=</span>device,</span>
 <span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>        apply_weight_correction<span class="op">=</span><span class="va">True</span>,</span>
 <span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>        plot_eigen_analysis<span class="op">=</span><span class="va">False</span></span>
-<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>    <span class="co"># STEP 4: TRAINING PROGRESSION (R² over iterations)</span></span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>()</span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"STEP 4: TRAINING PROGRESSION - Computing R² over iterations"</span>)</span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a>    r2_file <span class="op">=</span> <span class="ss">f'</span><span class="sc">{</span>log_dir<span class="sc">}</span><span class="ss">/results/all/r2_over_iterations.json'</span></span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> os.path.exists(r2_file):</span>
+<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"R² data already exists at </span><span class="sc">{</span>r2_file<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"skipping (delete results/all/ folder to recompute)"</span>)</span>
+<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb2-109"><a href="#cb2-109" aria-hidden="true" tabindex="-1"></a>        data_plot(</span>
+<span id="cb2-110"><a href="#cb2-110" aria-hidden="true" tabindex="-1"></a>            config<span class="op">=</span>config,</span>
+<span id="cb2-111"><a href="#cb2-111" aria-hidden="true" tabindex="-1"></a>            config_file<span class="op">=</span>config_file,</span>
+<span id="cb2-112"><a href="#cb2-112" aria-hidden="true" tabindex="-1"></a>            epoch_list<span class="op">=</span>[<span class="st">'all'</span>],</span>
+<span id="cb2-113"><a href="#cb2-113" aria-hidden="true" tabindex="-1"></a>            style<span class="op">=</span><span class="st">'color'</span>,</span>
+<span id="cb2-114"><a href="#cb2-114" aria-hidden="true" tabindex="-1"></a>            extended<span class="op">=</span><span class="st">'plots'</span>,</span>
+<span id="cb2-115"><a href="#cb2-115" aria-hidden="true" tabindex="-1"></a>            device<span class="op">=</span>device,</span>
+<span id="cb2-116"><a href="#cb2-116" aria-hidden="true" tabindex="-1"></a>            apply_weight_correction<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb2-117"><a href="#cb2-117" aria-hidden="true" tabindex="-1"></a>            plot_eigen_analysis<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb2-118"><a href="#cb2-118" aria-hidden="true" tabindex="-1"></a>        )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
 </section>
 <section id="activity-time-series" class="level2">
 <h2 class="anchored" data-anchor-id="activity-time-series">Activity Time Series</h2>
 <p>Sample of 100 time series for each sparsity level.</p>
-<div id="063fdf1c" class="cell" data-execution_count="4">
+<div id="560c9898" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="Notebook_04_files/figure-html/cell-5-output-1.png" width="450" height="450" class="figure-img"></p>
-<figcaption>Sample of 100 time series (5% sparsity)</figcaption>
+<figcaption>Supp. Fig 8b: Sample of 100 time series (5% sparsity)</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<div id="af21f2ed" class="cell" data-execution_count="5">
+<div id="535d2b61" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -563,7 +596,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="86eab62d" class="cell" data-execution_count="6">
+<div id="8499f1b1" class="cell" data-execution_count="6">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -573,7 +606,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="c9da968a" class="cell" data-execution_count="7">
+<div id="7adfe4d4" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -583,7 +616,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="76d4ab79" class="cell" data-execution_count="8">
+<div id="933c6b63" class="cell" data-execution_count="8">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -597,17 +630,17 @@ window.Quarto = {
 <section id="true-connectivity-matrix-w_ij" class="level2">
 <h2 class="anchored" data-anchor-id="true-connectivity-matrix-w_ij">True Connectivity Matrix <span class="math inline">\(W_{ij}\)</span></h2>
 <p>True connectivity matrix for each sparsity level.</p>
-<div id="ff6c7e90" class="cell" data-execution_count="9">
+<div id="0b6a23a2" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="Notebook_04_files/figure-html/cell-10-output-1.png" width="450" height="450" class="figure-img"></p>
-<figcaption>True connectivity <span class="math inline">\(W_{ij}\)</span> (5% sparsity)</figcaption>
+<figcaption>Supp. Fig 8c: True connectivity <span class="math inline">\(W_{ij}\)</span> (5% sparsity)</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<div id="af013019" class="cell" data-execution_count="10">
+<div id="b1bcf05f" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -617,7 +650,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="df8ba861" class="cell" data-execution_count="11">
+<div id="5c070965" class="cell" data-execution_count="11">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -627,7 +660,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="c072cad0" class="cell" data-execution_count="12">
+<div id="ac70e280" class="cell" data-execution_count="12">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -637,7 +670,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="5c7cee1a" class="cell" data-execution_count="13">
+<div id="cb8efb53" class="cell" data-execution_count="13">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -651,17 +684,17 @@ window.Quarto = {
 <section id="connectivity-matrix-comparison" class="level2">
 <h2 class="anchored" data-anchor-id="connectivity-matrix-comparison">Connectivity Matrix Comparison</h2>
 <p>Learned vs true connectivity matrix <span class="math inline">\(W_{ij}\)</span> after training. The scatter plot shows <span class="math inline">\(R^2\)</span> and slope metrics.</p>
-<div id="7923ecb9" class="cell" data-execution_count="14">
+<div id="ed0d5ae3" class="cell" data-execution_count="14">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="Notebook_04_files/figure-html/cell-15-output-1.png" width="450" height="450" class="figure-img"></p>
-<figcaption>Connectivity comparison (5% sparsity)</figcaption>
+<figcaption>Supp. Fig 8e: Connectivity comparison (5% sparsity)</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<div id="d117abc8" class="cell" data-execution_count="15">
+<div id="4142ebc2" class="cell" data-execution_count="15">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -671,7 +704,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="b754228e" class="cell" data-execution_count="16">
+<div id="ed978b47" class="cell" data-execution_count="16">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -681,7 +714,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="0b819e40" class="cell" data-execution_count="17">
+<div id="15f66ef5" class="cell" data-execution_count="17">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -691,7 +724,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="b3ed3dd4" class="cell" data-execution_count="18">
+<div id="1f7f04ce" class="cell" data-execution_count="18">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -705,17 +738,17 @@ window.Quarto = {
 <section id="update-function-phimathbfa_i-x-mlp0" class="level2">
 <h2 class="anchored" data-anchor-id="update-function-phimathbfa_i-x-mlp0">Update Function <span class="math inline">\(\phi^*(\mathbf{a}_i, x)\)</span> (MLP0)</h2>
 <p>Learned update functions after training. Each curve represents one neuron. Colors indicate true neuron types. True functions overlaid in gray.</p>
-<div id="71219d78" class="cell" data-execution_count="19">
+<div id="b4cb92f5" class="cell" data-execution_count="19">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="Notebook_04_files/figure-html/cell-20-output-1.png" width="450" height="450" class="figure-img"></p>
-<figcaption>Update functions <span class="math inline">\(\phi^*(a_i, x)\)</span> (5% sparsity). True functions are overlaid in light gray.</figcaption>
+<figcaption>Supp. Fig 8g: Update functions <span class="math inline">\(\phi^*(a_i, x)\)</span> (5% sparsity). True functions are overlaid in light gray.</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<div id="81f4e184" class="cell" data-execution_count="20">
+<div id="b0ce8545" class="cell" data-execution_count="20">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -725,7 +758,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="7ac3af3f" class="cell" data-execution_count="21">
+<div id="d70d1415" class="cell" data-execution_count="21">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -735,7 +768,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="971c825b" class="cell" data-execution_count="22">
+<div id="4a8629f5" class="cell" data-execution_count="22">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -745,12 +778,148 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="33a6a914" class="cell" data-execution_count="23">
+<div id="fb92f21b" class="cell" data-execution_count="23">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="Notebook_04_files/figure-html/cell-24-output-1.png" width="450" height="450" class="figure-img"></p>
 <figcaption>Update functions <span class="math inline">\(\phi^*(a_i, x)\)</span> (100% connectivity). True functions are overlaid in light gray.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="transfer-function-psix-mlp1" class="level2">
+<h2 class="anchored" data-anchor-id="transfer-function-psix-mlp1">Transfer Function <span class="math inline">\(\psi^*(x)\)</span> (MLP1)</h2>
+<p>Learned transfer function after training, normalized to max=1. True function overlaid in gray.</p>
+<div id="5417d67c" class="cell" data-execution_count="24">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_04_files/figure-html/cell-25-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption>Supp. Fig 8h: Transfer function <span class="math inline">\(\psi^*(x)\)</span> (5% sparsity). True function overlaid in light gray.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="366ef2d7" class="cell" data-execution_count="25">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_04_files/figure-html/cell-26-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption>Transfer function <span class="math inline">\(\psi^*(x)\)</span> (10% sparsity). True function overlaid in light gray.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="639d441a" class="cell" data-execution_count="26">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_04_files/figure-html/cell-27-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption>Transfer function <span class="math inline">\(\psi^*(x)\)</span> (20% sparsity). True function overlaid in light gray.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="549cf967" class="cell" data-execution_count="27">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_04_files/figure-html/cell-28-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption>Transfer function <span class="math inline">\(\psi^*(x)\)</span> (50% sparsity). True function overlaid in light gray.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="eac3163d" class="cell" data-execution_count="28">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_04_files/figure-html/cell-29-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption>Transfer function <span class="math inline">\(\psi^*(x)\)</span> (100% connectivity). True function overlaid in light gray.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="latent-embeddings-mathbfa_i" class="level2">
+<h2 class="anchored" data-anchor-id="latent-embeddings-mathbfa_i">Latent Embeddings <span class="math inline">\(\mathbf{a}_i\)</span></h2>
+<p>Learned latent vectors for all neurons. Colors indicate true neuron types.</p>
+<div id="686f284f" class="cell" data-execution_count="29">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_04_files/figure-html/cell-30-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption>Supp. Fig 8f: Latent embeddings <span class="math inline">\(a_i\)</span> (5% sparsity).</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="07ebf47e" class="cell" data-execution_count="30">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_04_files/figure-html/cell-31-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption>Latent embeddings <span class="math inline">\(a_i\)</span> (10% sparsity).</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="34abfd3c" class="cell" data-execution_count="31">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_04_files/figure-html/cell-32-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption>Latent embeddings <span class="math inline">\(a_i\)</span> (20% sparsity).</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="cea207b3" class="cell" data-execution_count="32">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_04_files/figure-html/cell-33-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption>Latent embeddings <span class="math inline">\(a_i\)</span> (50% sparsity).</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="806e65b4" class="cell" data-execution_count="33">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_04_files/figure-html/cell-34-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption>Latent embeddings <span class="math inline">\(a_i\)</span> (100% connectivity).</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="r²-connectivity-over-training-iterations" class="level2">
+<h2 class="anchored" data-anchor-id="r²-connectivity-over-training-iterations">R² Connectivity Over Training Iterations</h2>
+<p>1000 densely connected neurons with 4 neuron-dependent update functions. The plot displays <span class="math inline">\(R^2\)</span> for the comparison between true and learned connectivity matrices <span class="math inline">\(W_{ij}\)</span> as a function of training iterations for different connectivity filling factors (colors). All comparisons are made at equal numbers of gradient descent iterations.</p>
+<div id="6a4ac883" class="cell" data-execution_count="34">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Generating R² over iterations comparison plot"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>output_r2 <span class="op">=</span> plot_r2_over_iterations(</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    config_list<span class="op">=</span>config_list,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    output_path<span class="op">=</span><span class="st">'./log/signal/tmp_results/r2_over_iterations_sparsity.png'</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    device<span class="op">=</span>device,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="3b070201" class="cell" data-execution_count="35">
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Notebook_04_files/figure-html/cell-36-output-1.png" width="450" height="450" class="figure-img"></p>
+<figcaption>1000 densely connected neurons with 4 neuron-dependent update functions. <span class="math inline">\(R^2\)</span> for the comparison between true and learned connectivity matrices <span class="math inline">\(W_{ij}\)</span> as a function of training iterations for different connectivity filling factors (colors). All comparisons are made at equal numbers of gradient descent iterations.</figcaption>
 </figure>
 </div>
 </div>
@@ -844,9 +1013,60 @@ window.Quarto = {
       });
       clipboardModal.on('success', onCopySuccess);
     }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/saalfeldlab\.github\.io\/neural-gnn\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -1180,7 +1400,7 @@ window.Quarto = {
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Copyright 2025, Cédric Allier, Michael Innerberger, Stephan Saalfeld</p>
+<p>Copyright 2026, Cédric Allier, Larissa Heinrich, Magdalena Schneider and Stephan Saalfeld</p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

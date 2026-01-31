@@ -1,7 +1,7 @@
 # %% [raw]
 # ---
-# title: "Supplementary Figure 3: 1000 neurons with 4 types, training with fixed embedding"
-# author: Cédric Allier, Michael Innerberger, Stephan Saalfeld
+# title: "Supplementary Figures 3 and 4: 1000 neurons with 4 types, training with fixed embedding"
+# author: Cédric Allier, Stephan Saalfeld
 # categories:
 #   - Neural Activity
 #   - Simulation
@@ -12,7 +12,7 @@
 # ---
 
 # %% [markdown]
-# This script reproduces the panels of paper's **Supplementary Figure 3**.
+# This script reproduces the panels of paper's **Supplementary Figures 3 and 4**.
 # To assess the importance of learning latent neuron types, we trained a GNN with fixed embedding.
 # Models that ignore the heterogeneity of neural populations are poor
 # approximations of the underlying dynamics
@@ -29,7 +29,7 @@
 #
 # The simulation follows Equation 2 from the paper:
 #
-# $$\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \cdot \tanh(x_i) + g_i \cdot \sum_j W_{ij} \cdot \psi(x_j)$$
+# $$\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \cdot \tanh(x_i) + g_i \cdot \sum_j W_{ij} \cdot \tanh(x_j)$$
 
 # %%
 #| output: false
@@ -129,12 +129,12 @@ else:
     )
 
 # %%
-#| fig-cap: "Sample of 100 time series taken from the activity data."
+#| fig-cap: "Supp. Fig 3b: Sample of 100 time series taken from the activity data."
 
 load_and_display(f"./graphs_data/signal/signal_fig_supp_3/activity.png")
 
 # %%
-#| fig-cap: "True connectivity $W_{ij}$. The inset shows 20×20 weights."
+#| fig-cap: "Supp. Fig 3c: True connectivity $W_{ij}$. The inset shows 20×20 weights."
 
 load_and_display("./graphs_data/signal/signal_fig_supp_3/connectivity_matrix.png")
 
@@ -143,11 +143,12 @@ load_and_display("./graphs_data/signal/signal_fig_supp_3/connectivity_matrix.png
 # Train the GNN to learn connectivity $W$ and functions $\phi^*/\psi^*$ (without latent embeddings).
 # The GNN learns to predict $dx/dt$ from the observed activity $x$.
 #
-# **Learning targets:**
+# The GNN optimizes the update rule (Equation 3 from the paper):
 #
-# - Connectivity matrix $W$
-# - Update function $\phi^*(x)$
-# - Transfer function $\psi^*(x)$
+# $$\hat{\dot{x}}_i = \phi^*(x_i) + \sum_j W_{ij} \psi^*(x_j)$$
+#
+# where $\phi^*$ and $\psi^*$ are MLPs (ReLU, hidden dim=64, 3 layers) and $W$ is the learnable connectivity matrix.
+#
 
 # %%
 #| echo: true
@@ -185,10 +186,10 @@ else:
 #
 # **Figure panels:**
 #
-# - Learned connectivity matrix
-# - Comparison of learned vs true connectivity
-# - Learned update functions $\phi^*(x)$
-# - Learned transfer function $\psi^*(x)$
+# - Supp. Fig 3d: Learned connectivity matrix
+# - Supp. Fig 3e: Comparison of learned vs true connectivity
+# - Supp. Fig 3g: Learned update functions $\phi^*(x)$
+# - Supp. Fig 3h: Learned transfer function $\psi^*(x)$
 
 # %%
 #| echo: true
@@ -212,19 +213,19 @@ data_plot(config=config, config_file=config_file, epoch_list=['best'], style='co
 # ### Supplementary Figure 3: GNN Evaluation Results
 
 # %%
-#| fig-cap: "Learned connectivity."
+#| fig-cap: "Supp. Fig 3d: Learned connectivity."
 load_and_display("./log/signal/signal_fig_supp_3/results/connectivity_learned.png")
 
 # %%
-#| fig-cap: "Comparison of learned and true connectivity (given $g_i$=10)."
+#| fig-cap: "Supp. Fig 3e: Comparison of learned and true connectivity (given $g_i$=10)."
 load_and_display("./log/signal/signal_fig_supp_3/results/weights_comparison_corrected.png")
 
 # %%
-#| fig-cap: "Learned update functions $\\phi^*(x)$. True function is overlaid in light gray."
+#| fig-cap: "Supp. Fig 3g: Learned update functions $\\phi^*(x)$. True function is overlaid in light gray."
 load_and_display("./log/signal/signal_fig_supp_3/results/MLP0.png")
 
 # %%
-#| fig-cap: "Learned transfer function $\\psi^*(x)$, normalized to a maximum value of 1. True function is overlaid in light gray."
+#| fig-cap: "Supp. Fig 3h: Learned transfer function $\\psi^*(x)$, normalized to a maximum value of 1. True function is overlaid in light gray."
 load_and_display("./log/signal/signal_fig_supp_3/results/MLP1_corrected.png")
 
 # %% [markdown]
@@ -267,9 +268,9 @@ data_test(
 # - Right panel: scatter plot of true vs learned $x_i$ with $R^2$ and slope
 
 # %%
-#| fig-cap: "Rollout comparison up to time-point 400."
+#| fig-cap: "Supp. Fig 4ab: Rollout comparison up to time-point 400."
 load_and_display(f"{log_dir}/results/Fig_0_000039.png")
 
 # %%
-#| fig-cap: "Rollout comparison up to time-point 800."
+#| fig-cap: "Supp. Fig 4cd: Rollout comparison up to time-point 800."
 load_and_display(f"{log_dir}/results/Fig_0_000079.png")

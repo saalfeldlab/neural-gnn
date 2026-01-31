@@ -1,7 +1,7 @@
 # %% [raw]
 # ---
 # title: "Supplementary Figure 13: heterogeneous transfer functions"
-# author: Cédric Allier, Michael Innerberger, Stephan Saalfeld
+# author: Cédric Allier, Stephan Saalfeld
 # categories:
 #   - Neural Activity
 #   - Simulation
@@ -23,13 +23,11 @@
 # - N_frames: 100,000
 # - Connectivity: 100% (dense)
 # - Connectivity weights: random, Lorentz distribution
-# - Noise: none
-# - External inputs: none
 # - Transfer function $\gamma_i$={1,2,4,8} (neuron-specific)
 #
 # The simulation follows an extended version of Equation 2:
 #
-# $$\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \cdot \tanh(x_i) + g_i \cdot \sum_j W_{ij} \cdot \psi\left(\frac{x_j}{\gamma_i}\right)$$
+# $$\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \cdot \tanh(x_i) + g_i \cdot \sum_j W_{ij} \cdot \tanh\left(\frac{x_j}{\gamma_i}\right)$$
 #
 # The GNN jointly optimizes the shared MLP $\psi^*$ and latent vectors $\mathbf{a}_i$ to
 # accurately identify the neuron-specific transfer functions.
@@ -135,11 +133,11 @@ else:
     )
 
 # %%
-#| fig-cap: "Sample time series taken from the activity data (heterogeneous transfer functions)."
+#| fig-cap: "Supp. Fig 13b: Sample time series taken from the activity data (heterogeneous transfer functions)."
 load_and_display(f"./graphs_data/signal/signal_fig_supp_13/activity.png")
 
 # %%
-#| fig-cap: "True connectivity $W_{ij}$. The inset shows 20×20 weights."
+#| fig-cap: "Supp. Fig 13c: True connectivity $W_{ij}$. The inset shows 20×20 weights."
 load_and_display("./graphs_data/signal/signal_fig_supp_13/connectivity_matrix.png")
 
 # %% [markdown]
@@ -189,11 +187,11 @@ else:
 #
 # **Figure panels:**
 #
-# - Learned connectivity matrix
-# - Comparison of learned vs true connectivity (expected: $R^2$=0.99, slope=0.99)
-# - Learned latent vectors $\mathbf{a}_i$
-# - Learned update functions $\phi^*(\mathbf{a}_i, x)$
-# - Learned transfer functions $\psi^*(\mathbf{a}_j, x)$
+# - Supp. Fig 13d: Learned connectivity matrix
+# - Supp. Fig 13e: Comparison of learned vs true connectivity (expected: $R^2$=0.99, slope=0.99)
+# - Supp. Fig 13f: Learned latent vectors $\mathbf{a}_i$
+# - Supp. Fig 13g: Learned update functions $\phi^*(\mathbf{a}_i, x)$
+# - Supp. Fig 13h: Learned transfer functions $\psi^*(\mathbf{a}_j, x)$
 
 # %%
 #| echo: true
@@ -218,21 +216,21 @@ data_plot(config=config, config_file=config_file, epoch_list=['best'], style='co
 # ### Supplementary Figure 13: GNN Evaluation Results
 
 # %%
-#| fig-cap: "Learned connectivity."
+#| fig-cap: "Supp. Fig 13d: Learned connectivity."
 load_and_display("./log/signal/signal_fig_supp_13/results/connectivity_learned.png")
 
 # %%
-#| fig-cap: "Comparison of learned and true connectivity (given $g_i$=10). Expected: $R^2$=0.99, slope=0.99."
+#| fig-cap: "Supp. Fig 13e: Comparison of learned and true connectivity (given $g_i$=10). Expected: $R^2$=0.99, slope=0.99."
 load_and_display("./log/signal/signal_fig_supp_13/results/weights_comparison_corrected.png")
 
 # %%
-#| fig-cap: "Learned latent vectors $a_i$ of all neurons."
+#| fig-cap: "Supp. Fig 13f: Learned latent vectors $a_i$ of all neurons."
 load_and_display("./log/signal/signal_fig_supp_13/results/embedding.png")
 
 # %%
-#| fig-cap: "Learned update functions $\\phi^*(a_i, x)$. The plot shows 1000 overlaid curves. Colors indicate true neuron types. True functions are overlaid in light gray."
+#| fig-cap: "Supp. Fig 13g: Learned update functions $\\phi^*(a_i, x)$. The plot shows 1000 overlaid curves. Colors indicate true neuron types. True functions are overlaid in light gray."
 load_and_display("./log/signal/signal_fig_supp_13/results/MLP0.png")
 
 # %%
-#| fig-cap: "Learned transfer functions $\\psi^*(a_j, x)$ ($\\gamma$=1,2,4,8), normalized to a maximum value of 1. True functions are overlaid in light gray."
+#| fig-cap: "Supp. Fig 13h: Learned transfer functions $\\psi^*(a_j, x)$ ($\\gamma$=1,2,4,8), normalized to a maximum value of 1. True functions are overlaid in light gray."
 load_and_display("./log/signal/signal_fig_supp_13/results/MLP1_corrected.png")

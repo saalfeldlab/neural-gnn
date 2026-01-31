@@ -24,9 +24,9 @@
 # - Noise: none
 # - External inputs: none
 #
-# The simulation follows Equation 2 from the paper:
+# The simulation follows a simplified Equation 2 from the paper:
 #
-# $$\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \cdot \tanh(x_i) + g_i \cdot \sum_j W_{ij} \cdot \psi(x_j)$$
+# $$\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \cdot \tanh(x_i) + g_i \cdot \sum_j W_{ij} \cdot \tanh(x_j)$$
 
 # %%
 #| output: false

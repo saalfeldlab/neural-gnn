@@ -1,7 +1,7 @@
 # %% [raw]
 # ---
 # title: "Supplementary Figure 12: many types - 32 neuron types"
-# author: Cédric Allier, Michael Innerberger, Stephan Saalfeld
+# author: Cédric Allier, Stephan Saalfeld
 # categories:
 #   - Neural Activity
 #   - Simulation
@@ -23,14 +23,12 @@
 # - N_frames: 100,000
 # - Connectivity: 100% (dense)
 # - Connectivity weights: random, Lorentz distribution
-# - Noise: none
-# - External inputs: none
 #
 # The simulation follows Equation 2 from the paper:
 #
-# $$\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \cdot \tanh(x_i) + g_i \cdot \sum_j W_{ij} \cdot \psi(x_j)$$
+# $$\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \cdot \tanh(x_i) + g_i \cdot \sum_j W_{ij} \cdot \tanh(x_j)$$
 #
-# Classification accuracy expected: 0.99
+
 
 # %%
 #| output: false
@@ -131,11 +129,11 @@ else:
     )
 
 # %%
-#| fig-cap: "Sample time series taken from the activity data (32 neuron types)."
+#| fig-cap: "Supp. Fig 12b: Sample time series taken from the activity data (32 neuron types)."
 load_and_display(f"./graphs_data/signal/signal_fig_supp_12/activity.png")
 
 # %%
-#| fig-cap: "True connectivity $W_{ij}$. The inset shows 20×20 weights."
+#| fig-cap: "Supp. Fig 12c: True connectivity $W_{ij}$. The inset shows 20×20 weights."
 load_and_display("./graphs_data/signal/signal_fig_supp_12/connectivity_matrix.png")
 
 # %% [markdown]
@@ -183,11 +181,11 @@ else:
 #
 # **Figure panels:**
 #
-# - Learned connectivity matrix
-# - Comparison of learned vs true connectivity
-# - Learned latent vectors $\mathbf{a}_i$ (32 clusters expected)
-# - Learned update functions $\phi^*(\mathbf{a}_i, x)$ (32 distinct functions)
-# - Learned transfer function $\psi^*(x)$
+# - Supp. Fig 12d: Learned connectivity matrix
+# - Supp. Fig 12e: Comparison of learned vs true connectivity
+# - Supp. Fig 12f: Learned latent vectors $\mathbf{a}_i$ (32 clusters expected)
+# - Supp. Fig 12g: Learned update functions $\phi^*(\mathbf{a}_i, x)$ (32 distinct functions)
+# - Supp. Fig 12h: Learned transfer function $\psi^*(x)$
 
 # %%
 #| echo: true
@@ -212,21 +210,21 @@ data_plot(config=config, config_file=config_file, epoch_list=['best'], style='co
 # ### Supplementary Figure 12: GNN Evaluation Results
 
 # %%
-#| fig-cap: "Learned connectivity."
+#| fig-cap: "Supp. Fig 12d: Learned connectivity."
 load_and_display("./log/signal/signal_fig_supp_12/results/connectivity_learned.png")
 
 # %%
-#| fig-cap: "Comparison of learned and true connectivity (given $g_i$=10)."
+#| fig-cap: "Supp. Fig 12e: Comparison of learned and true connectivity (given $g_i$=10)."
 load_and_display("./log/signal/signal_fig_supp_12/results/weights_comparison_corrected.png")
 
 # %%
-#| fig-cap: "Learned latent vectors $a_i$ of all neurons. 32 clusters expected (one per neuron type)."
+#| fig-cap: "Supp. Fig 12f: Learned latent vectors $a_i$ of all neurons. 32 clusters expected (one per neuron type)."
 load_and_display("./log/signal/signal_fig_supp_12/results/embedding.png")
 
 # %%
-#| fig-cap: "Learned update functions $\\phi^*(a_i, x)$. The plot shows 1000 overlaid curves representing 32 distinct update functions. Colors indicate true neuron types. True functions are overlaid in light gray."
+#| fig-cap: "Supp. Fig 12g: Learned update functions $\\phi^*(a_i, x)$. The plot shows 1000 overlaid curves representing 32 distinct update functions. Colors indicate true neuron types. True functions are overlaid in light gray."
 load_and_display("./log/signal/signal_fig_supp_12/results/MLP0.png")
 
 # %%
-#| fig-cap: "Learned transfer function $\\psi^*(x)$, normalized to a maximum value of 1. True function is overlaid in light gray."
+#| fig-cap: "Supp. Fig 12h: Learned transfer function $\\psi^*(x)$, normalized to a maximum value of 1. True function is overlaid in light gray."
 load_and_display("./log/signal/signal_fig_supp_12/results/MLP1_corrected.png")
