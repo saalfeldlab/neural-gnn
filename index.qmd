@@ -1,0 +1,16 @@
+---
+title: "Graph neural networks uncover structure and function underlying the activity of neural assemblies"
+listing:
+  contents: "Notebook_*.py"
+  type: default
+  categories: true
+  image-align: left
+  fields: [image, title, description, categories, filename]
+  sort: "filename"
+  sort-ui: [title, file-modified]
+  filter-ui: true
+---
+
+Graph neural networks trained to predict observable dynamics can be used to decompose the temporal activity of complex heterogeneous systems into simple, interpretable representations.
+Here we apply this framework to simulated neural assemblies with thousands of neurons and demonstrate that it can jointly reveal the connectivity matrix, the neuron types, the signaling functions, and in some cases hidden external stimuli. 
+In contrast to existing machine learning approaches such as recurrent neural networks and transformers, which emphasize predictive accuracy but offer limited interpretability, our method provides both reliable forecasts of neural activity and interpretable decomposition of the mechanisms governing large neural assemblies. 

@@ -1,0 +1,240 @@
+# %% [raw]
+# ---
+# title: "Supplementary Figure 14: neuron-dependent transfer functions"
+# author: Cédric Allier, Stephan Saalfeld
+# categories:
+#   - Neural Activity
+#   - Simulation
+#   - GNN Training
+#   - Neuron-dependent
+# execute:
+#   echo: false
+# image: "log/signal/signal_fig_supp_14/results/MLP1_neuron_neuron.png"
+# ---
+
+# %% [markdown]
+# This script reproduces the panels of paper's **Supplementary Figure 14**.
+# Training with neuron-neuron dependent transfer functions
+# of the form $\psi(a_i, a_j, x_j)$.
+#
+# **Simulation parameters:**
+#
+# - N_neurons: 1000
+# - N_types: 4 parameterized by $\tau_i$={0.5,1}, $s_i$={1,2} and $g_i$=10
+# - N_frames: 100,000
+# - Connectivity: 100% (dense)
+# - Connectivity weights: random, Lorentz distribution
+# - Noise: none
+# - External inputs: none
+# - Transfer function $\gamma_i$={1,2,4,8} (receiver-dependent)
+# - Linear slope $\theta_j$={0, 0.013, 0.027, 0.040} (sender-dependent)
+#
+# The simulation follows an extended version of Equation 2:
+#
+# $$\frac{dx_i}{dt} = -\frac{x_i}{\tau_i} + s_i \cdot \tanh(x_i) + g_i \cdot \sum_j W_{ij} \cdot \psi_{ij}(x_j)$$
+#
+# where the transfer function depends on both sender $j$ and receiver $i$:
+#
+# $$\psi_{ij}(x_j) = \tanh\left(\frac{x_j}{\gamma_i}\right) - \theta_j \cdot x_j$$
+#
+# The GNN jointly optimizes the shared MLP $\psi^*$ and latent vectors $a_i$ to
+# accurately identify the neuron-neuron dependent transfer functions:
+#
+# $$\hat{\dot{x}}_i = \phi^*(a_i, x_i) + \sum_j W_{ij} \cdot \psi^*(a_i, a_j, x_j)$$
+
+# %%
+#| output: false
+import os
+import warnings
+
+from neural_gnn.config import NeuralGraphConfig
+from neural_gnn.generators.graph_data_generator import data_generate
+from neural_gnn.models.graph_trainer import data_train
+from neural_gnn.utils import set_device, add_pre_folder, load_and_display
+from GNN_PlotFigure import data_plot
+
+warnings.filterwarnings("ignore", message="pkg_resources is deprecated as an API")
+warnings.filterwarnings("ignore", category=FutureWarning)
+
+# %% [markdown]
+# ## Configuration and Setup
+
+# %%
+#| echo: true
+#| output: false
+print()
+print("=" * 80)
+print("Supplementary Figure 14: 1000 neurons, 4 types, neuron-dependent transfer functions")
+print("=" * 80)
+
+device = []
+best_model = ''
+config_file_ = 'signal_fig_supp_14'
+
+print()
+config_root = "./config"
+config_file, pre_folder = add_pre_folder(config_file_)
+
+# load config
+config = NeuralGraphConfig.from_yaml(f"{config_root}/{config_file}.yaml")
+config.config_file = config_file
+config.dataset = config_file
+
+if device == []:
+    device = set_device(config.training.device)
+
+log_dir = f'./log/{config_file}'
+graphs_dir = f'./graphs_data/{config_file}'
+
+
+# %% [markdown]
+# ## Step 1: Generate Data
+# Generate synthetic neural activity data using the PDE_N5 model with neuron-dependent
+# transfer functions. Each pair of neuron types has different transfer function characteristics
+# depending on both source ($a_j$) and target ($a_i$) embeddings.
+#
+# **Outputs:**
+#
+# - Supp. Fig 14b: Sample time series
+# - Supp. Fig 14c: True connectivity matrix $W_{ij}$
+
+# %%
+#| echo: true
+#| output: false
+# STEP 1: GENERATE
+print()
+print("-" * 80)
+print("STEP 1: GENERATE - Simulating neural activity (neuron-dependent transfer functions)")
+print("-" * 80)
+
+# Check if data already exists
+data_file = f'{graphs_dir}/x_list_0.npy'
+if os.path.exists(data_file):
+    print(f"data already exists at {graphs_dir}/")
+    print("skipping simulation, regenerating figures...")
+    data_generate(
+        config,
+        device=device,
+        visualize=False,
+        run_vizualized=0,
+        style="color",
+        alpha=1,
+        erase=False,
+        bSave=True,
+        step=2,
+        regenerate_plots_only=True,
+    )
+else:
+    print(f"simulating {config.simulation.n_neurons} neurons, {config.simulation.n_neuron_types} types")
+    print(f"generating {config.simulation.n_frames} time frames")
+    print(f"transfer function gamma_i = [1, 2, 4, 8]")
+    print(f"output: {graphs_dir}/")
+    print()
+    data_generate(
+        config,
+        device=device,
+        visualize=False,
+        run_vizualized=0,
+        style="color",
+        alpha=1,
+        erase=False,
+        bSave=True,
+        step=2,
+    )
+
+# %%
+#| fig-cap: "Supp. Fig 14b: Sample time series taken from the activity data (neuron-dependent transfer functions)."
+load_and_display(f"./graphs_data/signal/signal_fig_supp_14/activity.png")
+
+# %%
+#| fig-cap: "Supp. Fig 14c: True connectivity $W_{ij}$. The inset shows 20×20 weights."
+load_and_display("./graphs_data/signal/signal_fig_supp_14/connectivity_matrix.png")
+
+# %% [markdown]
+# ## Step 2: Train GNN
+# Train the GNN to learn connectivity $W$, latent embeddings $\mathbf{a}_i$, and functions $\phi^*, \psi^*$.
+# The GNN must learn neuron-neuron dependent transfer functions $\psi^*(\mathbf{a}_i, \mathbf{a}_j, x_j)$.
+
+# %%
+#| echo: true
+#| output: false
+# STEP 2: TRAIN
+print()
+print("-" * 80)
+print("STEP 2: TRAIN - Training GNN to learn neuron-dependent transfer functions")
+print("-" * 80)
+
+# Check if trained model already exists (any .pt file in models folder)
+import glob
+model_files = glob.glob(f'{log_dir}/models/*.pt')
+if model_files:
+    print(f"trained model already exists at {log_dir}/models/")
+    print("skipping training (delete models folder to retrain)")
+else:
+    print(f"training for {config.training.n_epochs} epochs, {config.training.n_runs} run(s)")
+    print(f"learning: connectivity W, latent vectors a_i, neuron-dependent psi*(a_i, a_j, x_j)")
+    print(f"models: {log_dir}/models/")
+    print(f"training plots: {log_dir}/tmp_training")
+    print(f"tensorboard: tensorboard --logdir {log_dir}/")
+    print()
+    data_train(
+        config=config,
+        erase=False,
+        best_model=best_model,
+        style='color',
+        device=device
+    )
+
+# %% [markdown]
+# ## Step 3: GNN Evaluation
+# Figures matching Supplementary Figure 14 from the paper.
+#
+# **Figure panels:**
+#
+# - Supp. Fig 14d: Learned connectivity
+# - Supp. Fig 14e: Comparison between learned and true connectivity
+# - Supp. Fig 14f: Learned latent vectors $a_i$
+# - Supp. Fig 14g: Learned update functions $\phi^*(\mathbf{a}, x)$
+# - Supp. Fig 14h: Learned transfer functions $\psi^*(a_i, a_j, x)$ (colors indicate true neuron types, true functions overlaid in light gray)
+
+# %%
+#| echo: true
+#| output: false
+# STEP 3: GNN EVALUATION
+print()
+print("-" * 80)
+print("STEP 3: GNN EVALUATION - Generating Supplementary Figure 14 panels")
+print("-" * 80)
+print(f"learned connectivity matrix")
+print(f"W learned vs true (R^2, slope)")
+print(f"latent vectors a_i (4 clusters)")
+print(f"update functions phi*(a_i, x)")
+print(f"transfer functions psi*(a_i, a_j, x) - neuron-neuron dependent")
+print(f"output: {log_dir}/results/")
+print()
+folder_name = './log/' + pre_folder + '/tmp_results/'
+os.makedirs(folder_name, exist_ok=True)
+data_plot(config=config, config_file=config_file, epoch_list=['best'], style='color', extended='plots', device=device, apply_weight_correction=True, plot_eigen_analysis=False)
+
+# %% [markdown]
+# ### Supplementary Figure 14: GNN Evaluation Results
+
+# %%
+#| fig-cap: "Supp. Fig 14d: Learned connectivity."
+load_and_display("./log/signal/signal_fig_supp_14/results/connectivity_learned.png")
+
+# %%
+#| fig-cap: "Supp. Fig 14e: Comparison of learned and true connectivity (given $g_i$=10). Expected: $R^2$=0.99, slope=0.99."
+load_and_display("./log/signal/signal_fig_supp_14/results/weights_comparison_corrected.png")
+
+# %%
+#| fig-cap: "Supp. Fig 14f: Learned latent vectors $a_i$ of all neurons."
+load_and_display("./log/signal/signal_fig_supp_14/results/embedding.png")
+
+# %%
+#| fig-cap: "Supp. Fig 14g: Learned update functions $\\phi^*(a_i, x)$. The plot shows 1000 overlaid curves. Colors indicate true neuron types. True functions are overlaid in light gray."
+load_and_display("./log/signal/signal_fig_supp_14/results/MLP0.png")
+
+# %%
+#| fig-cap: "Supp. Fig 14h: Learned transfer functions $\\psi^*(a_i, a_j, x_j)$. 2x2 montage: each panel corresponds to a receiving neuron type (border color), showing curves for all sending neuron types (line colors). True functions in gray."
+load_and_display("./log/signal/signal_fig_supp_14/results/MLP1_neuron_neuron.png")
