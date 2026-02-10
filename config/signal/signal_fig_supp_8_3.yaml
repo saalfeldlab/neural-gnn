@@ -1,0 +1,76 @@
+description: "test sparsity 20%  synaptic network 100.000 points"
+dataset: "signal_fig_supp_8_3"
+
+simulation:
+  connectivity_type: "Lorentz"
+  connectivity_init: [0, 0.1]
+  connectivity_filling_factor: 0.1
+  # params: [g, s, c]
+  # du = -c * u + s * torch.tanh(u) + g * msg
+  params:
+    [[10.0, 1.0, 1.0], [10.0, 2.0, 1.0], [10.0, 1.0, 2.0], [10.0, 2.0, 2.0]]
+  phi: "tanh"
+  tau: 1.0
+  min_radius: 1.0
+  max_radius: 1.0E6
+  n_neurons: 1000
+  n_neuron_types: 4
+  n_frames: 100000
+  delta_t: 0.01
+  dpos_init: 0
+  boundary: "no"
+  start_frame: 0 # -1000
+
+graph_model:
+  signal_model_name: "PDE_N2"
+  particle_model_name: ""
+  mesh_model_name: ""
+  prediction: "first_derivative"
+  input_size: 1
+  output_size: 1
+  hidden_dim: 64
+  n_layers: 3
+  input_size_update: 3
+  n_layers_update: 3
+  hidden_dim_update: 64
+  aggr_type: "add"
+  embedding_dim: 2
+  update_type: "none"
+
+plotting:
+  colormap: "tab10"
+  arrow_length: 1
+  xlim: [-5, 5]
+  ylim: [-8, 8]
+
+training:
+  n_epochs: 10
+  n_runs: 1
+  device: "auto"
+
+  batch_size: 1
+  small_init_batch_size: False
+
+  seed: 16
+
+  data_augmentation_loop: 50
+
+  sparsity: "replace_embedding_function"
+  sparsity_freq: 4
+  cluster_method: "distance_plot"
+  cluster_distance_threshold: 0.1
+  fix_cluster_embedding: True
+
+  learning_rate_W_start: 1.0E-4
+  learning_rate_start: 1.0E-4
+  learning_rate_embedding_start: 1.0E-4
+
+  # Two-phase training (like ParticleGraph)
+  n_epochs_init: 2 # epochs in phase 1
+  first_coeff_L1: 0 # phase 1: no L1
+  coeff_W_L1: 1.0E-5 # phase 2: target L1
+
+  # Regularization coefficients
+  coeff_edge_diff: 100 # Monotonicity constraint (phase 1 only, disabled in phase 2)
+  coeff_update_diff: 0 # Monotonicity constraint on update function
+  coeff_lin_phi_zero: 1.0 # Penalize phi output at zero

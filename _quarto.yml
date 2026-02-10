@@ -1,0 +1,30 @@
+project:
+  type: website
+  output-dir: docs
+  render:
+    - "*.qmd"
+    - "Notebook_*.py"
+
+website:
+  title: "Neural-GNN"
+  navbar:
+    tools:
+      - icon: github
+        href: https://github.com/saalfeldlab/neural-gnn
+  page-footer: "Copyright 2026, Cédric Allier, Larissa Heinrich, Magdalena Schneider and Stephan Saalfeld"
+  repo-url: https://github.com/saalfeldlab/neural-gnn/
+  site-url: https://saalfeldlab.github.io/neural-gnn/
+execute:
+  enabled: true
+
+format:
+  html:
+    theme:
+      light: flatly
+      dark: darkly
+    css: styles.css
+    toc: true
+    code-fold: show
+    code-overflow: wrap
+    code-tools:
+      source: repo

@@ -1,0 +1,67 @@
+description: "RNN chaotic with multiple message functions   batch_size: 1    coeff_update_diff    training_single_type"
+dataset: "signal_N11_8"
+
+simulation:
+  connectivity_type: "chaotic"
+  connectivity_init: [0, 0.1]
+  connectivity_distribution: "Gaussian"
+  params: [[7.0, 1.0], [7.0, 0.5]]
+  func_params: [["tanh", 1.0, 1.0], ["tanh", 1.0, 1.0]]
+  phi: "tanh"
+  tau: 1.0
+  n_neurons: 800
+  n_neuron_types: 2
+  n_frames: 64000
+  delta_t: 0.1
+  boundary: "no"
+  start_frame: 0
+
+graph_model:
+  signal_model_name: "PDE_N11"
+  prediction: "first_derivative"
+
+  input_size: 3
+  output_size: 1
+  hidden_dim: 64
+  n_layers: 3
+
+  input_size_update: 3
+  n_layers_update: 3
+  hidden_dim_update: 64
+
+  aggr_type: "add"
+  embedding_dim: 2
+
+plotting:
+  colormap: "tab10"
+  arrow_length: 1
+  xlim: [-5, 5]
+  ylim: [-5, 5]
+  label_style: "MLP" # "MLP" for MLP_0, MLP_1 labels; "greek" for phi, f labels
+
+training:
+  n_epochs: 10
+  n_runs: 2
+  device: "auto"
+
+  training_single_type: True
+
+  batch_size: 8
+  small_init_batch_size: False
+
+  seed: 24
+
+  data_augmentation_loop: 50
+
+  sparsity: "none"
+  sparsity_freq: 4
+  cluster_method: "distance_plot"
+  fix_cluster_embedding: True
+
+  learning_rate_W_start: 1.0E-3
+  learning_rate_start: 5.0E-4
+  learning_rate_embedding_start: 5.0E-3
+
+  coeff_W_L1: 1.0E-5
+  coeff_edge_diff: 10
+  coeff_update_diff: 5

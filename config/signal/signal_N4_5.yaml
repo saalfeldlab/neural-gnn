@@ -1,0 +1,117 @@
+description: "heterogeneity MLP0 with triggered input"
+dataset: "signal_N4_5"
+
+simulation:
+  connectivity_type: "Lorentz"
+  connectivity_init: [0, 0.1]
+  # params: [a, b, g, s, w, h]
+  # a: decay, b: offset, g: gain, s: self-recurrence, w: width, h: threshold   MLP1((u-h)/w)
+  params:
+    [
+      [1.0, 0.0, 10.0, 1.0, 1.0, 0.0],
+      [1.0, 0.0, 10.0, 2.0, 1.0, 0.0],
+      [2.0, 0.0, 10.0, 1.0, 1.0, 0.0],
+      [2.0, 0.0, 10.0, 2.0, 1.0, 0.0],
+    ]
+  phi: "tanh"
+  n_neurons: 1000
+  n_neuron_types: 4
+  n_frames: 10000
+  delta_t: 0.01
+  dpos_init: 0
+  boundary: "no"
+  start_frame: -1000
+
+  # external input configuration
+  # each impulse has: random start frame, duration, amplitude, frequency
+  # total simulation time: n_frames * delta_t = 100000 * 0.01 = 1000 time units
+  # triggered signals are sparse localized oscillatory bursts
+  external_input_type: "signal"
+  external_input_mode: "additive"
+  signal_input_type: "triggered"
+  triggered_n_impulses: 200
+  triggered_n_input_neurons: 500
+  triggered_impulse_strength: 3.0
+  triggered_min_start_frame: 100
+  triggered_max_start_frame: 500
+  triggered_duration_frames: 2000
+  triggered_amplitude_range: [0.5, 2.0]
+  triggered_frequency_range: [0.5, 2.0]
+  oscillation_frequency: 3.0
+  oscillation_max_amplitude: 5.0
+
+graph_model:
+  signal_model_name: "PDE_N4"
+  particle_model_name: ""
+  mesh_model_name: ""
+  prediction: "first_derivative"
+
+  input_size: 3
+  output_size: 1
+  hidden_dim: 64
+  n_layers: 3
+
+  input_size_update: 3
+  n_layers_update: 3
+  hidden_dim_update: 64
+
+  aggr_type: "add"
+  embedding_dim: 2
+  update_type: "none"
+
+  # INR parameters for learning triggered external_input
+  # Triggered is harder than oscillatory - sharp transitions, sparse bursts
+  # Use instantNGP hash encoding which handles local features better than SIREN
+  input_size_nnr_f: 1
+  output_size_nnr_f: 1000
+  nnr_f_T_period: 100000
+
+  # INR type: "siren_t", "siren_id", "siren_x", or "ngp"
+  inr_type: "ngp"
+
+  # SIREN parameters (used if inr_type: "siren_t", "siren_id", or "siren_x")
+  hidden_dim_nnr_f: 4096
+  n_layers_nnr_f: 2
+  outermost_linear_nnr_f: True
+  nnr_f_xy_period: 1.0
+  omega_f: 4096
+
+  # InstantNGP parameters (used if inr_type: "ngp")
+  ngp_n_levels: 24
+  ngp_n_features_per_level: 2
+  ngp_log2_hashmap_size: 22
+  ngp_base_resolution: 16
+  ngp_per_level_scale: 1.4
+  ngp_n_neurons: 256
+  ngp_n_hidden_layers: 4
+
+plotting:
+  colormap: "tab10"
+  arrow_length: 1
+  xlim: [-5, 5]
+  ylim: [-8, 8]
+
+training:
+  n_epochs: 20
+  n_runs: 1
+  device: "auto"
+
+  batch_size: 96
+  small_init_batch_size: False
+  init_training_single_type: True
+
+  seed: 24
+
+  data_augmentation_loop: 10
+
+  sparsity: "replace_embedding_function"
+  sparsity_freq: 4
+  cluster_method: "distance_plot"
+  fix_cluster_embedding: True
+
+  learning_rate_W_start: 1.0E-3
+  learning_rate_start: 5.0E-4
+  learning_rate_embedding_start: 2.5E-4
+  learning_rate_NNR_f: 1.0E-3 # NGP can use higher LR than SIREN
+
+  coeff_W_L1: 1.0E-5
