@@ -565,7 +565,7 @@ def plot_synaptic_frame_visual(X1, A1, H1, dataset_name, run, num):
     plt.axis("off")
     plt.subplot(211)
     plt.axis("off")
-    plt.title("$\Omega_i$", fontsize=24)
+    plt.title(r"$\Omega_i$", fontsize=24)
     plt.scatter(
         to_numpy(X1[0:1024, 1]) * 0.95,
         to_numpy(X1[0:1024, 0]) * 0.95,
