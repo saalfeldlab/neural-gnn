@@ -187,7 +187,17 @@ def data_train_signal(config, erase, best_model, style, device, log_file=None):
     y_list = []
     for run in trange(0,n_runs, ncols=80):
         x = np.load(f'graphs_data/{dataset_name}/x_list_{run}.npy')
-        y = np.load(f'graphs_data/{dataset_name}/y_list_{run}.npy')
+        # Derivative target from the OBSERVED signal (column 3). The stored
+        # y_list holds the analytic drift f(v[t]) with the process noise
+        # stripped out (generator adds xi_t to v AFTER writing the state),
+        # i.e. an oracle no experiment can supply. The finite difference is
+        # what the data actually measures:
+        #   (v[t+1] - v[t]) / dt = f(v[t]) + xi_t/dt
+        _v = x[:, :, 3]
+        y = np.zeros_like(_v)
+        y[:-1] = (_v[1:] - _v[:-1]) / delta_t
+        y[-1] = y[-2]                                # last frame has no successor;
+        y = y[..., None]                             # (T, N, 1), matches y_list
         x_list.append(x)
         y_list.append(y)
 
